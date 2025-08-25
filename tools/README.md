@@ -37,7 +37,57 @@ This tool is used to distribute the following items:
 
 Sends `<your message>` to every character, in every zone, on every map process.  
 
+## Development and Quality Assurance Tools
 
+### Vulnerability Scanner
+`python vulnerability_scanner.py`
+
+Comprehensive security scanning tool that checks for:
+- Python package vulnerabilities (requires pip-audit)
+- Node.js package security issues (npm audit)
+- System package verification
+- C++ code truncation issues
+- Shell script validation (requires shellcheck)
+
+Results are logged to development logs and summary reports are generated.
+
+### Log Manager
+`python log_manager.py [options]`
+
+Development logging and file tracking system:
+- `--scan` - Scan project for new files and update structure log
+- `--cleanup` - Archive old log entries to prevent bloat
+- `--report` - Generate summary reports of development activity
+- `--validate` - Check log file integrity
+- `--all` - Run complete maintenance cycle
+
+Integrates with the Dutch SWE Agent methodology for enhanced development tracking.
+
+### Development Workflow
+`bash dev_workflow.sh [command]`
+
+Integrated development workflow tool implementing Dutch SWE logic:
+- `logic` - Display the 11-step SWE agent methodology
+- `deps` - Check development dependencies
+- `quality` - Run comprehensive quality assurance checks
+- `build` - Build and test the project
+- `logs` - Update and validate development logs
+- `full` - Execute complete development workflow
+
+## Code Generation and Formatting
+
+### Changelog Generator
+`python generate_changelog.py <days|ci> <owner/repo> [title]`
+
+Generates changelog from GitHub repository activity:
+- `ci` mode for automated changelog generation
+- Custom day ranges for specific periods
+- Optional custom titles for server-specific changelogs
+
+### IPC Stub Generator
+`python generate_ipc_stubs.py`
+
+Generates Inter-Process Communication stubs for server components.
 
 Setup
 ========================
@@ -60,6 +110,37 @@ Download the latest version from the website or check your package manager.
 **Pylint** - Pylint is a static code analyser.  
 **Black** - Black is a Python code formatter.  
 
+## Development Tools Setup
+
+For enhanced development workflow and quality assurance:
+
+```bash
+# Install security scanning tools
+pip install pip-audit
+
+# Install shell script validation
+# Ubuntu/Debian:
+sudo apt install shellcheck
+# macOS:
+brew install shellcheck
+
+# Make development scripts executable
+chmod +x vulnerability_scanner.py
+chmod +x log_manager.py  
+chmod +x dev_workflow.sh
+```
+
 ## Other
 `./install-systemd-service.sh` - Installs a systemd service for running the servers on Linux.  
 `./run_clang_format.sh` - Formats C++ code. Run from repo root.  
+
+## Development Logs
+
+The `../logs/development/` directory contains comprehensive development tracking:
+- File structure and organization logs
+- Change tracking with hash verification
+- Prompt logic and decision-making records
+- Package and dependency monitoring
+- Security vulnerability tracking
+
+See `../logs/README.md` for detailed documentation of the logging system.  

@@ -256,3 +256,13 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Development logs and tracking (local only - exclude generated logs)
+logs/development/*.tmp
+logs/development/*_runtime.log
+logs/development/*_cache.json
+logs/development/daily_*
+logs/development/weekly_*
+logs/development/monthly_*
+
+# Keep initial structure files tracked

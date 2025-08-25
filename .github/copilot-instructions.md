@@ -39,6 +39,8 @@ All commits MUST follow these strict formatting rules enforced by `tools/ci/git.
 - `Update main.cpp` (Generic message)
 - `Oops, fix typo` (Casual language)
 
+**Note**: If you accidentally create a commit with a title >72 characters, the CI will fail. The only way to fix this is to ensure all future commits follow the proper format, as commit history cannot be rewritten once pushed.
+
 ### Development Workflow Enhancement (SWE Agent Logic)
 
 When working on this repository, follow this enhanced 11-step process for optimal code quality:

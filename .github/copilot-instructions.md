@@ -249,6 +249,26 @@ When working on this repository, follow this enhanced 11-step process for optima
 - Secure administrative interfaces
 - Log security-relevant events
 
+### Development Planning and Roadmap
+
+#### Strategic Improvements
+- Follow the development roadmap in `ROADMAP.md` for prioritized improvements
+- Focus on infrastructure modernization and code quality enhancements
+- Plan feature development based on community needs and retail accuracy
+- Consider performance and scalability in all architectural decisions
+
+#### Continuous Improvement Process
+- Regular assessment of codebase health and technical debt
+- Automated dependency tracking with vulnerability monitoring
+- Performance benchmarking and optimization initiatives
+- Community feedback integration into development priorities
+
+#### Function Indexing and Documentation
+- Maintain comprehensive API documentation for all components
+- Index functions across C++, Lua, and Python codebases
+- Document cross-component interactions and dependencies
+- Ensure searchable and accessible developer resources
+
 ## Getting Help
 
 - Check existing documentation in `documentation/` directory
@@ -258,9 +278,31 @@ When working on this repository, follow this enhanced 11-step process for optima
 
 ## Tools and Resources
 
-- Use `tools/dbtool.py` for database operations
-- Run `tools/ci/` scripts for quality checks
-- Consult `documentation/` for technical references
-- Use existing changelog generation tools
+### Development Tools
+- Use `tools/dbtool.py` for database operations and migrations
+- Run `tools/ci/` scripts for quality checks and validation
+- Use `tools/announce.py` for server-wide messaging
+- Use `tools/vulnerability_scanner.py` for security auditing
+- Use `tools/price_checker.py` for item price validation
+- Use `tools/log_manager.py` for log maintenance
 
-Remember: This is a community-driven project focused on preserving and recreating the Final Fantasy XI experience. Quality, accuracy, and maintainability are our top priorities.
+### Documentation and References
+- Consult `documentation/` for technical references and specifications
+- Review `ROADMAP.md` for development priorities and improvement plans
+- Use existing changelog generation tools in `tools/generate_changelog.py`
+- Check `tools/requirements.txt` for Python dependency management
+
+### Function Index
+Refer to `ROADMAP.md` for comprehensive function indexing including:
+- **C++ Core Components**: Server architecture, subsystems, and key classes
+- **Python Tools**: Development utilities, CI/CD scripts, and automation tools  
+- **Lua Framework**: Game mechanics, quest system, and event handlers
+- **Database Schema**: Core tables, relationships, and data structures
+
+### Quality Assurance
+- All changes must pass CI/CD pipeline checks defined in `tools/ci/`
+- Follow the 11-step development workflow documented above
+- Ensure compliance with coding standards for each language
+- Validate changes against retail FFXI behavior when applicable
+
+Remember: This is a community-driven project focused on preserving and recreating the Final Fantasy XI experience. Quality, accuracy, and maintainability are our top priorities. Consult the roadmap for current development priorities and improvement plans.

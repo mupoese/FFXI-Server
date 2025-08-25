@@ -119,3 +119,6 @@ ignore_rules=(
 --ignore ${ignores[@]} ${ignore_rules[@]} | grep -v "Total:"
 
 python3 ./tools/ci/lua_stylecheck.py ${target}
+
+# Run item enum validation
+python3 ./tools/ci/item_enum_validator.py --scripts-dir ${target} --exclude-dirs missions zones

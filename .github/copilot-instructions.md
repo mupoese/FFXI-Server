@@ -113,24 +113,71 @@ When working on this repository, follow this enhanced 11-step process for optima
 
 ### Quality Assurance Requirements
 
+#### Git Commit Message Standards (tools/ci/git.sh)
+- **Minimum title length**: 10 characters
+- **Maximum title length**: 72 characters (strictly enforced)
+- **No invalid characters**: Avoid pipe (|) characters in titles
+- **No generic messages**: Avoid "Update filename.ext" style commits
+- **No unhelpful language**: Avoid words like "oops", "whoops", "lol", "lulz", "kek", "kekw"
+- **Multi-line format**: Use commit body for detailed explanations beyond 72 characters
+
+#### General File Format Standards (tools/ci/general.sh)
+- **File endings**: All files must end with a single newline character
+- **Indentation**: Use 4 spaces instead of tab characters (strictly enforced)
+- **Line spacing**: No multiple consecutive newline characters
+- **Whitespace**: Remove trailing whitespace from all lines
+
+#### C++ Code Standards (tools/ci/cpp.sh)
+- **Memory management**: Use `destroy(ptr)` or `destroy_arr(ptr)` instead of naked `delete`
+- **Include paths**: Use absolute paths, not relative includes with "../"
+- **AI Events**: Document all `.triggerListener()` calls in `documentation/AI_Events.txt`
+- **Static analysis**: Code must pass cppcheck with performance, portability, and information checks
+- **Formatting**: Must pass clang-format-18 with project .clang-format configuration
+
+#### Lua Code Standards (tools/ci/lua.sh)
+- **Syntax validation**: Code must pass luacheck with project-specific globals
+- **Style consistency**: Follow project lua style checker requirements
+- **Global usage**: Only use documented global functions and objects
+- **Complexity**: Maximum cyclomatic complexity of 30
+
+#### Python Code Standards (tools/ci/python.sh)
+- **Linting**: Code must pass pylint and black formatting
+- **Dependencies**: Use only packages listed in tools/requirements.txt
+
+#### SQL Standards (tools/ci/sql.sh)
+- **Syntax validation**: All SQL files must be syntactically correct
+- **Price consistency**: Maintain consistency with price checker validation
+
+#### License Header Requirements (tools/ci/detect_license_headers.py)
+- **GPLv3 headers**: All C++ source files must include proper GPLv3 license headers
+- **Creation date**: Include creation date and purpose in file headers
+- **Modification tracking**: Update modification timestamps appropriately
+
 #### Pre-commit Checks
 - Run clang-format for C++ code formatting
 - Execute cppcheck for static analysis
 - Validate Lua syntax with luacheck
 - Check for proper license headers
 - Scan for security vulnerabilities
+- Validate commit message formatting
+- Check general file format standards
 
 #### Dependency Management
-- Regularly check for deprecated packages and dependencies
-- Update to secure versions when vulnerabilities are found
-- Document all external dependencies and their purposes
-- Prefer header-only libraries when possible
+- **Python packages**: Track all packages in tools/requirements.txt
+- **C++ libraries**: Document CMake dependencies (MariaDB, LuaJIT, ZeroMQ, OpenSSL)
+- **System packages**: Document required system dependencies for builds
+- **Security updates**: Regularly check for deprecated packages and vulnerabilities
+- **Version pinning**: Use specific versions for critical dependencies
+- **Documentation**: Document all external dependencies and their purposes
+- **Header-only preference**: Prefer header-only libraries when possible
 
 #### Error Prevention
 - Check for truncation issues in string operations
 - Validate shell scripts with shellcheck
 - Ensure proper file permissions
 - Handle edge cases gracefully
+- Follow memory safety guidelines for C++
+- Validate all user inputs and database queries
 
 ### Testing Guidelines
 

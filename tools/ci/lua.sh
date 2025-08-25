@@ -7,7 +7,7 @@
 
 target=${1:-scripts}
 
-global_funcs=`python3 << EOF
+global_funcs=$(python3 << 'EOF'
 import re
 file = open('src/map/lua/luautils.cpp', 'r')
 data = file.read()
@@ -18,7 +18,8 @@ matches = re.findall(r'(?<=set_function\(\")(.*)(?=\",)', data)
 matches = map(lambda s: s[:1].upper() + s[1:] if s else '', matches)
 # Print space-delimited for piping back to bash
 print(*matches)
-EOF`
+EOF
+)
 
 global_objects=(
     xi
@@ -110,15 +111,15 @@ ignore_rules=(
     542 # empty if branch
 )
 
-~/.luarocks/bin/luacheck ${target} \
+~/.luarocks/bin/luacheck "${target}" \
 --quiet --jobs 4 --no-config --codes \
 --no-unused-args \
 --no-max-line-length \
 --max-cyclomatic-complexity 30 \
---globals ${global_funcs[@]} ${global_objects[@]} \
---ignore ${ignores[@]} ${ignore_rules[@]} | grep -v "Total:"
+--globals "${global_funcs[@]}" "${global_objects[@]}" \
+--ignore "${ignores[@]}" "${ignore_rules[@]}" | grep -v "Total:"
 
-python3 ./tools/ci/lua_stylecheck.py ${target}
+python3 ./tools/ci/lua_stylecheck.py "${target}"
 
 # Run item enum validation
-python3 ./tools/ci/item_enum_validator.py --scripts-dir ${target} --exclude-dirs missions zones
+python3 ./tools/ci/item_enum_validator.py --scripts-dir "${target}" --exclude-dirs missions zones

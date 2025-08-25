@@ -76,6 +76,28 @@ Integrated development workflow tool implementing Dutch SWE logic:
 
 ## Code Generation and Formatting
 
+### Function Indexing System
+`python generate_docs.py [--component COMPONENT] [--output-dir OUTPUT_DIR]`
+
+Comprehensive documentation generation system implementing the Function Indexing System from ROADMAP.md:
+- **C++ API Documentation**: Automated Doxygen-based documentation with enhanced features
+- **Lua Function Catalog**: Organized function catalog with cross-references and C++ bindings
+- **Python Tools API**: Documentation for all development tools and scripts
+- **SQL Schema Documentation**: Complete database schema with relationships and data dictionary
+
+**Components**:
+- `--component cpp` - Generate C++ API documentation using enhanced Doxygen
+- `--component lua` - Generate Lua function catalog with cross-references
+- `--component python` - Generate Python tools API documentation
+- `--component sql` - Generate SQL schema documentation with relationships
+- `--component all` - Generate all components (default)
+
+**Individual Generators**:
+- `python generate_cpp_docs.py` - Enhanced C++ documentation with Doxygen
+- `python generate_lua_catalog.py` - Lua function catalog with cross-references
+- `python generate_sql_docs.py` - SQL schema documentation with relationships
+- `python generate_function_index.py` - Main function indexer and orchestrator
+
 ### Changelog Generator
 `python generate_changelog.py <days|ci> <owner/repo> [title]`
 

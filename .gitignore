@@ -256,3 +256,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Development logs and tracking (local only)
+logs/development/
+logs/development/*.log
+logs/development/*.md
+logs/development/*.json

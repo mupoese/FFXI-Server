@@ -21,17 +21,17 @@ This repository is an open-source server emulator for Final Fantasy XI (FFXI), w
 
 When working on this repository, follow this enhanced 11-step process for optimal code quality:
 
-1. **Intentie = Doel** (Intent = Goal)
+1. **Intent**
    - Clearly define what you want to achieve
    - Understand the game mechanics or system being implemented
    - Consider impact on existing functionality
 
-2. **Actie = Plan** (Action = Plan)
+2. **Plan**
    - Create a concrete plan to reach the goal
    - Identify affected files and systems
    - Consider database schema changes if needed
 
-3. **Reactie = Uitvoering** (Reaction = Execution)
+3. **Execute**
    - Execute the plan systematically
    - Follow existing code patterns and conventions
    - Maintain consistency with FFXI retail behavior where applicable
@@ -51,27 +51,27 @@ When working on this repository, follow this enhanced 11-step process for optima
    - Document differences from alternatives considered
    - Consider maintainability and performance implications
 
-7. **Correctie** (Correction)
+7. **Correction**
    - Improve the chosen plan to the most optimal version
    - Ensure no conflicts with existing code
    - Optimize for performance and memory usage
 
-8. **Validatie** (Validation)
+8. **Validation**
    - Verify and confirm that the improved plan works correctly
    - Test all affected game systems
    - Ensure compliance with coding standards
 
-9. **Leren** (Learning)
+9. **Learning**
    - Document what was learned and how the code/functionality was improved
    - Update relevant documentation
    - Share knowledge with the development community
 
-10. **Herhalen** (Repeat)
-    - If failed or insufficient knowledge gained, repeat from **Intentie**
+10. **Repeat**
+    - If failed or insufficient knowledge gained, repeat from **Intent**
     - Iterate until the solution meets quality standards
     - Don't hesitate to refactor if a better approach is discovered
 
-11. **Uitkomst** (Outcome)
+11. **Outcome**
     - Deliver an improved, validated solution that optimally achieves the original goal
     - Ensure the solution integrates well with the existing codebase
     - Document the final implementation for future reference

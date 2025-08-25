@@ -17,6 +17,30 @@ This repository is an open-source server emulator for Final Fantasy XI (FFXI), w
 - `tools/` - Development and maintenance utilities
 - `documentation/` - Technical documentation and references
 
+### Critical CI/CD Requirements
+
+**⚠️ IMPORTANT: Commit Message Formatting Requirements**
+
+All commits MUST follow these strict formatting rules enforced by `tools/ci/git.sh`:
+
+- **Title length**: 10-72 characters (STRICTLY enforced - CI will fail if exceeded)
+- **No generic messages**: Avoid "Update filename.ext" style commits  
+- **No casual language**: Avoid "oops", "whoops", "lol", "lulz", "kek", "kekw"
+- **No pipe characters**: Avoid "|" in commit titles
+- **Use multi-line format**: For detailed explanations beyond 72 characters, use commit body
+
+**Examples of GOOD commit titles (≤72 chars):**
+- `Add Function Indexing System with documentation` (47 chars)
+- `Fix memory leak in packet handler` (33 chars)  
+- `Update quest NPC dialogue for Bastok missions` (45 chars)
+
+**Examples of BAD commit titles:**
+- `Complete Function Indexing System implementation with documentation and testing` (80 chars - TOO LONG)
+- `Update main.cpp` (Generic message)
+- `Oops, fix typo` (Casual language)
+
+**Note**: If you accidentally create a commit with a title >72 characters, the CI will fail. The only way to fix this is to ensure all future commits follow the proper format, as commit history cannot be rewritten once pushed.
+
 ### Development Workflow Enhancement (SWE Agent Logic)
 
 When working on this repository, follow this enhanced 11-step process for optimal code quality:
@@ -114,12 +138,13 @@ When working on this repository, follow this enhanced 11-step process for optima
 ### Quality Assurance Requirements
 
 #### Git Commit Message Standards (tools/ci/git.sh)
-- **Minimum title length**: 10 characters
-- **Maximum title length**: 72 characters (strictly enforced)
-- **No invalid characters**: Avoid pipe (|) characters in titles
-- **No generic messages**: Avoid "Update filename.ext" style commits
-- **No unhelpful language**: Avoid words like "oops", "whoops", "lol", "lulz", "kek", "kekw"
-- **Multi-line format**: Use commit body for detailed explanations beyond 72 characters
+- **Title length**: EXACTLY 10-72 characters (CI FAILS if outside this range)
+- **Character count**: Always verify with `echo "your title" | wc -c` before committing
+- **No pipe characters**: Avoid "|" symbols in commit titles
+- **No generic messages**: Never use "Update filename.ext" or similar auto-generated messages
+- **No casual language**: Strictly avoid "oops", "whoops", "lol", "lulz", "kek", "kekw"
+- **Multi-line commits**: Use commit body (not title) for explanations beyond 72 chars
+- **Be descriptive**: Focus on WHAT changed and WHY, not just the file modified
 
 #### General File Format Standards (tools/ci/general.sh)
 - **File endings**: All files must end with a single newline character
@@ -154,6 +179,7 @@ When working on this repository, follow this enhanced 11-step process for optima
 - **Modification tracking**: Update modification timestamps appropriately
 
 #### Pre-commit Checks
+- **ALWAYS verify commit message length**: Use `echo "your commit title" | wc -c` to count characters
 - Run clang-format for C++ code formatting
 - Execute cppcheck for static analysis
 - Validate Lua syntax with luacheck
@@ -275,6 +301,31 @@ When working on this repository, follow this enhanced 11-step process for optima
 - Review similar implementations in the codebase
 - Ask questions in GitHub discussions
 - Consult the Final Fantasy XI community wikis for retail behavior
+
+## Practical Tips for Contributors
+
+### Commit Message Best Practices
+To avoid CI failures, always check your commit message length before committing:
+
+```bash
+# Check character count of your commit title
+echo "Your commit message here" | wc -c
+
+# Example: Good commit message (54 characters)
+echo "Complete Function Indexing System with docs and tests" | wc -c
+# Output: 55 (includes newline, so actual title is 54 chars - GOOD)
+
+# Example: Bad commit message (80 characters) 
+echo "Complete Function Indexing System implementation with documentation and testing" | wc -c
+# Output: 81 (includes newline, so actual title is 80 chars - TOO LONG)
+```
+
+**Quick commit message templates (all ≤72 chars):**
+- `Add [feature] with [brief description]`
+- `Fix [issue] in [component]`
+- `Update [component] for [reason]` 
+- `Refactor [component] to [improvement]`
+- `Remove [deprecated feature/code]`
 
 ## Tools and Resources
 

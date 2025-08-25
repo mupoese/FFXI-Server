@@ -15,6 +15,12 @@ Welcome to LandSandBoat, an open source server emulator for FFXI.
 
 A [quick start guide](https://github.com/LandSandBoat/server/wiki/Quick-Start-Guide), the [frequently asked questions](https://github.com/LandSandBoat/server/wiki/Frequently-Asked-Questions), and a table of "[what works](https://github.com/LandSandBoat/server/wiki/What-Works)" are all available on [our wiki](https://github.com/LandSandBoat/server/wiki).
 
+## Documentation
+
+- **[Function Index](documentation/function_index/index.html)** - Comprehensive API documentation for C++, Lua, Python, and SQL
+- **[Development Guide](documentation/FUNCTION_INDEXING_SYSTEM.md)** - Function Indexing System implementation details
+- **[Tools Documentation](tools/README.md)** - Development tools and utilities reference
+
 ## Interacting with LandSandBoat
 
 ### Crashes, warnings, errors, bugs, gameplay issues, visual issues, etc.

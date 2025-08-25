@@ -157,6 +157,9 @@ src/common/stamp-h1
 
 /sources.am
 
+# Generated documentation (run tools/generate_docs.py to regenerate)
+documentation/function_index/
+
 # Misc, such as vim swap files
 *.sw?
 

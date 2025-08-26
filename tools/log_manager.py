@@ -58,6 +58,24 @@ def log_change(action, filepath, description=""):
     with open(changelog, 'a') as f:
         f.write(log_entry)
 
+def log_changelog_entry(component, description, pr_number="", contributors=""):
+    """Log a changelog-ready entry for future integration"""
+    ensure_logs_directory()
+    
+    timestamp = datetime.now().isoformat() + 'Z'
+    entry_hash = hashlib.md5(f"{timestamp}{component}{description}".encode()).hexdigest()[:8]
+    
+    log_entry = f"[{timestamp}] [{entry_hash}] CHANGELOG [{component}] {description}"
+    if pr_number:
+        log_entry += f" PR#{pr_number}"
+    if contributors:
+        log_entry += f" ({contributors})"
+    log_entry += "\n"
+    
+    changelog_entries = LOGS_DIR / "changelog_entries.log"
+    with open(changelog_entries, 'a') as f:
+        f.write(log_entry)
+
 def log_prompt_logic(phase, description, improvements=""):
     """Log SWE agent thinking process"""
     ensure_logs_directory()
@@ -267,6 +285,10 @@ def main():
     parser.add_argument('--log-file', help='Log a file operation')
     parser.add_argument('--action', help='Action type for file operation')
     parser.add_argument('--description', help='Description for log entry')
+    parser.add_argument('--log-changelog', help='Log a changelog entry')
+    parser.add_argument('--component', help='Component tag for changelog entry')
+    parser.add_argument('--pr-number', help='PR number for changelog entry')
+    parser.add_argument('--contributors', help='Contributors for changelog entry')
     
     args = parser.parse_args()
     
@@ -278,6 +300,12 @@ def main():
     
     print("🚀 LandSandBoat Log Management System")
     print("=" * 50)
+    
+    if args.log_changelog and args.component:
+        log_changelog_entry(args.component, args.log_changelog, 
+                          args.pr_number or "", args.contributors or "")
+        print(f"✅ Logged changelog entry: [{args.component}] {args.log_changelog}")
+        return
     
     if args.log_file and args.action:
         log_file_operation(args.action, args.log_file, args.description or "")

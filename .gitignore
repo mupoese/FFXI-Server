@@ -268,4 +268,8 @@ logs/development/daily_*
 logs/development/weekly_*
 logs/development/monthly_*
 
+# Temporary changelog files (only keep final changelogs in changelogs/ directory)
+changelog-*.md
+!changelogs/changelog-*.md
+
 # Keep initial structure files tracked

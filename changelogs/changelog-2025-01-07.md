@@ -1,0 +1,4 @@
+## MupoEse Server Changelog (2025-01-07)
+- [documentation] Add comprehensive changelog system with LandSandBoat format [[#example](https://github.com/mupoese/server/pull/1), [patch](https://github.com/mupoese/server/pull/1.patch)] (assistant)
+- [copilot] Update instructions with changelog integration guidance [[#example](https://github.com/mupoese/server/pull/2), [patch](https://github.com/mupoese/server/pull/2.patch)] (assistant)
+- [roadmap] Continue infrastructure improvements and changelog management [[#example](https://github.com/mupoese/server/pull/3), [patch](https://github.com/mupoese/server/pull/3.patch)] (assistant)

@@ -261,6 +261,41 @@ When working on this repository, follow this enhanced 11-step process for optima
 - Share knowledge and best practices
 - Help newcomers understand the codebase
 
+### Changelog Management
+
+#### LandSandBoat Format Compliance
+This repository follows the exact changelog format used by LandSandBoat/server:
+
+```markdown
+## [Project Name] Changelog (YYYY-MM-DD)
+- [component] feature description [[#PR](link), [patch](patch-link)] (contributors)
+```
+
+#### Component Tags
+Use these standard component tags in PR titles and changelog entries:
+- `[sql]` - Database schema changes and SQL modifications
+- `[lua]` - Lua script implementations (quests, NPCs, game logic)
+- `[cpp]` - C++ core server code changes
+- `[core]` - Core server functionality and architecture
+- `[fix]` - Bug fixes and error corrections
+- `[quest]` - Quest content implementations
+- `[mission]` - Mission content and storyline
+- `[documentation]` - Documentation updates and improvements
+- `[tools]` - Development tools and utilities
+- `[ci/cd]` - Continuous integration and deployment changes
+
+#### Changelog Generation
+- Use `tools/generate_changelog.py` for automated changelog generation
+- Follow the bi-weekly schedule (1st and 15th of each month) like LandSandBoat
+- Store changelogs in `changelogs/` directory with `changelog-YYYY-MM-DD.md` format
+- Include both PR links and patch links for each entry
+- Remove real names from contributor lists for privacy
+
+#### Integration with Development Workflow
+- PR titles should be changelog-ready with appropriate component tags
+- Major infrastructure changes should be documented in both changelog and ROADMAP.md
+- Use `tools/log_manager.py` to track development activities alongside changelog entries
+
 ### Security Considerations
 
 #### Input Validation
@@ -336,12 +371,14 @@ echo "Complete Function Indexing System implementation with documentation and te
 - Use `tools/vulnerability_scanner.py` for security auditing
 - Use `tools/price_checker.py` for item price validation
 - Use `tools/log_manager.py` for log maintenance
+- Use `tools/generate_changelog.py` for automated changelog generation
 
 ### Documentation and References
 - Consult `documentation/` for technical references and specifications
 - Review `ROADMAP.md` for development priorities and improvement plans
 - Use existing changelog generation tools in `tools/generate_changelog.py`
 - Check `tools/requirements.txt` for Python dependency management
+- Follow changelog format in `changelogs/` directory matching LandSandBoat/server structure
 
 ### Function Index
 Refer to `ROADMAP.md` for comprehensive function indexing including:

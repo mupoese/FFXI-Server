@@ -20,11 +20,20 @@ This roadmap outlines planned improvements, development priorities, and architec
   - [x] Python tools API documentation
   - [x] SQL schema documentation with relationships
 
+- [x] **Changelog Management System**
+  - [x] LandSandBoat-format changelog structure in `changelogs/` directory
+  - [x] Integrated `tools/generate_changelog.py` for automated generation
+  - [x] Component tagging system for PR organization
+  - [x] Documentation integration with development workflow
+  - [x] Privacy-compliant contributor attribution
+
 - [ ] **CI/CD Enhancements**
   - [ ] Performance benchmarking integration
   - [ ] Automated test coverage reporting
   - [ ] Cross-platform build verification (Linux/Windows)
   - [ ] Memory leak detection in CI pipeline
+  - [x] Changelog automation with LandSandBoat format compliance
+  - [ ] Automated dependency vulnerability scanning integration
 
 - [ ] **Development Experience**
   - [ ] IDE configuration templates (VS Code, CLion)
@@ -327,6 +336,40 @@ auction_house          -- Market system data
 - **Bug reports** and resolution times
 - **Content completion** rates
 - **Player satisfaction** feedback
+
+---
+
+## Documentation & Knowledge Management
+
+### Changelog System
+```markdown
+# changelogs/
+changelog-YYYY-MM-DD.md     # LandSandBoat-format changelogs
+README.md                   # Changelog documentation and usage guide
+
+# Automated generation with tools/generate_changelog.py
+def generate_changelog(days, repo, title):
+    # Fetch merged PRs from GitHub API
+    # Format entries with component tags
+    # Include PR and patch links
+    # Remove real names for privacy
+```
+
+### Development Tracking
+```python
+# tools/log_manager.py - Enhanced with changelog integration
+def log_change()            # Track file changes with changelog correlation
+def log_prompt_logic()      # Document SWE agent decision processes
+def update_package_status() # Maintain dependency changelog
+def generate_summary_report() # Cross-reference with changelog entries
+```
+
+### Documentation Standards
+- All major changes documented in both changelog and ROADMAP.md
+- Component tagging for organized change tracking
+- Privacy-compliant contributor attribution
+- Integration with existing development workflow
+- LandSandBoat format compliance for community compatibility
 
 ---
 

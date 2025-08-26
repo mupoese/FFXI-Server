@@ -32,17 +32,17 @@ if [ -z "$XI_USER" ]
 then
     XI_USER="xi"
 fi
-if [ $OS = "debian" ] || [[ $OS_LIKE =~ $DEBIAN ]]
+if [ "$OS" = "debian" ] || [[ $OS_LIKE =~ $DEBIAN ]]
 then
-    adduser --system --no-create-home --group --quiet $XI_USER || true
-elif [ $OS = "arch" ] || [[ $OS_LIKE =~ $ARCH ]]
+    adduser --system --no-create-home --group --quiet "$XI_USER" || true
+elif [ "$OS" = "arch" ] || [[ $OS_LIKE =~ $ARCH ]]
 then
-    useradd -r -s /usr/bin/nologin $XI_USER || true
+    useradd -r -s /usr/bin/nologin "$XI_USER" || true
 else
     echo "Sorry, this OS is unsupported at this time." && exit
 fi
 # Give user permission to start and stop the service
-cat > /etc/sudoers.d/$XI_USER << SUDO
+cat > "/etc/sudoers.d/$XI_USER" << SUDO
 $XI_USER ALL= NOPASSWD: /bin/systemctl restart xi.service
 $XI_USER ALL= NOPASSWD: /bin/systemctl stop xi.service
 $XI_USER ALL= NOPASSWD: /bin/systemctl start xi.service
@@ -159,9 +159,9 @@ ExecStart=$PPWD/xi_world
 WantedBy=xi.service
 """
 # Create services and enable child services
-usermod -aG $XI_USER $SUDO_USER
-chown -R $XI_USER:$XI_USER $PPWD
-chmod -R g=u $PPWD 2>/dev/null
+usermod -aG "$XI_USER" "$SUDO_USER"
+chown -R "$XI_USER:$XI_USER" "$PPWD"
+chmod -R g=u "$PPWD" 2>/dev/null
 echo "$SYSTEMD_xi" > /etc/systemd/system/xi.service
 echo "$SYSTEMD_GAME" > /etc/systemd/system/xi_map.service
 echo "$SYSTEMD_CONNECT" > /etc/systemd/system/xi_connect.service

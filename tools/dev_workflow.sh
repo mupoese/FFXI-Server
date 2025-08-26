@@ -80,7 +80,7 @@ run_build_test() {
         if command -v ninja >/dev/null 2>&1; then
             ninja || echo -e "${YELLOW}⚠ Build failed${NC}"
         elif command -v make >/dev/null 2>&1; then
-            make -j$(nproc) || echo -e "${YELLOW}⚠ Build failed${NC}"
+            make -j"$(nproc)" || echo -e "${YELLOW}⚠ Build failed${NC}"
         else
             echo -e "${YELLOW}⚠ No build system found${NC}"
         fi

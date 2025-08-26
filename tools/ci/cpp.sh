@@ -30,7 +30,7 @@ cppcheck -v -j 4 --force --quiet --inconclusive --std=c++17 \
 --enable=information,performance,portability --inline-suppr \
 --inconclusive \
 -DSA_INTERRUPT -DZMQ_DEPRECATED -DZMQ_EVENT_MONITOR_STOPPED -DTRACY_ENABLE \
-${target}
+"${target}"
 
 python3 << EOF
 import glob

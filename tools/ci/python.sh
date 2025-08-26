@@ -5,4 +5,4 @@
 
 target=${1:-src}
 
-pylint --errors-only ${target}
+pylint --errors-only "${target}"

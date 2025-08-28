@@ -22,6 +22,7 @@
 #include "database.h"
 
 #include "application.h"
+#include "connection_pool.h"
 #include "logging.h"
 #include "macros.h"
 #include "settings.h"
@@ -34,15 +35,19 @@ using namespace std::chrono_literals;
 
 namespace
 {
-    // TODO: Manual checkout and pooling of state
-    // Each thread gets its own connection, so we don't need to worry about thread safety.
-    thread_local Synchronized<db::detail::State> state;
+    // Connection pool enabled by default for improved performance
+    bool useConnectionPool = true;
+    
+    // Fallback thread_local state for when pool is disabled
+    thread_local Synchronized<db::detail::State> legacyState;
 
     const std::vector<std::string> connectionIssues = {
         "Lost connection",
-        "Server has gone away",
+        "Server has gone away", 
         "Connection refused",
         "Can't connect to server",
+        "Connection timed out",
+        "Too many connections",
     };
 
     bool timersEnabled = false;
@@ -601,4 +606,94 @@ auto db::getTableColumnNames(std::string const& tableName) -> std::vector<std::s
     }
 
     return {};
+}
+
+void db::initializeConnectionPool()
+{
+    TracyZoneScoped;
+    
+    try
+    {
+        useConnectionPool = settings::get<bool>("network.SQL_USE_CONNECTION_POOL");
+        if (useConnectionPool)
+        {
+            pool::initializeGlobalPool();
+            ShowInfo("Database connection pool initialized successfully");
+        }
+        else
+        {
+            ShowInfo("Connection pool disabled, using legacy thread-local connections");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        ShowError("Failed to initialize connection pool: %s", e.what());
+        ShowWarning("Falling back to thread-local connections");
+        useConnectionPool = false;
+    }
+}
+
+void db::shutdownConnectionPool()
+{
+    TracyZoneScoped;
+    
+    if (useConnectionPool)
+    {
+        try
+        {
+            pool::shutdownGlobalPool();
+            ShowInfo("Database connection pool shutdown completed");
+        }
+        catch (const std::exception& e)
+        {
+            ShowError("Error during connection pool shutdown: %s", e.what());
+        }
+    }
+}
+
+auto db::getConnectionPoolStats() -> std::string
+{
+    if (!useConnectionPool)
+    {
+        return "Connection pool is disabled";
+    }
+    
+    try
+    {
+        const auto& pool = pool::getGlobalPool();
+        const auto stats = pool.getStats();
+        
+        return fmt::format(
+            "Pool Stats - Total: {}, Active: {}, Idle: {}, Waiting: {}, "
+            "Served: {}, Created: {}, Destroyed: {}, Avg Wait: {:.2f}ms",
+            stats.totalConnections.load(),
+            stats.activeConnections.load(),
+            stats.idleConnections.load(), 
+            stats.waitingRequests.load(),
+            stats.totalRequestsServed.load(),
+            stats.totalConnectionsCreated.load(),
+            stats.totalConnectionsDestroyed.load(),
+            stats.averageWaitTimeMs.load()
+        );
+    }
+    catch (const std::exception& e)
+    {
+        return fmt::format("Error getting pool stats: {}", e.what());
+    }
+}
+
+void db::logConnectionPoolStats()
+{
+    if (useConnectionPool)
+    {
+        try
+        {
+            auto& pool = pool::getGlobalPool();
+            pool.logStats();
+        }
+        catch (const std::exception& e)
+        {
+            ShowError("Error logging connection pool stats: %s", e.what());
+        }
+    }
 }

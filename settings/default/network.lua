@@ -33,6 +33,13 @@ xi.settings.network =
     -- DB queries will attempt each query once, and reconnect and retry up to `SQL_QUERY_RETRY_COUNT` times.
     SQL_QUERY_RETRY_COUNT = 1,
 
+    -- Connection pool settings for improved database performance
+    SQL_USE_CONNECTION_POOL = true,
+    SQL_POOL_MIN_CONNECTIONS = 5,
+    SQL_POOL_MAX_CONNECTIONS = 20,
+    SQL_POOL_CONNECTION_TIMEOUT_MS = 30000,
+    SQL_POOL_IDLE_TIMEOUT_MS = 300000,
+
     ENABLE_HTTP = false,
     HTTP_HOST   = "localhost",
     HTTP_PORT   = 8088,

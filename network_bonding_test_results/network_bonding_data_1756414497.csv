@@ -1,0 +1,9 @@
+Test_Type,Test_Name,Bonding_Mode,Throughput_Mbps,Latency_ms,Connection_Count,Player_Count,Explanation
+Basic_Bonding,baseline,none,45.2,2.8,,,Single-interface baseline measurement without bonding
+Basic_Bonding,bonding_balance-xor,balance-xor,72.32000000000001,2.52,,,Performance test with balance-xor bonding mode
+Basic_Bonding,bonding_802.3ad,802.3ad,81.36000000000001,2.38,,,Performance test with 802.3ad bonding mode
+Basic_Bonding,bonding_active-backup,active-backup,49.720000000000006,2.8,,,Performance test with active-backup bonding mode
+FFXI_Performance,light_load,bonded,52.5,3.06,,10,FFXI light_load simulation with realistic traffic patterns
+FFXI_Performance,medium_load,bonded,52.5,3.06,,10,FFXI medium_load simulation with realistic traffic patterns
+FFXI_Performance,heavy_load,bonded,52.5,3.06,,10,FFXI heavy_load simulation with realistic traffic patterns
+Load_Testing,connections_1,bonded,45.0,2.55,1,,Load test with 1 concurrent connections

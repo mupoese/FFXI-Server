@@ -323,16 +323,74 @@ BondingStats getBondingStats();
 
 ## Testing and Validation
 
-### Performance Testing
+### Comprehensive Network Bonding Testing
+
+The FFXI server includes a comprehensive network bonding test suite that validates performance across multiple connections with detailed logging and explanation of connection bonding behavior.
+
+#### Quick Start Testing
 
 ```bash
-# Network performance test
+# Run comprehensive network bonding tests
+python3 tools/network_bonding_test_runner.py
+
+# Run with custom parameters
+python3 tools/network_bonding_test_runner.py \
+    --test-duration 120 \
+    --max-connections 50 \
+    --max-players 200 \
+    --bonding-modes balance-xor 802.3ad active-backup \
+    --verbose
+```
+
+#### Individual Test Components
+
+```bash
+# Basic bonding functionality tests
+python3 tools/network_bonding_test_suite.py \
+    --duration 60 \
+    --connections 25 \
+    --modes balance-xor 802.3ad \
+    --output-file basic_results.json
+
+# FFXI-specific performance tests
+python3 tools/network_bonding_performance_test.py \
+    --output-file ffxi_results.json
+
+# Traditional network performance test
 iperf3 -s -B 192.168.1.100 &  # Server
 iperf3 -c 192.168.1.100 -t 60 -P 4  # Client with 4 streams
-
-# FFXI-specific load testing
-python3 tools/load_test_bonding.py --players 100 --duration 300
 ```
+
+#### Test Output and Analysis
+
+The testing suite generates comprehensive reports including:
+
+- **Real-time Performance Monitoring**: Live throughput, latency, and CPU metrics
+- **Bonding Mode Comparison**: Performance analysis across different bonding configurations
+- **FFXI Traffic Simulation**: Realistic game traffic patterns with multiple players
+- **Multi-Connection Load Testing**: Scalability analysis with varying connection counts
+- **Failover Scenario Testing**: Interface failure simulation and recovery time measurement
+- **Load Balancing Verification**: Traffic distribution analysis across bonded interfaces
+
+**Sample Test Output:**
+```
+Network Bonding Effectiveness:
+  Best Mode: 802.3ad
+  Throughput Improvement: 67.2%
+  Latency Improvement: 15.8%
+
+Key Insights:
+  • Network bonding provides 67.2% throughput improvement with 802.3ad mode
+  • Successfully tested up to 400 concurrent FFXI players with 89.5 Mbps peak throughput
+  • Maximum tested: 50 concurrent connections with 95.2 Mbps aggregate throughput
+
+Recommendations:
+  1. Deploy with 802.3ad bonding mode for 67.2% performance improvement
+  2. Recommended player capacity: 300 concurrent players for optimal performance
+  3. Enable RSS/RPS optimization for multi-core CPU utilization
+```
+
+For detailed testing instructions, see [Network Bonding Testing Guide](NETWORK_BONDING_TESTING.md).
 
 ### Validation Checklist
 

@@ -19,6 +19,8 @@ A [quick start guide](https://github.com/LandSandBoat/server/wiki/Quick-Start-Gu
 
 - **[Function Index](documentation/function_index/index.html)** - Comprehensive API documentation for C++, Lua, Python, and SQL
 - **[Development Guide](documentation/FUNCTION_INDEXING_SYSTEM.md)** - Function Indexing System implementation details
+- **[Network Bonding Guide](NETWORK_BONDING.md)** - Network bonding/link aggregation implementation and configuration
+- **[Database Improvements](DATABASE_WORKFLOW_IMPROVEMENTS.md)** - Database connection pooling and performance enhancements
 - **[Tools Documentation](tools/README.md)** - Development tools and utilities reference
 
 ## Interacting with LandSandBoat

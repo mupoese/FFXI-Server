@@ -40,6 +40,52 @@ xi.settings.network =
     SQL_POOL_CONNECTION_TIMEOUT_MS = 30000,
     SQL_POOL_IDLE_TIMEOUT_MS = 300000,
 
+    -- ===========================
+    -- Network Bonding Configuration
+    -- ===========================
+    
+    -- Enable network bonding (link aggregation) for improved TCP/UDP performance
+    BONDING_ENABLED = false,
+    
+    -- Bonding modes:
+    --   balance-rr     : Round-robin for maximum throughput
+    --   active-backup  : Fault tolerance focus
+    --   balance-xor    : XOR hash-based distribution
+    --   broadcast      : Broadcast on all interfaces
+    --   802.3ad        : Dynamic link aggregation (recommended)
+    --   balance-tlb    : Adaptive transmit load balancing
+    --   balance-alb    : Adaptive load balancing
+    BONDING_MODE = "balance-xor",
+    
+    -- Hash policies for load balancing:
+    --   layer2         : Ethernet MAC based
+    --   layer3+4       : IP + Port based (better for TCP/UDP)
+    --   layer2+3       : MAC + IP based
+    --   encap2+3       : Encapsulated layer 2+3
+    --   encap3+4       : Encapsulated layer 3+4
+    BONDING_HASH_POLICY = "layer3+4",
+    
+    -- Interface monitoring interval in milliseconds
+    BONDING_MII_MON_INTERVAL = 100,
+    
+    -- Failover timeout in milliseconds
+    BONDING_FAILOVER_TIMEOUT = 5000,
+    
+    -- Bonded network interfaces (format: "interface:ip_address")
+    -- Example: "eth0:192.168.1.100,eth1:192.168.1.101"
+    BONDING_INTERFACES = "",
+    
+    -- Enable Multi-Path TCP (MPTCP) support
+    BONDING_ENABLE_MPTCP = false,
+    
+    -- UDP multi-homing configuration
+    BONDING_UDP_MULTI_HOMING = false,
+    
+    -- Performance tuning options
+    BONDING_ENABLE_RSS = true,           -- Receive Side Scaling
+    BONDING_ENABLE_RPS = true,           -- Receive Packet Steering
+    BONDING_INTERRUPT_COALESCING = true, -- Interrupt coalescing for performance
+
     ENABLE_HTTP = false,
     HTTP_HOST   = "localhost",
     HTTP_PORT   = 8088,

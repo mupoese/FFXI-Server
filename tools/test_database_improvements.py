@@ -14,6 +14,7 @@ import tempfile
 import os
 import sys
 import subprocess
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Any, Tuple
@@ -506,10 +507,11 @@ class DatabasePerformanceIntegrationTest(unittest.TestCase):
         self.assertLess(pooled_avg, direct_avg, "Connection pool should be faster than direct connections")
         self.assertGreater(improvement, 10.0, "Pool should provide at least 10% improvement")
 
-def run_comprehensive_database_tests():
+def run_comprehensive_database_tests(verbose=False, ci_mode=False):
     """Run all database and performance tests"""
-    console.print(Panel.fit("[bold green]Database Performance Test Suite[/bold green]", 
-                           border_style="green"))
+    if not ci_mode:
+        console.print(Panel.fit("[bold green]Database Performance Test Suite[/bold green]", 
+                               border_style="green"))
     
     # Create test suite
     loader = unittest.TestLoader()
@@ -524,19 +526,31 @@ def run_comprehensive_database_tests():
     class VerboseTestResult(unittest.TextTestResult):
         def startTest(self, test):
             super().startTest(test)
-            console.print(f"[yellow]Running: {test._testMethodName}[/yellow]")
+            if verbose and not ci_mode:
+                console.print(f"[yellow]Running: {test._testMethodName}[/yellow]")
+            elif ci_mode:
+                print(f"Running: {test._testMethodName}")
         
         def addSuccess(self, test):
             super().addSuccess(test)
-            console.print(f"[green]✓ PASSED: {test._testMethodName}[/green]")
+            if not ci_mode:
+                console.print(f"[green]✓ PASSED: {test._testMethodName}[/green]")
+            else:
+                print(f"✓ PASSED: {test._testMethodName}")
         
         def addError(self, test, err):
             super().addError(test, err)
-            console.print(f"[red]✗ ERROR: {test._testMethodName}[/red]")
+            if not ci_mode:
+                console.print(f"[red]✗ ERROR: {test._testMethodName}[/red]")
+            else:
+                print(f"✗ ERROR: {test._testMethodName}")
         
         def addFailure(self, test, err):
             super().addFailure(test, err)
-            console.print(f"[red]✗ FAILED: {test._testMethodName}[/red]")
+            if not ci_mode:
+                console.print(f"[red]✗ FAILED: {test._testMethodName}[/red]")
+            else:
+                print(f"✗ FAILED: {test._testMethodName}")
     
     # Run the tests
     runner = unittest.TextTestRunner(
@@ -548,28 +562,82 @@ def run_comprehensive_database_tests():
     result = runner.run(suite)
     
     # Print summary
-    console.print("\n" + "="*60)
-    console.print(f"[bold]Test Results Summary[/bold]")
-    console.print(f"Tests run: {result.testsRun}")
-    console.print(f"[green]Successes: {result.testsRun - len(result.failures) - len(result.errors)}[/green]")
-    console.print(f"[red]Failures: {len(result.failures)}[/red]")
-    console.print(f"[red]Errors: {len(result.errors)}[/red]")
+    separator = "="*60
+    if not ci_mode:
+        console.print("\n" + separator)
+        console.print(f"[bold]Test Results Summary[/bold]")
+        console.print(f"Tests run: {result.testsRun}")
+        console.print(f"[green]Successes: {result.testsRun - len(result.failures) - len(result.errors)}[/green]")
+        console.print(f"[red]Failures: {len(result.failures)}[/red]")
+        console.print(f"[red]Errors: {len(result.errors)}[/red]")
+    else:
+        print("\n" + separator)
+        print("Test Results Summary")
+        print(f"Tests run: {result.testsRun}")
+        print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
+        print(f"Failures: {len(result.failures)}")
+        print(f"Errors: {len(result.errors)}")
     
     if result.failures:
-        console.print("\n[red]FAILURES:[/red]")
+        if not ci_mode:
+            console.print("\n[red]FAILURES:[/red]")
+        else:
+            print("\nFAILURES:")
         for test, traceback in result.failures:
-            console.print(f"  {test}: {traceback.split('AssertionError: ')[-1].strip()}")
+            failure_msg = traceback.split('AssertionError: ')[-1].strip()
+            if not ci_mode:
+                console.print(f"  {test}: {failure_msg}")
+            else:
+                print(f"  {test}: {failure_msg}")
     
     if result.errors:
-        console.print("\n[red]ERRORS:[/red]")
+        if not ci_mode:
+            console.print("\n[red]ERRORS:[/red]")
+        else:
+            print("\nERRORS:")
         for test, traceback in result.errors:
-            console.print(f"  {test}: {traceback.split('Exception: ')[-1].strip()}")
+            error_msg = traceback.split('Exception: ')[-1].strip()
+            if not ci_mode:
+                console.print(f"  {test}: {error_msg}")
+            else:
+                print(f"  {test}: {error_msg}")
     
     success_rate = ((result.testsRun - len(result.failures) - len(result.errors)) / result.testsRun) * 100
-    console.print(f"\n[bold]Overall Success Rate: {success_rate:.1f}%[/bold]")
+    if not ci_mode:
+        console.print(f"\n[bold]Overall Success Rate: {success_rate:.1f}%[/bold]")
+    else:
+        print(f"\nOverall Success Rate: {success_rate:.1f}%")
+    
+    # Save results for CI
+    if ci_mode:
+        test_results = {
+            'timestamp': time.time(),
+            'tests_run': result.testsRun,
+            'successes': result.testsRun - len(result.failures) - len(result.errors),
+            'failures': len(result.failures),
+            'errors': len(result.errors),
+            'success_rate': success_rate,
+            'was_successful': result.wasSuccessful()
+        }
+        
+        with open('db_test_results.txt', 'w') as f:
+            f.write(f"Database Test Results\n")
+            f.write(f"====================\n")
+            f.write(f"Tests run: {result.testsRun}\n")
+            f.write(f"Successes: {test_results['successes']}\n")
+            f.write(f"Failures: {test_results['failures']}\n")
+            f.write(f"Errors: {test_results['errors']}\n")
+            f.write(f"Success rate: {success_rate:.1f}%\n")
+            f.write(f"Overall result: {'PASS' if result.wasSuccessful() else 'FAIL'}\n")
     
     return result.wasSuccessful()
 
 if __name__ == "__main__":
-    success = run_comprehensive_database_tests()
+    parser = argparse.ArgumentParser(description='Database Performance Test Suite')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+    parser.add_argument('--ci', action='store_true', help='Enable CI mode (plain text output)')
+    
+    args = parser.parse_args()
+    
+    success = run_comprehensive_database_tests(verbose=args.verbose, ci_mode=args.ci)
     sys.exit(0 if success else 1)

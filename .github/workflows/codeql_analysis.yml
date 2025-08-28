@@ -36,7 +36,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Dependencies
       run: |
@@ -45,13 +45,16 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
         config-file: ./.github/codeql/codeql-config.yml
+        queries: |
+          security-and-quality
+          security-extended
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
@@ -72,7 +75,7 @@ jobs:
         cmake --build build -j4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
       with:
         # https://josh-ops.com/posts/github-codeql-ignore-files/
         upload: false # disable the upload here - we will upload in a different action
@@ -87,7 +90,18 @@ jobs:
         input: sarif-results/${{ matrix.language }}.sarif
         output: sarif-results/${{ matrix.language }}.sarif
 
+    - name: Database Security Analysis
+      if: matrix.language == 'cpp'
+      run: |
+        echo "Running database-specific security checks..."
+        # Check for potential SQL injection vulnerabilities
+        grep -r --include="*.cpp" --include="*.h" "mysql_real_escape_string\|mysql_query\|mysql_escape_string" src/ || true
+        # Check for hardcoded credentials
+        grep -r --include="*.cpp" --include="*.h" -i "password\|passwd\|pwd" src/common/ | grep -v "// " || true
+        # Check for proper connection cleanup
+        grep -r --include="*.cpp" --include="*.h" "mysql_close\|mysql_free_result" src/ || true
+
     - name: Upload SARIF
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: sarif-results/${{ matrix.language }}.sarif

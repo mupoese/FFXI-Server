@@ -1,0 +1,278 @@
+name: "database_performance"
+
+on:
+  schedule:
+    # Run nightly at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      test_duration:
+        description: 'Test duration in seconds'
+        required: false
+        default: '300'
+        type: string
+      max_connections:
+        description: 'Maximum concurrent connections to test'
+        required: false
+        default: '50'
+        type: string
+      stress_test:
+        description: 'Run stress test'
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  Database_Performance_Benchmarks:
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mariadb:10.6
+        env:
+          MYSQL_DATABASE: xidb
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Dependencies
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          python3 -m pip install -r tools/requirements.txt
+      - name: Verify MySQL connection
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
+      - name: Import SQL files
+        shell: bash
+        run: |
+          python3 ./tools/dbtool.py setup
+      - name: Run Comprehensive Database Tests
+        env:
+          TEST_DURATION: ${{ github.event.inputs.test_duration || '300' }}
+          MAX_CONNECTIONS: ${{ github.event.inputs.max_connections || '50' }}
+          STRESS_TEST: ${{ github.event.inputs.stress_test || 'true' }}
+        run: |
+          echo "Starting comprehensive database performance testing..."
+          echo "Duration: ${TEST_DURATION}s, Max Connections: ${MAX_CONNECTIONS}, Stress Test: ${STRESS_TEST}"
+          
+          # Run full test suite
+          python3 tools/test_database_improvements.py --verbose
+          
+          # Run performance monitoring with different loads
+          python3 tools/db_performance_monitor.py --test comprehensive --duration ${TEST_DURATION}
+          
+          # Test different connection pool configurations
+          for pool_size in 5 10 20 30; do
+            if [ ${pool_size} -le ${MAX_CONNECTIONS} ]; then
+              echo "Testing with pool size: ${pool_size}"
+              python3 tools/db_performance_monitor.py --test pool --connections ${pool_size} --duration 60
+            fi
+          done
+          
+          # Stress testing if enabled
+          if [ "${STRESS_TEST}" = "true" ]; then
+            echo "Running stress tests..."
+            python3 tools/db_performance_monitor.py --test stress --connections ${MAX_CONNECTIONS} --duration 180
+          fi
+          
+          # Generate summary report
+          python3 tools/db_optimization_summary.py
+      - name: Archive Performance Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly_database_performance_${{ github.run_number }}
+          path: |
+            db_performance_*.json
+            db_optimization_*.txt
+            db_test_results.txt
+            database_performance_summary.json
+          retention-days: 30
+      - name: Performance Regression Check
+        run: |
+          # Check if performance has degraded compared to previous runs
+          python3 << 'EOF'
+          import json
+          import os
+          import sys
+          
+          # Load current results
+          current_file = None
+          for file in os.listdir('.'):
+              if file.startswith('db_performance_') and file.endswith('.json'):
+                  current_file = file
+                  break
+          
+          if not current_file:
+              print("No performance results found")
+              sys.exit(0)
+          
+          with open(current_file, 'r') as f:
+              current = json.load(f)
+          
+          # Basic performance thresholds
+          avg_latency = current.get('summary', {}).get('avg_latency_ms', 0)
+          success_rate = current.get('summary', {}).get('success_rate', 0)
+          ops_per_sec = current.get('summary', {}).get('ops_per_second', 0)
+          
+          print(f"Performance Summary:")
+          print(f"  Average Latency: {avg_latency:.2f}ms")
+          print(f"  Success Rate: {success_rate:.1f}%")
+          print(f"  Operations/sec: {ops_per_sec:.1f}")
+          
+          # Set performance thresholds
+          max_latency = 50.0  # 50ms max average latency
+          min_success_rate = 95.0  # 95% minimum success rate
+          min_ops_per_sec = 100.0  # 100 ops/sec minimum
+          
+          failed = False
+          if avg_latency > max_latency:
+              print(f"❌ PERFORMANCE REGRESSION: Latency {avg_latency:.2f}ms exceeds threshold {max_latency}ms")
+              failed = True
+          
+          if success_rate < min_success_rate:
+              print(f"❌ RELIABILITY REGRESSION: Success rate {success_rate:.1f}% below threshold {min_success_rate}%")
+              failed = True
+          
+          if ops_per_sec < min_ops_per_sec:
+              print(f"❌ THROUGHPUT REGRESSION: Ops/sec {ops_per_sec:.1f} below threshold {min_ops_per_sec}")
+              failed = True
+          
+          if failed:
+              print("\n🚨 Performance regression detected!")
+              sys.exit(1)
+          else:
+              print("\n✅ Performance within acceptable thresholds")
+          EOF
+
+  Database_Health_Check:
+    runs-on: ubuntu-24.04
+    needs: Database_Performance_Benchmarks
+    if: always()
+    services:
+      mysql:
+        image: mariadb:10.6
+        env:
+          MYSQL_DATABASE: xidb
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Dependencies
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          sudo apt-get update
+          sudo apt-get install -y mariadb-client
+          python3 -m pip install -r tools/requirements.txt
+      - name: Database Health Assessment
+        run: |
+          python3 << 'EOF'
+          import mysql.connector
+          import json
+          from datetime import datetime
+          
+          def check_database_health():
+              results = {
+                  'timestamp': datetime.now().isoformat(),
+                  'checks': {},
+                  'overall_status': 'healthy'
+              }
+              
+              try:
+                  # Connect to database
+                  conn = mysql.connector.connect(
+                      host='127.0.0.1',
+                      user='root',
+                      password='root',
+                      database='xidb'
+                  )
+                  cursor = conn.cursor()
+                  
+                  # Check 1: Basic connectivity
+                  cursor.execute("SELECT 1")
+                  results['checks']['connectivity'] = 'pass'
+                  
+                  # Check 2: Database exists and has tables
+                  cursor.execute("SHOW TABLES")
+                  tables = cursor.fetchall()
+                  results['checks']['table_count'] = len(tables)
+                  results['checks']['has_tables'] = 'pass' if len(tables) > 0 else 'fail'
+                  
+                  # Check 3: Key tables exist
+                  required_tables = ['accounts', 'chars', 'zone_settings']
+                  existing_tables = [table[0] for table in tables]
+                  missing_tables = [t for t in required_tables if t not in existing_tables]
+                  results['checks']['required_tables'] = 'pass' if not missing_tables else f'fail: missing {missing_tables}'
+                  
+                  # Check 4: Database size and performance
+                  cursor.execute("""
+                      SELECT 
+                          table_schema as 'Database',
+                          ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as 'Size_MB'
+                      FROM information_schema.tables 
+                      WHERE table_schema = 'xidb'
+                      GROUP BY table_schema
+                  """)
+                  size_result = cursor.fetchone()
+                  if size_result:
+                      results['checks']['database_size_mb'] = size_result[1]
+                  
+                  # Check 5: Connection performance
+                  import time
+                  start_time = time.time()
+                  cursor.execute("SELECT COUNT(*) FROM accounts")
+                  query_time = (time.time() - start_time) * 1000
+                  results['checks']['query_performance_ms'] = round(query_time, 2)
+                  results['checks']['performance'] = 'pass' if query_time < 100 else 'warning'
+                  
+                  conn.close()
+                  
+              except Exception as e:
+                  results['checks']['error'] = str(e)
+                  results['overall_status'] = 'unhealthy'
+              
+              # Determine overall status
+              failed_checks = [k for k, v in results['checks'].items() if isinstance(v, str) and v.startswith('fail')]
+              if failed_checks:
+                  results['overall_status'] = 'unhealthy'
+              
+              return results
+          
+          health_results = check_database_health()
+          
+          # Print results
+          print(f"Database Health Check Results:")
+          print(f"Status: {health_results['overall_status'].upper()}")
+          print(f"Timestamp: {health_results['timestamp']}")
+          print("\nCheck Details:")
+          for check, result in health_results['checks'].items():
+              status_icon = "✅" if result == "pass" else "⚠️" if result == "warning" else "❌"
+              print(f"  {status_icon} {check}: {result}")
+          
+          # Save results
+          with open('database_health_check.json', 'w') as f:
+              json.dump(health_results, f, indent=2)
+          
+          # Exit with error if unhealthy
+          if health_results['overall_status'] == 'unhealthy':
+              exit(1)
+          EOF
+      - name: Upload Health Check Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: database_health_check_${{ github.run_number }}
+          path: database_health_check.json
+        if: always()

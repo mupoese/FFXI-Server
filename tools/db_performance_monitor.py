@@ -450,7 +450,7 @@ class DatabasePerformanceMonitor:
 
 def main():
     parser = argparse.ArgumentParser(description="Database Performance Monitor for FFXI Server")
-    parser.add_argument("--test", choices=["comprehensive", "quick", "stress"], 
+    parser.add_argument("--test", choices=["comprehensive", "quick", "stress", "pool"], 
                        default="quick", help="Type of test to run")
     parser.add_argument("--connections", type=int, default=10, 
                        help="Number of concurrent connections")
@@ -458,8 +458,19 @@ def main():
                        help="Test duration in seconds")
     parser.add_argument("--operation", choices=["read", "write", "mixed"], 
                        default="mixed", help="Type of operations to test")
+    parser.add_argument("--ci", action="store_true", 
+                       help="Enable CI mode (plain text output)")
+    parser.add_argument("--output-json", action="store_true",
+                       help="Output results in JSON format for CI")
+    parser.add_argument("--baseline", type=str,
+                       help="Baseline JSON file for performance comparison")
     
     args = parser.parse_args()
+    
+    # Use plain console output for CI
+    if args.ci:
+        global console
+        console = Console(color_system=None, legacy_windows=False)
     
     monitor = DatabasePerformanceMonitor()
     
@@ -469,23 +480,132 @@ def main():
         elif args.test == "quick":
             report = monitor.run_concurrent_test(args.connections, args.duration, args.operation)
             monitor.display_performance_report(f"quick_test_{args.connections}conn", report)
+            
+            # Output JSON for CI if requested
+            if args.output_json:
+                json_output = {
+                    'test_type': 'quick',
+                    'connections': args.connections,
+                    'duration': args.duration,
+                    'summary': {
+                        'successful_operations': report.successful_operations,
+                        'failed_operations': report.failed_operations,
+                        'avg_latency_ms': report.avg_latency_ms,
+                        'max_latency_ms': report.max_latency_ms,
+                        'min_latency_ms': report.min_latency_ms,
+                        'p95_latency_ms': report.p95_latency_ms,
+                        'p99_latency_ms': report.p99_latency_ms,
+                        'ops_per_second': report.ops_per_second,
+                        'success_rate': (report.successful_operations / (report.successful_operations + report.failed_operations)) * 100 if (report.successful_operations + report.failed_operations) > 0 else 0
+                    },
+                    'timestamp': datetime.now().isoformat()
+                }
+                
+                output_filename = f"db_performance_{args.test}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                with open(output_filename, 'w') as f:
+                    json.dump(json_output, f, indent=2)
+                
+                if args.ci:
+                    print(f"Performance results saved to: {output_filename}")
+                else:
+                    console.print(f"[green]Performance results saved to: {output_filename}[/green]")
+                
+                # Compare with baseline if provided
+                if args.baseline and os.path.exists(args.baseline):
+                    with open(args.baseline, 'r') as f:
+                        baseline = json.load(f)
+                    
+                    current_latency = json_output['summary']['avg_latency_ms']
+                    baseline_latency = baseline['summary']['avg_latency_ms']
+                    latency_change = ((current_latency - baseline_latency) / baseline_latency) * 100
+                    
+                    current_ops = json_output['summary']['ops_per_second']
+                    baseline_ops = baseline['summary']['ops_per_second']
+                    ops_change = ((current_ops - baseline_ops) / baseline_ops) * 100
+                    
+                    if args.ci:
+                        print(f"Performance comparison with baseline:")
+                        print(f"  Latency change: {latency_change:+.1f}%")
+                        print(f"  Throughput change: {ops_change:+.1f}%")
+                    else:
+                        console.print(f"[yellow]Performance comparison with baseline:[/yellow]")
+                        console.print(f"  Latency change: {latency_change:+.1f}%")
+                        console.print(f"  Throughput change: {ops_change:+.1f}%")
+                    
+                    # Set exit code for CI if performance degraded significantly
+                    if latency_change > 20 or ops_change < -20:
+                        if args.ci:
+                            print("❌ Significant performance degradation detected!")
+                        else:
+                            console.print("[red]❌ Significant performance degradation detected![/red]")
+                        sys.exit(1)
+                        
+        elif args.test == "pool":
+            # Test connection pool performance specifically
+            if args.ci:
+                print(f"Testing connection pool with {args.connections} connections...")
+            else:
+                console.print(f"[blue]Testing connection pool with {args.connections} connections...[/blue]")
+            
+            report = monitor.run_concurrent_test(args.connections, args.duration, args.operation)
+            monitor.display_performance_report(f"pool_test_{args.connections}conn", report)
+            
         elif args.test == "stress":
             # Stress test with increasing load
+            stress_results = []
             for connections in [10, 25, 50, 100]:
-                console.print(f"\n[bold red]Stress Test: {connections} connections[/bold red]")
+                if args.ci:
+                    print(f"\nStress Test: {connections} connections")
+                else:
+                    console.print(f"\n[bold red]Stress Test: {connections} connections[/bold red]")
+                
                 report = monitor.run_concurrent_test(connections, 60, "mixed")
                 monitor.display_performance_report(f"stress_{connections}conn", report)
                 
+                stress_results.append({
+                    'connections': connections,
+                    'successful_operations': report.successful_operations,
+                    'failed_operations': report.failed_operations,
+                    'avg_latency_ms': report.avg_latency_ms,
+                    'ops_per_second': report.ops_per_second
+                })
+                
                 if report.failed_operations > report.successful_operations * 0.1:
-                    console.print(f"[red]Too many failures at {connections} connections, stopping stress test[/red]")
+                    if args.ci:
+                        print(f"Too many failures at {connections} connections, stopping stress test")
+                    else:
+                        console.print(f"[red]Too many failures at {connections} connections, stopping stress test[/red]")
                     break
+            
+            # Save stress test results
+            if args.output_json:
+                stress_output = {
+                    'test_type': 'stress',
+                    'results': stress_results,
+                    'timestamp': datetime.now().isoformat()
+                }
+                
+                output_filename = f"db_performance_stress_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                with open(output_filename, 'w') as f:
+                    json.dump(stress_output, f, indent=2)
                     
     except KeyboardInterrupt:
-        console.print("\n[yellow]Test interrupted by user[/yellow]")
+        if args.ci:
+            print("\nTest interrupted by user")
+        else:
+            console.print("\n[yellow]Test interrupted by user[/yellow]")
+        sys.exit(1)
     except Exception as e:
-        console.print(f"[red]Test failed: {e}[/red]")
+        if args.ci:
+            print(f"Test failed: {e}")
+        else:
+            console.print(f"[red]Test failed: {e}[/red]")
+        sys.exit(1)
         
-    console.print("\n[green]Database performance testing complete![/green]")
+    if args.ci:
+        print("\nDatabase performance testing complete!")
+    else:
+        console.print("\n[green]Database performance testing complete![/green]")
 
 if __name__ == "__main__":
     main()

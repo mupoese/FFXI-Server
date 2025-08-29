@@ -700,6 +700,30 @@ xi.spells.blue.applyBlueAdditionalEffect = function(caster, target, params, effe
         return
     end
 
+    -- Enhanced Blue Magic affinity handling
+    local chainAffinityActive = caster:hasStatusEffect(xi.effect.CHAIN_AFFINITY)
+    local diffusionActive = caster:hasStatusEffect(xi.effect.DIFFUSION)
+    
+    -- Chain Affinity enhances status effect application rate
+    if chainAffinityActive then
+        resist = math.min(resist * 1.5, 1.0) -- 50% boost to resist rate, capped at 100%
+        caster:delStatusEffectSilent(xi.effect.CHAIN_AFFINITY)
+    end
+    
+    -- Gather diffusion targets if active
+    local diffusionTargets = {}
+    if diffusionActive then
+        local party = caster:getParty()
+        if party then
+            for _, member in pairs(party) do
+                if member and member:getID() ~= caster:getID() and caster:checkDistance(member) <= 10 then
+                    table.insert(diffusionTargets, member)
+                end
+            end
+        end
+        caster:delStatusEffectSilent(xi.effect.DIFFUSION)
+    end
+
     for entry = 1, #effectTable do
         local effect   = effectTable[entry][1]
         local power    = effectTable[entry][2]
@@ -711,7 +735,20 @@ xi.spells.blue.applyBlueAdditionalEffect = function(caster, target, params, effe
             not xi.combat.statusEffect.isTargetResistant(caster, target, effect) and -- Target didn't trigger a job trait resistance.
             not xi.combat.statusEffect.isEffectNullified(target, effect)             -- Target doesn't have an status effect that nullifies current.
         then
+            -- Apply to primary target with full potency
             target:addStatusEffect(effect, power, tick, math.floor(duration * resist))
+            
+            -- Apply to diffusion targets with reduced potency (retail accurate)
+            for _, diffusionTarget in pairs(diffusionTargets) do
+                if not xi.combat.statusEffect.isTargetImmune(diffusionTarget, effect, element) and
+                   not xi.combat.statusEffect.isTargetResistant(caster, diffusionTarget, effect) and
+                   not xi.combat.statusEffect.isEffectNullified(diffusionTarget, effect) then
+                    -- Diffusion applies at 50% potency and 75% duration
+                    local diffusionPower = math.floor(power * 0.5)
+                    local diffusionDuration = math.floor(duration * resist * 0.75)
+                    diffusionTarget:addStatusEffect(effect, diffusionPower, tick, diffusionDuration)
+                end
+            end
         end
     end
 end

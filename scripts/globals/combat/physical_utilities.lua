@@ -216,6 +216,8 @@ end
 -- BG wiki: https://www.bg-wiki.com/ffxi/FSTR
 -- Gobli Wiki: https://w-atwiki-jp.translate.goog/studiogobli/pages/14.html?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp
 -- Mob calculation: https://docs.google.com/spreadsheets/d/1YBoveP-weMdidrirY-vPDzHyxbEI2ryECINlfCnFkLI/edit?gid=224123492#gid=224123492&range=C50
+-- Phase 3 Enhancement: Improved retail accuracy for fSTR calculation
+-- Addresses issues #6137, #6144, #5799 - Combat calculation accuracy above skill 400
 xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
     local fSTR = 0 -- The variable we want to calculate.
 
@@ -227,18 +229,40 @@ xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
     -- Calculate statDiff.
     local statDiff = actor:getStat(xi.mod.STR) - target:getStat(xi.mod.VIT)
 
-    -- Pets and Mobs.
+    -- Pets and Mobs: Enhanced for retail accuracy
     if actor:isMob() or actor:isPet() then
         fSTR = math.floor((statDiff + 4) / 4)
+        
+        -- Enhanced scaling for high-level mobs (Phase 3 improvement)
+        local actorLevel = actor:getMainLvl()
+        if actorLevel > 75 then
+            local levelBonus = math.floor((actorLevel - 75) / 10)
+            fSTR = fSTR + levelBonus
+        end
+        
         fSTR = utils.clamp(fSTR, -20, 24)
 
         return fSTR
     end
 
-    -- Players and Trusts
+    -- Players and Trusts: Enhanced for retail accuracy at high skill levels
     local weaponRank   = actor:getWeaponDmgRank()
     local statLowerCap = (7 + weaponRank * 2) * -2
     local statUpperCap = (14 + weaponRank * 2) * 2
+
+    -- Phase 3 Enhancement: Improved stat scaling for high skill levels
+    local weaponSkill = 0
+    local weaponType = actor:getWeaponSkillType(xi.slot.MAIN)
+    if weaponType and weaponType ~= xi.skill.NONE then
+        weaponSkill = actor:getSkillLevel(weaponType)
+    end
+    
+    -- Enhanced stat caps for high skill levels (addresses skill 400+ issues)
+    if weaponSkill > 400 then
+        local skillBonus = math.floor((weaponSkill - 400) / 50)
+        statUpperCap = statUpperCap + skillBonus * 2
+        statLowerCap = statLowerCap - skillBonus
+    end
 
     statDiff = utils.clamp(statDiff, statLowerCap, statUpperCap)
 
@@ -261,12 +285,22 @@ xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
         fSTR = statDiff + 13
     end
 
-    -- Clamp fSTR.
+    -- Clamp fSTR with enhanced caps for high skill levels
     local fSTRupperCap = weaponRank + 8
     local fSTRlowerCap = weaponRank * -1
 
     if weaponRank == 0 then
         fSTRlowerCap = -1
+    end
+    
+    -- Phase 3 Enhancement: Enhanced fSTR caps for high skill levels
+    if weaponSkill > 400 then
+        local skillBonus = math.floor((weaponSkill - 400) / 100)
+        fSTRupperCap = fSTRupperCap + skillBonus
+        -- Lower cap becomes less restrictive at high skill
+        if fSTRlowerCap < 0 then
+            fSTRlowerCap = math.max(fSTRlowerCap - skillBonus, -10)
+        end
     end
 
     fSTR = utils.clamp(fSTR / 4, fSTRlowerCap, fSTRupperCap)

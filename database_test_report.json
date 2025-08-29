@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-08-29T16:53:51.593480",
+  "summary": {
+    "overall_success": true,
+    "tests_run": 1,
+    "passed_tests": 1
+  },
+  "results": {
+    "unit_tests": {
+      "success": true,
+      "details": {
+        "output": "Database Test Results\n====================\nTests run: 8\nSuccesses: 8\nFailures: 0\nErrors: 0\nSuccess rate: 100.0%\nOverall result: PASS\n"
+      },
+      "stdout": "Running: test_concurrent_connections\nTesting concurrent connections...\n\u2713 Concurrent connections test passed\n  Average duration: 41.98ms\n  Max duration: 93.45ms\n  Min duration: 12.08ms\n\u2713 PASSED: test_concurrent_connections\nRunning: test_connection_pool_simulation\nTesting connection pool simulation...\n\u2713 Connection pool simulation completed\n  Successful requests: 100/100 (100.0%)\n  Pool exhausted: 0 times\n  Pool size: 50, Max workers: 20\n  Average duration: 2.94ms\n\u2713 PASSED: test_connection_pool_simulation\nRunning: test_multiple_sequential_connections\nTesting multiple sequential connections...\n\u2713 Sequential connections test passed (avg: 0.05ms)\n\u2713 PASSED: test_multiple_sequential_connections\nRunning: test_single_connection\nTesting single database connection...\n\u2713 Single connection test passed (0.11ms)\n\u2713 PASSED: test_single_connection\nRunning: test_concurrent_query_latency\nTesting concurrent query latency...\n\u2713 Concurrent query latency test completed\n  Queries executed: 200\n  Average: 1.17ms\n  P95: 2.76ms\n  P99: 3.83ms\n  Max: 4.28ms\n\u2713 PASSED: test_concurrent_query_latency\nRunning: test_query_latency_complex\nTesting complex query latency...\n\u2713 Complex query latency test completed\n  Average: 0.31ms\n  P95: 0.33ms\n  Max: 0.45ms\n\u2713 PASSED: test_query_latency_complex\nRunning: test_query_latency_simple\nTesting simple query latency...\n\u2713 Simple query latency test completed\n  Average: 0.01ms\n  P95: 0.01ms\n  Max: 0.10ms\n  Min: 0.01ms\n\u2713 PASSED: test_query_latency_simple\nRunning: test_connection_pool_vs_direct_connections\nTesting connection pool vs direct connections...\n\u2713 Connection performance comparison completed\n  Direct connections average: 3.12ms\n  Pooled connections average: 2.33ms\n  Performance improvement: 25.6%\n\u2713 PASSED: test_connection_pool_vs_direct_connections\n\n============================================================\nTest Results Summary\nTests run: 8\nSuccesses: 8\nFailures: 0\nErrors: 0\n\nOverall Success Rate: 100.0%\n",
+      "stderr": ""
+    }
+  }
+}

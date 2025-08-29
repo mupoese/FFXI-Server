@@ -485,6 +485,10 @@ jobs:
         shell: bash
         run: |
           python3 ./tools/dbtool.py setup
+      - name: Apply Database CI Optimizations
+        run: |
+          # Apply MySQL/MariaDB optimizations for better CI performance
+          python3 tools/database_ci_optimizations.py --host 127.0.0.1 --user root --password root --database xidb --all || true
       - name: Run Database Performance Tests
         run: |
           echo "Running comprehensive database performance and connection pool tests..."

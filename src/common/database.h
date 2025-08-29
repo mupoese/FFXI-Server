@@ -36,6 +36,9 @@
 #include <unordered_set>
 #include <vector>
 
+// Forward declare connection pool
+namespace db { namespace pool { class ConnectionPool; } }
+
 // TODO: mariadb-connector-cpp triggers this. Remove once they fix it.
 // 4263 'function': member function does not override any base class member functions
 #ifdef _WIN32
@@ -831,4 +834,11 @@ namespace db
     bool transaction(const std::function<void()>& transactionFn);
 
     auto getTableColumnNames(std::string const& tableName) -> std::vector<std::string>;
+
+    // Connection pool management functions
+    void initializeConnectionPool();
+    void shutdownConnectionPool();
+    auto getConnectionPoolStats() -> std::string;
+    void logConnectionPoolStats();
+
 } // namespace db

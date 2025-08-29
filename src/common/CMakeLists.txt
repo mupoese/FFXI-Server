@@ -10,6 +10,8 @@ set(COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cbasetypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/console_service.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/console_service.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/connection_pool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/connection_pool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/database.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/database.h
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.h

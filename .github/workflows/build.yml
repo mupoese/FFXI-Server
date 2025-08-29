@@ -456,9 +456,56 @@ jobs:
         run: |
           cmake --build build -j4
 
+  Database_Performance_Tests:
+    runs-on: ubuntu-24.04
+    needs: Sanity_Checks
+    services:
+      mysql:
+        image: mariadb:10.6
+        env:
+          MYSQL_DATABASE: xidb
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Dependencies
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          python3 -m pip install -r tools/requirements.txt
+      - name: Verify MySQL connection
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
+      - name: Import SQL files
+        shell: bash
+        run: |
+          python3 ./tools/dbtool.py setup
+      - name: Run Database Performance Tests
+        run: |
+          echo "Running comprehensive database performance and connection pool tests..."
+          python3 tools/enhanced_database_test_suite.py --test-type all --ci --connections 5 --duration 30 --max-connections 20
+          
+          # Also run the individual test tools for compatibility
+          python3 tools/test_database_improvements.py --ci
+          python3 tools/db_performance_monitor.py --test quick --connections 5 --duration 30 --ci --output-json
+      - name: Upload Performance Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: database_performance_results
+          path: |
+            db_performance_*.json
+            db_test_results.txt
+            database_test_report.json
+        continue-on-error: true
+
   Full_Startup_Checks_Linux:
     runs-on: ubuntu-24.04
-    needs: Linux_Clang18_64bit
+    needs: [Linux_Clang18_64bit, Database_Performance_Tests]
     services:
       mysql:
         image: mariadb:10.6

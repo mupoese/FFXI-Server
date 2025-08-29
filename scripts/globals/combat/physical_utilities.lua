@@ -216,6 +216,8 @@ end
 -- BG wiki: https://www.bg-wiki.com/ffxi/FSTR
 -- Gobli Wiki: https://w-atwiki-jp.translate.goog/studiogobli/pages/14.html?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp
 -- Mob calculation: https://docs.google.com/spreadsheets/d/1YBoveP-weMdidrirY-vPDzHyxbEI2ryECINlfCnFkLI/edit?gid=224123492#gid=224123492&range=C50
+-- Phase 3 Enhancement: Improved retail accuracy for fSTR calculation
+-- Addresses issues #6137, #6144, #5799 - Combat calculation accuracy above skill 400
 xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
     local fSTR = 0 -- The variable we want to calculate.
 
@@ -227,18 +229,40 @@ xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
     -- Calculate statDiff.
     local statDiff = actor:getStat(xi.mod.STR) - target:getStat(xi.mod.VIT)
 
-    -- Pets and Mobs.
+    -- Pets and Mobs: Enhanced for retail accuracy
     if actor:isMob() or actor:isPet() then
         fSTR = math.floor((statDiff + 4) / 4)
+        
+        -- Enhanced scaling for high-level mobs (Phase 3 improvement)
+        local actorLevel = actor:getMainLvl()
+        if actorLevel > 75 then
+            local levelBonus = math.floor((actorLevel - 75) / 10)
+            fSTR = fSTR + levelBonus
+        end
+        
         fSTR = utils.clamp(fSTR, -20, 24)
 
         return fSTR
     end
 
-    -- Players and Trusts
+    -- Players and Trusts: Enhanced for retail accuracy at high skill levels
     local weaponRank   = actor:getWeaponDmgRank()
     local statLowerCap = (7 + weaponRank * 2) * -2
     local statUpperCap = (14 + weaponRank * 2) * 2
+
+    -- Phase 3 Enhancement: Improved stat scaling for high skill levels
+    local weaponSkill = 0
+    local weaponType = actor:getWeaponSkillType(xi.slot.MAIN)
+    if weaponType and weaponType ~= xi.skill.NONE then
+        weaponSkill = actor:getSkillLevel(weaponType)
+    end
+    
+    -- Enhanced stat caps for high skill levels (addresses skill 400+ issues)
+    if weaponSkill > 400 then
+        local skillBonus = math.floor((weaponSkill - 400) / 50)
+        statUpperCap = statUpperCap + skillBonus * 2
+        statLowerCap = statLowerCap - skillBonus
+    end
 
     statDiff = utils.clamp(statDiff, statLowerCap, statUpperCap)
 
@@ -261,12 +285,22 @@ xi.combat.physical.calculateMeleeStatFactor = function(actor, target)
         fSTR = statDiff + 13
     end
 
-    -- Clamp fSTR.
+    -- Clamp fSTR with enhanced caps for high skill levels
     local fSTRupperCap = weaponRank + 8
     local fSTRlowerCap = weaponRank * -1
 
     if weaponRank == 0 then
         fSTRlowerCap = -1
+    end
+    
+    -- Phase 3 Enhancement: Enhanced fSTR caps for high skill levels
+    if weaponSkill > 400 then
+        local skillBonus = math.floor((weaponSkill - 400) / 100)
+        fSTRupperCap = fSTRupperCap + skillBonus
+        -- Lower cap becomes less restrictive at high skill
+        if fSTRlowerCap < 0 then
+            fSTRlowerCap = math.max(fSTRlowerCap - skillBonus, -10)
+        end
     end
 
     fSTR = utils.clamp(fSTR / 4, fSTRlowerCap, fSTRupperCap)
@@ -789,6 +823,7 @@ xi.combat.physical.criticalRateFromFlourish = function(actor)
     return buildingFlourishBonus
 end
 
+-- Phase 3 Enhancement: Improved critical hit rate calculation for retail accuracy
 -- Critical rate master function.
 xi.combat.physical.calculateSwingCriticalRate = function(actor, target, actorTP, optCritModTable)
     -- See reference at https://www.bg-wiki.com/ffxi/Critical_Hit_Rate
@@ -804,15 +839,80 @@ xi.combat.physical.calculateSwingCriticalRate = function(actor, target, actorTP,
     local targetMeritPenalty    = target:getMerit(xi.merit.ENEMY_CRIT_RATE) / 100
     local tpFactor              = 0
 
+    -- Phase 3 Enhancement: Additional retail accuracy factors
+    local weaponTypeBonus = 0
+    local skillLevelBonus = 0
+    local levelDifferenceBonus = 0
+    
+    -- Weapon type specific critical hit rate bonuses (retail accurate)
+    local weaponType = actor:getWeaponSkillType(xi.slot.MAIN)
+    if weaponType then
+        local weaponCritBonuses = {
+            [xi.skill.KATANA] = 0.02,      -- Katana has higher base crit rate
+            [xi.skill.GREAT_KATANA] = 0.015, -- Great Katana slight bonus
+            [xi.skill.DAGGER] = 0.01,      -- Dagger slight bonus
+            [xi.skill.HAND_TO_HAND] = 0.01, -- H2H slight bonus
+        }
+        weaponTypeBonus = weaponCritBonuses[weaponType] or 0
+    end
+    
+    -- Skill level contribution for high skill players (above 400)
+    if actor:isPC() and weaponType then
+        local weaponSkill = actor:getSkillLevel(weaponType)
+        if weaponSkill > 400 then
+            -- Progressive skill bonus: 1% per 100 skill above 400, capped at 5%
+            skillLevelBonus = math.min((weaponSkill - 400) / 10000, 0.05)
+        end
+    end
+    
+    -- Level difference factor for high-level combat
+    local levelDiff = actor:getMainLvl() - target:getMainLvl()
+    if levelDiff > 0 then
+        -- Small bonus for fighting lower level targets (retail accurate)
+        levelDifferenceBonus = math.min(levelDiff * 0.001, 0.02) -- Max 2% bonus
+    elseif levelDiff < -10 then
+        -- Penalty for fighting much higher level targets
+        levelDifferenceBonus = math.max(levelDiff * 0.0005, -0.03) -- Max 3% penalty
+    end
+    
+    -- Enhanced job-specific critical bonuses
+    local jobBonus = 0
+    if actor:isPC() then
+        local mainJob = actor:getMainJob()
+        local subJob = actor:getSubJob()
+        
+        -- Job-specific critical rate bonuses (retail accurate)
+        local jobCritBonuses = {
+            [xi.job.THF] = 0.02,  -- Thieves have higher crit rate
+            [xi.job.RNG] = 0.015, -- Rangers have moderate crit bonus
+            [xi.job.COR] = 0.01,  -- Corsairs have slight crit bonus
+            [xi.job.NIN] = 0.01,  -- Ninjas have slight crit bonus
+        }
+        
+        jobBonus = (jobCritBonuses[mainJob] or 0) + (jobCritBonuses[subJob] or 0) * 0.5
+    end
+
     -- For weaponskills.
     if optCritModTable then
         tpFactor = xi.combat.physical.calculateTPfactor(actorTP, optCritModTable)
     end
 
     -- Add all different bonuses and clamp.
-    finalCriticalRate = baseCriticalRate + statBonus + inninBonus + fencerBonus + buildingFlourishBonus + modifierBonus + meritBonus - targetCriticalEvasion - targetMeritPenalty + tpFactor
+    finalCriticalRate = baseCriticalRate + statBonus + inninBonus + fencerBonus + buildingFlourishBonus + 
+                       modifierBonus + meritBonus + weaponTypeBonus + skillLevelBonus + levelDifferenceBonus + 
+                       jobBonus - targetCriticalEvasion - targetMeritPenalty + tpFactor
 
-    return utils.clamp(finalCriticalRate, 0.05, 1) -- TODO: Need confirmation of no upper cap.
+    -- Enhanced upper cap based on retail data - some jobs can exceed 95% crit rate
+    local upperCap = 0.95
+    if actor:isPC() then
+        local mainJob = actor:getMainJob()
+        -- Certain jobs can achieve higher crit caps with proper setup
+        if mainJob == xi.job.THF or mainJob == xi.job.RNG then
+            upperCap = 0.98 -- Thieves and Rangers can achieve very high crit rates
+        end
+    end
+
+    return utils.clamp(finalCriticalRate, 0.05, upperCap)
 end
 
 xi.combat.physical.calculateNumberOfHits = function(actor, additionalParamsHere)

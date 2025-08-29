@@ -47,6 +47,36 @@ CInstance::CInstance(CZone* zone, uint32 instanceid)
 CInstance::~CInstance()
 {
     TracyZoneScoped;
+    
+    // Enhanced cleanup for crash prevention
+    try
+    {
+        // Validate all registered characters before cleanup
+        for (auto charId : m_registeredChars)
+        {
+            // Find character and ensure proper cleanup
+            if (auto* PChar = dynamic_cast<CCharEntity*>(m_zone->GetCharByID(charId)))
+            {
+                if (PChar && PChar->IsValidEntityReference())
+                {
+                    // Clear instance reference to prevent dangling pointer
+                    PChar->PInstance = nullptr;
+                }
+            }
+        }
+        
+        // Clear entity references to prevent crashes
+        ClearEntities();
+        
+        // Clear registration data
+        m_registeredChars.clear();
+        m_enteredChars.clear();
+        m_LocalVars.clear();
+    }
+    catch (const std::exception& e)
+    {
+        ShowError("CInstance::~CInstance: Exception during cleanup: %s", e.what());
+    }
 }
 
 uint16 CInstance::GetID() const
@@ -260,33 +290,50 @@ void CInstance::ClearEntities()
 {
     auto clearStates = [](CBattleEntity* entity)
     {
+        // Enhanced entity validation during cleanup
+        if (!entity || !entity->IsValidEntityReference())
+        {
+            return;
+        }
+        
         if (static_cast<CBattleEntity*>(entity)->isAlive())
         {
             entity->PAI->ClearStateStack();
         }
+        
+        // Invalidate entity reference to prevent future access
+        entity->InvalidateEntityReference();
     };
 
-    // clang-format off
-    ForEachChar([&](CCharEntity* PChar)
+    // Enhanced entity clearing with validation
+    try
     {
-        clearStates(PChar);
-    });
+        // clang-format off
+        ForEachChar([&](CCharEntity* PChar)
+        {
+            clearStates(PChar);
+        });
 
-    ForEachMob([&](CMobEntity* PMob)
-    {
-        clearStates(PMob);
-    });
+        ForEachMob([&](CMobEntity* PMob)
+        {
+            clearStates(PMob);
+        });
 
-    ForEachPet([&](CPetEntity* PPet)
-    {
-        clearStates(PPet);
-    });
+        ForEachPet([&](CPetEntity* PPet)
+        {
+            clearStates(PPet);
+        });
 
-    ForEachTrust([&](CTrustEntity* PTrust)
+        ForEachTrust([&](CTrustEntity* PTrust)
+        {
+            clearStates(PTrust);
+        });
+        // clang-format on
+    }
+    catch (const std::exception& e)
     {
-        clearStates(PTrust);
-    });
-    // clang-format on
+        ShowError("CInstance::ClearEntities: Exception during entity cleanup: %s", e.what());
+    }
 }
 
 void CInstance::Fail()

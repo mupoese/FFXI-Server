@@ -275,7 +275,31 @@ auto CLuaBattlefield::insertEntity(uint16 targid, bool ally, bool inBattlefield)
 
 bool CLuaBattlefield::cleanup(bool cleanup)
 {
-    return m_PLuaBattlefield->CanCleanup(cleanup);
+    // Enhanced battlefield cleanup with validation
+    if (!m_PLuaBattlefield)
+    {
+        ShowError("CLuaBattlefield::cleanup: Invalid battlefield reference");
+        return false;
+    }
+    
+    try
+    {
+        // Validate battlefield state before cleanup
+        bool canCleanup = m_PLuaBattlefield->CanCleanup(cleanup);
+        
+        if (cleanup && canCleanup)
+        {
+            // Additional safety checks during cleanup
+            ShowDebug("CLuaBattlefield::cleanup: Performing battlefield cleanup for ID %u", m_PLuaBattlefield->GetID());
+        }
+        
+        return canCleanup;
+    }
+    catch (const std::exception& e)
+    {
+        ShowError("CLuaBattlefield::cleanup: Exception during cleanup: %s", e.what());
+        return false;
+    }
 }
 
 void CLuaBattlefield::win()

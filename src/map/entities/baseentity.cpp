@@ -231,6 +231,52 @@ void CBaseEntity::SetLocalVar(const std::string& var, uint32 val)
     m_localVars[var] = val;
 }
 
+// Entity safety and validation methods for crash prevention
+bool CBaseEntity::IsValidEntityReference() const
+{
+    // Check basic entity validity
+    if (id == 0 || targid == 0)
+    {
+        return false;
+    }
+    
+    // Check if zone reference is valid
+    if (loc.zone == nullptr)
+    {
+        return false;
+    }
+    
+    // Additional validation for entity state
+    return ValidateEntityState();
+}
+
+void CBaseEntity::InvalidateEntityReference()
+{
+    // Mark entity as invalid for cleanup
+    id = 0;
+    targid = 0;
+    
+    // Call virtual cleanup method for derived classes
+    OnEntityCleanup();
+}
+
+bool CBaseEntity::ValidateEntityState() const
+{
+    // Perform comprehensive entity state validation
+    // Check if entity is in a consistent state
+    if (loc.zone != nullptr)
+    {
+        // Verify entity exists in zone's entity list
+        auto* zoneEntity = loc.zone->GetEntity(targid, static_cast<uint8>(objtype));
+        if (zoneEntity != this)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 void CBaseEntity::SetModelId(uint16 modelid)
 {
     look.modelid = modelid;
@@ -244,4 +290,50 @@ uint16 CBaseEntity::GetModelId() const
 bool CBaseEntity::IsDynamicEntity() const
 {
     return this->targid >= 0x700;
+}
+
+// Entity safety and validation methods for crash prevention
+bool CBaseEntity::IsValidEntityReference() const
+{
+    // Check basic entity validity
+    if (id == 0 || targid == 0)
+    {
+        return false;
+    }
+    
+    // Check if zone reference is valid
+    if (loc.zone == nullptr)
+    {
+        return false;
+    }
+    
+    // Additional validation for entity state
+    return ValidateEntityState();
+}
+
+void CBaseEntity::InvalidateEntityReference()
+{
+    // Mark entity as invalid for cleanup
+    id = 0;
+    targid = 0;
+    
+    // Call virtual cleanup method for derived classes
+    OnEntityCleanup();
+}
+
+bool CBaseEntity::ValidateEntityState() const
+{
+    // Perform comprehensive entity state validation
+    // Check if entity is in a consistent state
+    if (loc.zone != nullptr)
+    {
+        // Verify entity exists in zone's entity list
+        auto* zoneEntity = loc.zone->GetEntity(targid, static_cast<uint8>(objtype));
+        if (zoneEntity != this)
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }

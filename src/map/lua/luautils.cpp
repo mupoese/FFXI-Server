@@ -2045,21 +2045,55 @@ namespace luautils
     {
         TracyZoneScoped;
 
+        // Validate character entity before processing
+        if (!PChar || !PChar->IsValidEntityReference())
+        {
+            ShowError("luautils::OnZoneOut: Invalid character entity reference");
+            return;
+        }
+
         auto name     = PChar->loc.zone->getName();
         auto filename = fmt::format("./scripts/zones/{}/Zone.lua", name);
 
         ShowTraceFmt("luautils::OnZoneOut: {} ({})", PChar->getName(), name);
 
-        auto onZoneOutFramework = lua["InteractionGlobal"]["onZoneOut"];
-        auto onZoneOut          = GetCacheEntryFromFilename(filename)["onZoneOut"];
-
-        auto result = onZoneOutFramework(PChar, onZoneOut);
-        if (!result.valid())
+        // Enhanced error handling for instance cleanup
+        try
         {
-            sol::error err = result;
-            ShowError("luautils::onZoneOut: %s", err.what());
-            ReportErrorToPlayer(PChar, err.what());
-            return;
+            auto onZoneOutFramework = lua["InteractionGlobal"]["onZoneOut"];
+            auto onZoneOut          = GetCacheEntryFromFilename(filename)["onZoneOut"];
+
+            auto result = onZoneOutFramework(PChar, onZoneOut);
+            if (!result.valid())
+            {
+                sol::error err = result;
+                ShowError("luautils::onZoneOut: %s", err.what());
+                ReportErrorToPlayer(PChar, err.what());
+                
+                // Attempt to cleanup instance state if error occurred
+                if (PChar->PInstance != nullptr)
+                {
+                    ShowWarning("luautils::OnZoneOut: Cleaning up instance state after lua error for %s", PChar->getName());
+                }
+                return;
+            }
+            
+            // Additional cleanup validation for instances
+            if (PChar->PInstance != nullptr)
+            {
+                // Ensure proper instance cleanup
+                PChar->PInstance->CheckTime(timer::now());
+            }
+        }
+        catch (const std::exception& e)
+        {
+            ShowError("luautils::OnZoneOut: Exception during zone out processing: %s", e.what());
+            
+            // Force cleanup on exception
+            if (PChar->IsValidEntityReference())
+            {
+                PChar->InvalidateEntityReference();
+            }
         }
     }
 

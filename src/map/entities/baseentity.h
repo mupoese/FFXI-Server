@@ -27,6 +27,7 @@
 #include "common/timer.h"
 #include "packets/message_basic.h"
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <vector>
@@ -208,24 +209,59 @@ enum class SPAWN_ANIMATION : uint8
     SPECIAL = 1,
 };
 
-// TODO: It is possible to make this structure part of the class, instead of the current ID and Targid, but without the clean() method.
+// Enhanced EntityID tracking structure for improved stability and crash prevention
 struct EntityID_t
 {
-    // TODO: Add a constructor that takes an id and targid.
-    // TODO: Clean with a destructor.
-    void clean()
+    // Constructors for safer initialization
+    EntityID_t() : id(0), targid(0), zoneId(0), uuid(0), isValid(false) {}
+    EntityID_t(uint32 entityId, uint16 targetId) : id(entityId), targid(targetId), zoneId(0), uuid(generateUUID()), isValid(true) {}
+    EntityID_t(uint32 entityId, uint16 targetId, uint16 zone) : id(entityId), targid(targetId), zoneId(zone), uuid(generateUUID()), isValid(true) {}
+
+    // Destructor for proper cleanup
+    ~EntityID_t() { clean(); }
+
+    // Copy constructor and assignment operator for safe copying
+    EntityID_t(const EntityID_t& other) : id(other.id), targid(other.targid), zoneId(other.zoneId), uuid(other.uuid), isValid(other.isValid) {}
+    EntityID_t& operator=(const EntityID_t& other) 
     {
-        id     = 0;
-        targid = 0;
+        if (this != &other) 
+        {
+            id = other.id;
+            targid = other.targid;
+            zoneId = other.zoneId;
+            uuid = other.uuid;
+            isValid = other.isValid;
+        }
+        return *this;
     }
 
-    // TODO: Globally rename targid to index, zoneIndex, etc.
+    void clean()
+    {
+        id = 0;
+        targid = 0;
+        zoneId = 0;
+        uuid = 0;
+        isValid = false;
+    }
 
-    uint32 id;     // "Long" global ID of the entity. Built from 0x10000000 | (zoneId << 16) | targid.
-    uint16 targid; // The "index" of the entity in the current zone. Used for local targeting and referencing.
+    // Validation methods for crash prevention
+    bool isValidEntity() const { return isValid && id != 0 && targid != 0; }
+    void invalidate() { isValid = false; }
+    void validate() { isValid = (id != 0 && targid != 0); }
 
-    // TODO: Store the zoneId of this entity's zone. We can then use the targid (index) and the zoneId to build the global id.
-    // TODO: Store an incremental u64 as a UUID for the entity for disambiguation in the case of dynamic entities that might have the same targid.
+    uint32 id;      // "Long" global ID of the entity. Built from 0x10000000 | (zoneId << 16) | targid.
+    uint16 targid;  // The "index" of the entity in the current zone. Used for local targeting and referencing.
+    uint16 zoneId;  // Zone ID of this entity's zone for better tracking
+    uint64 uuid;    // Unique identifier for disambiguation of dynamic entities
+    bool isValid;   // Validation flag to prevent invalid entity access
+
+private:
+    // Generate unique UUID for entity tracking
+    static uint64 generateUUID() 
+    {
+        static std::atomic<uint64> counter{1};
+        return counter.fetch_add(1);
+    }
 };
 
 class CAIContainer;
@@ -306,6 +342,12 @@ public:
     virtual void HandleErrorMessage(std::unique_ptr<CBasicPacket>&) {};
 
     bool IsDynamicEntity() const;
+
+    // Entity safety and validation methods for crash prevention
+    bool IsValidEntityReference() const;
+    void InvalidateEntityReference();
+    bool ValidateEntityState() const;
+    virtual void OnEntityCleanup() {}; // Override for custom cleanup behavior
 
     uint32          id;             // global identifier unique on the server
     uint16          targid;         // local identifier unique to the zone

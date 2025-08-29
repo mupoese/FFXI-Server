@@ -1182,10 +1182,49 @@ namespace petutils
 
     void SpawnPet(CBattleEntity* PMaster, uint32 PetID, bool spawningFromZone)
     {
+        // Enhanced validation and cleanup for multiple pet prevention
+        if (PMaster == nullptr)
+        {
+            ShowError("petutils::SpawnPet: PMaster is null");
+            return;
+        }
+        
+        if (!PMaster->IsValidEntityReference())
+        {
+            ShowError("petutils::SpawnPet: PMaster has invalid entity reference");
+            return;
+        }
+        
         if (PMaster->PPet != nullptr)
         {
-            ShowWarning("Pet was not null for %s.", PMaster->getName());
-            return;
+            ShowWarning("Pet was not null for %s. Attempting cleanup before spawning new pet.", PMaster->getName());
+            
+            // Enhanced cleanup to prevent multiple pet bugs
+            try
+            {
+                // Validate existing pet before cleanup
+                if (PMaster->PPet->IsValidEntityReference())
+                {
+                    DespawnPet(PMaster);
+                }
+                else
+                {
+                    // Force cleanup if pet reference is invalid
+                    PMaster->PPet = nullptr;
+                }
+                
+                // Double-check cleanup was successful
+                if (PMaster->PPet != nullptr)
+                {
+                    ShowError("petutils::SpawnPet: Failed to cleanup existing pet for %s", PMaster->getName());
+                    return;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                ShowError("petutils::SpawnPet: Exception during pet cleanup: %s", e.what());
+                PMaster->PPet = nullptr; // Force cleanup on exception
+            }
         }
 
         LoadPet(PMaster, PetID, spawningFromZone);
@@ -1300,19 +1339,33 @@ namespace petutils
     {
         if (PMaster == nullptr)
         {
-            ShowWarning("PMaster is null.");
+            ShowWarning("petutils::DetachPet: PMaster is null.");
+            return;
+        }
+        
+        if (!PMaster->IsValidEntityReference())
+        {
+            ShowWarning("petutils::DetachPet: PMaster has invalid entity reference");
             return;
         }
 
         if (PMaster->PPet == nullptr)
         {
-            ShowWarning("Pet is null for %s.", PMaster->getName());
+            ShowWarning("petutils::DetachPet: Pet is null for %s.", PMaster->getName());
             return;
         }
 
         if (PMaster->objtype != TYPE_PC)
         {
             ShowWarning("Non-PC passed into function (%s)", PMaster->getName());
+            return;
+        }
+        
+        // Enhanced validation before detachment
+        if (!PMaster->PPet->IsValidEntityReference())
+        {
+            ShowWarning("petutils::DetachPet: Pet has invalid entity reference for %s, forcing cleanup", PMaster->getName());
+            PMaster->PPet = nullptr;
             return;
         }
 
@@ -1416,13 +1469,21 @@ namespace petutils
         PChar->pushPacket<CCharStatusPacket>(PChar);
         PChar->pushPacket<CCharAbilitiesPacket>(PChar);
         PChar->pushPacket<CPetSyncPacket>(PChar);
+        
+        ShowDebug("petutils::DetachPet: Successfully completed pet detachment for %s", PMaster->getName());
     }
 
     void DespawnPet(CBattleEntity* PMaster)
     {
         if (PMaster == nullptr)
         {
-            ShowWarning("PMaster is null.");
+            ShowWarning("petutils::DespawnPet: PMaster is null.");
+            return;
+        }
+        
+        if (!PMaster->IsValidEntityReference())
+        {
+            ShowWarning("petutils::DespawnPet: PMaster has invalid entity reference for %s", PMaster->getName());
             return;
         }
 
@@ -1431,8 +1492,26 @@ namespace petutils
             ShowWarning("Pet is null for %s.", PMaster->getName());
             return;
         }
-
-        petutils::DetachPet(PMaster);
+        
+        // Enhanced pet validation before detachment
+        try
+        {
+            if (PMaster->PPet->IsValidEntityReference())
+            {
+                ShowDebug("petutils::DespawnPet: Detaching pet for %s", PMaster->getName());
+                DetachPet(PMaster);
+            }
+            else
+            {
+                ShowWarning("petutils::DespawnPet: Pet has invalid entity reference for %s, forcing cleanup", PMaster->getName());
+                PMaster->PPet = nullptr; // Force cleanup for invalid pet reference
+            }
+        }
+        catch (const std::exception& e)
+        {
+            ShowError("petutils::DespawnPet: Exception during pet detachment: %s", e.what());
+            PMaster->PPet = nullptr; // Force cleanup on exception
+        }
     }
 
     int16 PerpetuationCost(uint32 id, uint8 level)

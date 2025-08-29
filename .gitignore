@@ -273,3 +273,16 @@ changelog-*.md
 !changelogs/changelog-*.md
 
 # Keep initial structure files tracked
+
+# Docker environment files and data
+.env
+docker-compose.override.yml
+docker/data/
+docker/logs/
+
+# Cloudflare credentials
+.cloudflared/
+cloudflare-tunnel.json
+
+# Docker build cache
+.docker/

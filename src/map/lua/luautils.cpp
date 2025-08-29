@@ -2073,7 +2073,7 @@ namespace luautils
                 // Attempt to cleanup instance state if error occurred
                 if (PChar->PInstance != nullptr)
                 {
-                    ShowWarning("luautils::OnZoneOut: Cleaning up instance state after lua error for %s", PChar->getName().c_str());
+                    ShowWarning("luautils::OnZoneOut: Cleaning up instance state after lua error for %s", PChar->getName());
                 }
                 return;
             }
@@ -2082,7 +2082,7 @@ namespace luautils
             if (PChar->PInstance != nullptr)
             {
                 // Ensure proper instance cleanup
-                PChar->PInstance->CheckTime(server_clock::now());
+                PChar->PInstance->CheckTime(timer::now());
             }
         }
         catch (const std::exception& e)

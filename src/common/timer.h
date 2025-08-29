@@ -92,7 +92,7 @@ namespace timer
     inline int64 get_utc_microseconds()
     {
         return std::chrono::duration_cast<std::chrono::microseconds>(
-            earth_time::now().time_since_epoch()
-        ).count();
+                   earth_time::now().time_since_epoch())
+            .count();
     }
 }; // namespace timer

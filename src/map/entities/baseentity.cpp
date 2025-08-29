@@ -239,13 +239,13 @@ bool CBaseEntity::IsValidEntityReference() const
     {
         return false;
     }
-    
+
     // Check if zone reference is valid
     if (loc.zone == nullptr)
     {
         return false;
     }
-    
+
     // Additional validation for entity state
     return ValidateEntityState();
 }
@@ -253,9 +253,9 @@ bool CBaseEntity::IsValidEntityReference() const
 void CBaseEntity::InvalidateEntityReference()
 {
     // Mark entity as invalid for cleanup
-    id = 0;
+    id     = 0;
     targid = 0;
-    
+
     // Call virtual cleanup method for derived classes
     OnEntityCleanup();
 }
@@ -273,7 +273,7 @@ bool CBaseEntity::ValidateEntityState() const
             return false;
         }
     }
-    
+
     return true;
 }
 

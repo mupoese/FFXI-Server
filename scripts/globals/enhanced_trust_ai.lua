@@ -685,6 +685,9 @@ xi.trust.enhanced.configureTrustAI = function(trust, customConfig)
     trust:setLocalVar("subJob", subjob or 0)
     trust:setLocalVar("aiConfig", utils.serialize(config))
     
+    -- Enable non-combat AI by default
+    xi.trust.enhanced.enableNonCombatAI(trust)
+    
     return true
 end
 
@@ -1436,6 +1439,43 @@ xi.trust.enhanced.coordinateAdvancedParty = function(trust)
     xi.trust.enhanced.coordinateSubjobSynergy(trusts, master)
     xi.trust.enhanced.coordinateAdvancedBuffing(trusts, master)
     xi.trust.enhanced.coordinateAdvancedFormation(trusts, master)
+    
+    -- Non-combat support coordination
+    xi.trust.enhanced.coordinateNonCombatSupport(trusts, master)
+end
+
+-- Coordinate non-combat support among all trusts
+xi.trust.enhanced.coordinateNonCombatSupport = function(trusts, master)
+    if not trusts or #trusts == 0 then
+        return
+    end
+    
+    -- Check if any trust is currently engaged
+    local anyEngaged = false
+    for _, trust in ipairs(trusts) do
+        if trust:isEngaged() then
+            anyEngaged = true
+            break
+        end
+    end
+    
+    -- If any trust is engaged, skip non-combat support
+    if anyEngaged then
+        return
+    end
+    
+    -- Coordinate non-combat actions to avoid conflicts
+    for i, trust in ipairs(trusts) do
+        -- Stagger non-combat actions to avoid multiple trusts acting simultaneously
+        local delay = i * 2 -- 2 second stagger between trusts
+        trust:setLocalVar("nonCombatDelay", delay)
+        
+        -- Schedule non-combat support check
+        trust:timer(delay * 1000, function(trustEntity)
+            xi.trust.enhanced.performNonCombatSupport(trustEntity)
+            xi.trust.enhanced.performPostBattleRecovery(trustEntity)
+        end)
+    end
 end
 
 -- Coordinate job-specific actions between different trust types
@@ -1562,6 +1602,488 @@ xi.trust.enhanced.coordinateMPManagement = function(rdm, blm)
     -- RDM prioritizes refresh on BLM, BLM uses convert when RDM MP is low
     rdm:setLocalVar("refreshTarget", blm:getID())
     blm:setLocalVar("refreshSource", rdm:getID())
+end
+
+-- Non-combat support system for trusts
+xi.trust.enhanced.performNonCombatSupport = function(trust)
+    if not trust or not trust:isTrust() then
+        return false
+    end
+    
+    local master = trust:getMaster()
+    if not master then
+        return false
+    end
+    
+    -- Only perform non-combat support when not engaged
+    if trust:isEngaged() then
+        return false
+    end
+    
+    local job = trust:getMainJob()
+    local subjob = trust:getSubJob()
+    
+    -- Perform healing support
+    if xi.trust.enhanced.canHeal(trust, job, subjob) then
+        xi.trust.enhanced.performNonCombatHealing(trust, master)
+    end
+    
+    -- Perform support magic (refresh, regen, etc.)
+    if xi.trust.enhanced.canSupport(trust, job, subjob) then
+        xi.trust.enhanced.performNonCombatBuffs(trust, master)
+    end
+    
+    -- Perform protective magic (protect, shell)
+    if xi.trust.enhanced.canProtect(trust, job, subjob) then
+        xi.trust.enhanced.performProtectiveBuffs(trust, master)
+    end
+    
+    -- Enhanced subjob integration for non-combat support
+    xi.trust.enhanced.integrateSubjobNonCombatSupport(trust, job, subjob)
+    
+    return true
+end
+
+-- Check if trust can provide healing support
+xi.trust.enhanced.canHeal = function(trust, job, subjob)
+    -- Primary healing jobs
+    if job == xi.job.WHM or job == xi.job.RDM then
+        return true
+    end
+    
+    -- Jobs with healing subjobs
+    if subjob == xi.job.WHM and trust:hasSpell(xi.magic.spell.CURE) then
+        return true
+    end
+    
+    -- Paladin with healing abilities
+    if job == xi.job.PLD and trust:hasSpell(xi.magic.spell.CURE) then
+        return true
+    end
+    
+    return false
+end
+
+-- Check if trust can provide support magic
+xi.trust.enhanced.canSupport = function(trust, job, subjob)
+    -- Primary support jobs
+    if job == xi.job.RDM or job == xi.job.BRD or job == xi.job.WHM then
+        return true
+    end
+    
+    -- Jobs with support subjobs
+    if subjob == xi.job.RDM and trust:hasSpell(xi.magic.spell.REFRESH) then
+        return true
+    end
+    
+    if subjob == xi.job.WHM and trust:hasSpell(xi.magic.spell.REGEN) then
+        return true
+    end
+    
+    return false
+end
+
+-- Check if trust can provide protective buffs
+xi.trust.enhanced.canProtect = function(trust, job, subjob)
+    -- Jobs that can cast protect/shell
+    if job == xi.job.WHM or job == xi.job.RDM or job == xi.job.PLD then
+        return true
+    end
+    
+    -- Subjobs that provide protective magic
+    if subjob == xi.job.WHM and (trust:hasSpell(xi.magic.spell.PROTECT_V) or trust:hasSpell(xi.magic.spell.SHELL_V)) then
+        return true
+    end
+    
+    return false
+end
+
+-- Perform non-combat healing on party members
+xi.trust.enhanced.performNonCombatHealing = function(trust, master)
+    local zone = master:getZone()
+    if not zone then
+        return
+    end
+    
+    -- Get all party members including master and other trusts
+    local partyMembers = {}
+    table.insert(partyMembers, master)
+    
+    -- Add trusts to party list
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            table.insert(partyMembers, entity)
+        end
+    end
+    
+    -- Find party members needing healing
+    for _, member in ipairs(partyMembers) do
+        if member:isAlive() then
+            local hpPercent = member:getHPP()
+            local mpPercent = member:getMPP()
+            
+            -- Prioritize healing based on HP levels
+            if hpPercent < 75 and trust:hasSpell(xi.magic.spell.CURE_IV) and trust:getMPP() > 30 then
+                trust:castSpell(xi.magic.spell.CURE_IV, member)
+                return -- One action per call
+            elseif hpPercent < 85 and trust:hasSpell(xi.magic.spell.CURE_III) and trust:getMPP() > 25 then
+                trust:castSpell(xi.magic.spell.CURE_III, member)
+                return
+            elseif hpPercent < 95 and trust:hasSpell(xi.magic.spell.CURE_II) and trust:getMPP() > 20 then
+                trust:castSpell(xi.magic.spell.CURE_II, member)
+                return
+            end
+        end
+    end
+end
+
+-- Perform non-combat support buffs
+xi.trust.enhanced.performNonCombatBuffs = function(trust, master)
+    local zone = master:getZone()
+    if not zone then
+        return
+    end
+    
+    -- Get all party members
+    local partyMembers = {}
+    table.insert(partyMembers, master)
+    
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            table.insert(partyMembers, entity)
+        end
+    end
+    
+    -- Provide support buffs
+    for _, member in ipairs(partyMembers) do
+        if member:isAlive() then
+            local mpPercent = member:getMPP()
+            
+            -- Refresh for MP users
+            if mpPercent < 80 and member:getMaxMP() > 0 and not member:hasStatusEffect(xi.effect.REFRESH) then
+                if trust:hasSpell(xi.magic.spell.REFRESH_II) and trust:getMPP() > 40 then
+                    trust:castSpell(xi.magic.spell.REFRESH_II, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.REFRESH) and trust:getMPP() > 30 then
+                    trust:castSpell(xi.magic.spell.REFRESH, member)
+                    return
+                end
+            end
+            
+            -- Regen for all party members
+            if member:getHPP() < 100 and not member:hasStatusEffect(xi.effect.REGEN) then
+                if trust:hasSpell(xi.magic.spell.REGEN_IV) and trust:getMPP() > 35 then
+                    trust:castSpell(xi.magic.spell.REGEN_IV, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.REGEN_III) and trust:getMPP() > 25 then
+                    trust:castSpell(xi.magic.spell.REGEN_III, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.REGEN) and trust:getMPP() > 15 then
+                    trust:castSpell(xi.magic.spell.REGEN, member)
+                    return
+                end
+            end
+        end
+    end
+end
+
+-- Perform protective buffs
+xi.trust.enhanced.performProtectiveBuffs = function(trust, master)
+    local zone = master:getZone()
+    if not zone then
+        return
+    end
+    
+    -- Get all party members
+    local partyMembers = {}
+    table.insert(partyMembers, master)
+    
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            table.insert(partyMembers, entity)
+        end
+    end
+    
+    -- Apply protective buffs
+    for _, member in ipairs(partyMembers) do
+        if member:isAlive() then
+            -- Protect
+            if not member:hasStatusEffect(xi.effect.PROTECT) then
+                if trust:hasSpell(xi.magic.spell.PROTECT_V) and trust:getMPP() > 30 then
+                    trust:castSpell(xi.magic.spell.PROTECT_V, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.PROTECT_IV) and trust:getMPP() > 25 then
+                    trust:castSpell(xi.magic.spell.PROTECT_IV, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.PROTECT_III) and trust:getMPP() > 20 then
+                    trust:castSpell(xi.magic.spell.PROTECT_III, member)
+                    return
+                end
+            end
+            
+            -- Shell
+            if not member:hasStatusEffect(xi.effect.SHELL) then
+                if trust:hasSpell(xi.magic.spell.SHELL_V) and trust:getMPP() > 30 then
+                    trust:castSpell(xi.magic.spell.SHELL_V, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.SHELL_IV) and trust:getMPP() > 25 then
+                    trust:castSpell(xi.magic.spell.SHELL_IV, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.SHELL_III) and trust:getMPP() > 20 then
+                    trust:castSpell(xi.magic.spell.SHELL_III, member)
+                    return
+                end
+            end
+        end
+    end
+end
+
+-- Enhanced post-battle recovery system
+xi.trust.enhanced.performPostBattleRecovery = function(trust)
+    if not trust or not trust:isTrust() then
+        return false
+    end
+    
+    local master = trust:getMaster()
+    if not master then
+        return false
+    end
+    
+    -- Only perform recovery when recently out of combat
+    local lastBattleTime = trust:getLocalVar("lastBattleTime") or 0
+    local currentTime = os.time()
+    
+    -- Update battle time tracking
+    if trust:isEngaged() then
+        trust:setLocalVar("lastBattleTime", currentTime)
+        return false
+    end
+    
+    -- Only perform recovery for first 30 seconds after battle
+    if currentTime - lastBattleTime > 30 then
+        return false
+    end
+    
+    local job = trust:getMainJob()
+    local subjob = trust:getSubJob()
+    
+    -- Perform recovery actions based on job capabilities
+    if xi.trust.enhanced.canHeal(trust, job, subjob) then
+        xi.trust.enhanced.performRecoveryHealing(trust, master)
+    end
+    
+    if xi.trust.enhanced.canSupport(trust, job, subjob) then
+        xi.trust.enhanced.performRecoverySupport(trust, master)
+    end
+    
+    return true
+end
+
+-- Recovery healing after battle
+xi.trust.enhanced.performRecoveryHealing = function(trust, master)
+    local zone = master:getZone()
+    if not zone then
+        return
+    end
+    
+    local partyMembers = {}
+    table.insert(partyMembers, master)
+    
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            table.insert(partyMembers, entity)
+        end
+    end
+    
+    -- Prioritize low HP party members
+    table.sort(partyMembers, function(a, b) return a:getHPP() < b:getHPP() end)
+    
+    for _, member in ipairs(partyMembers) do
+        if member:isAlive() and member:getHPP() < 90 then
+            if trust:hasSpell(xi.magic.spell.CURE_IV) and trust:getMPP() > 20 then
+                trust:castSpell(xi.magic.spell.CURE_IV, member)
+                return
+            elseif trust:hasSpell(xi.magic.spell.CURE_III) and trust:getMPP() > 15 then
+                trust:castSpell(xi.magic.spell.CURE_III, member)
+                return
+            end
+        end
+    end
+end
+
+-- Recovery support after battle  
+xi.trust.enhanced.performRecoverySupport = function(trust, master)
+    local zone = master:getZone()
+    if not zone then
+        return
+    end
+    
+    local partyMembers = {}
+    table.insert(partyMembers, master)
+    
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            table.insert(partyMembers, entity)
+        end
+    end
+    
+    -- Prioritize low MP party members for refresh
+    table.sort(partyMembers, function(a, b) return a:getMPP() < b:getMPP() end)
+    
+    for _, member in ipairs(partyMembers) do
+        if member:isAlive() and member:getMaxMP() > 0 and member:getMPP() < 70 then
+            if not member:hasStatusEffect(xi.effect.REFRESH) then
+                if trust:hasSpell(xi.magic.spell.REFRESH_II) and trust:getMPP() > 30 then
+                    trust:castSpell(xi.magic.spell.REFRESH_II, member)
+                    return
+                elseif trust:hasSpell(xi.magic.spell.REFRESH) and trust:getMPP() > 20 then
+                    trust:castSpell(xi.magic.spell.REFRESH, member)
+                    return
+                end
+            end
+        end
+    end
+end
+
+-- Enhanced subjob behavior integration for non-combat support
+xi.trust.enhanced.integrateSubjobNonCombatSupport = function(trust, job, subjob)
+    if not subjob or subjob == 0 then
+        return false
+    end
+    
+    local master = trust:getMaster()
+    if not master then
+        return false
+    end
+    
+    -- Enhanced subjob combinations for non-combat support
+    if job == xi.job.WAR and subjob == xi.job.WHM then
+        -- WAR/WHM: Emergency healing when no dedicated healer
+        if not xi.trust.enhanced.hasHealerInParty(master) then
+            xi.trust.enhanced.performNonCombatHealing(trust, master)
+        end
+        
+    elseif job == xi.job.PLD and subjob == xi.job.WHM then
+        -- PLD/WHM: Protective healing and buff support
+        xi.trust.enhanced.performProtectiveBuffs(trust, master)
+        xi.trust.enhanced.performNonCombatHealing(trust, master)
+        
+    elseif job == xi.job.BLM and subjob == xi.job.RDM then
+        -- BLM/RDM: Refresh support for party MP management
+        xi.trust.enhanced.performNonCombatBuffs(trust, master)
+        
+    elseif job == xi.job.DRK and subjob == xi.job.WHM then
+        -- DRK/WHM: Emergency healing support
+        if not xi.trust.enhanced.hasHealerInParty(master) then
+            xi.trust.enhanced.performNonCombatHealing(trust, master)
+        end
+        
+    elseif job == xi.job.SAM and subjob == xi.job.WHM then
+        -- SAM/WHM: Backup healing when needed
+        if not xi.trust.enhanced.hasHealerInParty(master) then
+            xi.trust.enhanced.performNonCombatHealing(trust, master)
+        end
+        
+    elseif job == xi.job.NIN and subjob == xi.job.WHM then
+        -- NIN/WHM: Support healing and buffs
+        xi.trust.enhanced.performNonCombatHealing(trust, master)
+        
+    elseif subjob == xi.job.RDM then
+        -- Any job with RDM subjob: Refresh and support magic
+        if trust:hasSpell(xi.magic.spell.REFRESH) or trust:hasSpell(xi.magic.spell.HASTE) then
+            xi.trust.enhanced.performNonCombatBuffs(trust, master)
+        end
+        
+    elseif subjob == xi.job.WHM then
+        -- Any job with WHM subjob: Basic healing and protect/shell
+        if trust:hasSpell(xi.magic.spell.CURE) then
+            xi.trust.enhanced.performNonCombatHealing(trust, master)
+        end
+        if trust:hasSpell(xi.magic.spell.PROTECT_III) or trust:hasSpell(xi.magic.spell.SHELL_III) then
+            xi.trust.enhanced.performProtectiveBuffs(trust, master)
+        end
+    end
+    
+    return true
+end
+
+-- Check if party has a dedicated healer
+xi.trust.enhanced.hasHealerInParty = function(master)
+    local zone = master:getZone()
+    if not zone then
+        return false
+    end
+    
+    -- Check if master is a healer
+    if master:getMainJob() == xi.job.WHM then
+        return true
+    end
+    
+    -- Check trusts for healers
+    local entities = zone:getEntitiesByType(xi.objType.TRUST)
+    for _, entity in ipairs(entities) do
+        if entity:getMaster() and entity:getMaster():getID() == master:getID() then
+            if entity:getMainJob() == xi.job.WHM then
+                return true
+            end
+        end
+    end
+    
+    return false
+end
+
+-- Main non-combat AI update function to be called regularly
+xi.trust.enhanced.updateNonCombatAI = function(trust)
+    if not trust or not trust:isTrust() then
+        return false
+    end
+    
+    -- Check delay to prevent spamming actions
+    local lastNonCombatAction = trust:getLocalVar("lastNonCombatAction") or 0
+    local currentTime = os.time()
+    local nonCombatDelay = trust:getLocalVar("nonCombatDelay") or 0
+    
+    -- Only perform actions every 5 seconds + stagger delay
+    if currentTime - lastNonCombatAction < (5 + nonCombatDelay) then
+        return false
+    end
+    
+    trust:setLocalVar("lastNonCombatAction", currentTime)
+    
+    -- Perform non-combat support
+    local actionPerformed = xi.trust.enhanced.performNonCombatSupport(trust)
+    
+    -- Perform post-battle recovery if appropriate
+    if not actionPerformed then
+        xi.trust.enhanced.performPostBattleRecovery(trust)
+    end
+    
+    return true
+end
+
+-- Utility function to enable enhanced non-combat AI for a trust
+xi.trust.enhanced.enableNonCombatAI = function(trust)
+    if not trust or not trust:isTrust() then
+        return false
+    end
+    
+    trust:setLocalVar("nonCombatAIEnabled", 1)
+    return true
+end
+
+-- Utility function to disable enhanced non-combat AI for a trust
+xi.trust.enhanced.disableNonCombatAI = function(trust)
+    if not trust or not trust:isTrust() then
+        return false
+    end
+    
+    trust:setLocalVar("nonCombatAIEnabled", 0)
+    return true
 end
 
 return xi.trust.enhanced

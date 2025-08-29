@@ -140,8 +140,8 @@ namespace db
         class ConnectionPool
         {
         public:
-            explicit ConnectionPool(uint32 minConnections = 5, uint32 maxConnections = 20, 
-                                    uint32 connectionTimeoutMs = 30000, uint32 idleTimeoutMs = 300000);
+            explicit ConnectionPool(uint32 minConnections = 10, uint32 maxConnections = 50, 
+                                    uint32 connectionTimeoutMs = 10000, uint32 idleTimeoutMs = 600000);
             ~ConnectionPool();
 
             // Get a connection from the pool

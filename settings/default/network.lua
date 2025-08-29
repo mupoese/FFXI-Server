@@ -35,10 +35,10 @@ xi.settings.network =
 
     -- Connection pool settings for improved database performance
     SQL_USE_CONNECTION_POOL = true,
-    SQL_POOL_MIN_CONNECTIONS = 5,
-    SQL_POOL_MAX_CONNECTIONS = 20,
-    SQL_POOL_CONNECTION_TIMEOUT_MS = 30000,
-    SQL_POOL_IDLE_TIMEOUT_MS = 300000,
+    SQL_POOL_MIN_CONNECTIONS = 10,  -- Increased from 5 for better high-load performance
+    SQL_POOL_MAX_CONNECTIONS = 50,  -- Increased from 20 for high-load scenarios
+    SQL_POOL_CONNECTION_TIMEOUT_MS = 10000,  -- Reduced from 30000 for faster timeout
+    SQL_POOL_IDLE_TIMEOUT_MS = 600000,  -- Increased from 300000 for better reuse
 
     -- ===========================
     -- Network Bonding Configuration

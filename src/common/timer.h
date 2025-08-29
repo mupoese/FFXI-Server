@@ -87,4 +87,12 @@ namespace timer
     {
         return std::chrono::floor<std::chrono::seconds>(d).count();
     };
+
+    // Gets the current UTC time in microseconds since epoch
+    inline int64 get_utc_microseconds()
+    {
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            earth_time::now().time_since_epoch()
+        ).count();
+    }
 }; // namespace timer

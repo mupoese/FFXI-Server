@@ -198,24 +198,24 @@ Synchronized<db::detail::State>& db::detail::getState()
     //     : is const. So we're going to have to wrap calls to it as though they aren't.
 
     // clang-format off
-    if (state.read([&](auto& state)
+    if (legacyState.read([&](auto& state)
     {
         return state.connection != nullptr;
     }))
     {
-        return state;
+        return legacyState;
     }
 
     // Otherwise, create a new connection. Writing it to the state.connection unique_ptr will release any previous connection
     // that might be there.
 
-    state.write([&](auto& state)
+    legacyState.write([&](auto& state)
     {
         state.reset();
     });
     // clang-format on
 
-    return state;
+    return legacyState;
 }
 
 auto db::detail::timer(std::string const& query) -> xi::final_action<std::function<void()>>

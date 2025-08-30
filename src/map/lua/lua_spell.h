@@ -64,6 +64,7 @@ public:
     uint32 getPrimaryTargetID();
     uint8  getJob(uint8 jobID);
     uint16 getMobFamily();
+    auto   getTraits() -> sol::table;
 
     bool operator==(const CLuaSpell& other) const
     {

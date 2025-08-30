@@ -424,6 +424,7 @@ public:
 
     void   setMissionStatus(uint8 missionLogID, sol::object const& arg2Obj, sol::object const& arg3Obj);
     uint32 getMissionStatus(uint8 missionLogID, sol::object const& missionStatusPosObj);
+    uint32 getMissionProgress(uint8 missionLogID); // Alias for getMissionStatus with no position
 
     void   setEminenceCompleted(uint16 recordID, sol::object const& arg1, sol::object const& arg2);
     bool   getEminenceCompleted(uint16 recordID);
@@ -699,6 +700,7 @@ public:
     bool  hasStatusEffectByFlag(uint16 StatusID);
     uint8 countEffect(uint16 StatusID);     // Gets the number of effects of a specific type on the entity
     uint8 countEffectWithFlag(uint32 flag); // Gets the number of effects with a flag on the entity
+    uint8 getStatusEffectCount(uint16 StatusID); // Alias for countEffect for compatibility
 
     bool   delStatusEffect(uint16 StatusID, sol::object const& SubType, sol::object const& SourceType, sol::object const& SourceTypeParam);
     void   delStatusEffectsByFlag(uint32 flag, sol::object const& silent);
@@ -795,6 +797,7 @@ public:
     auto   addGambit(uint16 targ, sol::table const& predicates, sol::table const& reactions, sol::object const& retry) -> std::string;
     void   removeGambit(std::string const& id);
     void   removeAllGambits();
+    void   clearGambits(); // Alias for removeAllGambits for compatibility
     void   setTrustTPSkillSettings(uint16 trigger, uint16 select, sol::object const& value);
 
     bool hasValidJugPetItem();

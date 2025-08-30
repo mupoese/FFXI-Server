@@ -66,8 +66,10 @@ public:
     uint16 getReqLvl();              // get the item's level
 
     int16 getMod(uint16 modID);              // get the power of a mod
+    int16 getModifier(uint16 modID);         // alias for getMod for compatibility
     void  addMod(uint16 modID, int16 power); // add mod to item (or add to a mod already applied on item)
     void  delMod(uint16 modID, int16 power); // remove power from mod
+    float getDPS();                          // get weapon DPS for rune fencer calculations
 
     auto getAugment(uint8 slot) -> sol::table; // get the augment id and power in slot
     // int32 setAugment(lua_State*);           // set the augment id and power in slot

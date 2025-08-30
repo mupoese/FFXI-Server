@@ -8400,6 +8400,17 @@ uint32 CLuaBaseEntity::getMissionStatus(uint8 missionLogID, sol::object const& m
 }
 
 /************************************************************************
+ *  Function: getMissionProgress()
+ *  Purpose : Alias for getMissionStatus with no position parameter
+ *  Example : local progress = player:getMissionProgress(xi.mission.log_id.BASTOK)
+ ************************************************************************/
+
+uint32 CLuaBaseEntity::getMissionProgress(uint8 missionLogID)
+{
+    return getMissionStatus(missionLogID, sol::lua_nil);
+}
+
+/************************************************************************
  *  Function: setEminenceCompleted()
  *  Purpose :
  *  Example : player:setEminenceCompleted(1)
@@ -14020,6 +14031,17 @@ uint8 CLuaBaseEntity::countEffectWithFlag(uint32 flag)
 }
 
 /************************************************************************
+ *  Function: getStatusEffectCount()
+ *  Purpose : Alias for countEffect for compatibility
+ *  Example : local count = player:getStatusEffectCount(xi.effect.PROTECT)
+ ************************************************************************/
+
+uint8 CLuaBaseEntity::getStatusEffectCount(uint16 StatusID)
+{
+    return countEffect(StatusID);
+}
+
+/************************************************************************
  *  Function: delStatusEffect()
  *  Purpose : Deletes a specified Effect from the Entity's Status Effect Container
  *  Example : target:delStatusEffect(xi.effect.RERAISE)
@@ -16036,7 +16058,19 @@ void CLuaBaseEntity::removeAllGambits()
 }
 
 /************************************************************************
+ *  Function: clearGambits()
+ *  Purpose : Alias for removeAllGambits for compatibility
+ *  Example : trust:clearGambits()
+ ************************************************************************/
+
+void CLuaBaseEntity::clearGambits()
+{
+    removeAllGambits();
+}
+
+/************************************************************************
  *  Function: setTrustTPSkillSettings(trigger, select, value)
+ *  Purpose : Set trust TP skill settings
  *  Purpose :
  *  Example : mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.HIGHEST, 1500)
  *  Notes   : value is optional TP Value
@@ -19960,6 +19994,7 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("completeMission", CLuaBaseEntity::completeMission);
     SOL_REGISTER("setMissionStatus", CLuaBaseEntity::setMissionStatus);
     SOL_REGISTER("getMissionStatus", CLuaBaseEntity::getMissionStatus);
+    SOL_REGISTER("getMissionProgress", CLuaBaseEntity::getMissionProgress);
     SOL_REGISTER("getEminenceCompleted", CLuaBaseEntity::getEminenceCompleted);
     SOL_REGISTER("getNumEminenceCompleted", CLuaBaseEntity::getNumEminenceCompleted);
     SOL_REGISTER("setEminenceCompleted", CLuaBaseEntity::setEminenceCompleted);
@@ -20231,6 +20266,7 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("hasStatusEffectByFlag", CLuaBaseEntity::hasStatusEffectByFlag);
     SOL_REGISTER("countEffect", CLuaBaseEntity::countEffect);
     SOL_REGISTER("countEffectWithFlag", CLuaBaseEntity::countEffectWithFlag);
+    SOL_REGISTER("getStatusEffectCount", CLuaBaseEntity::getStatusEffectCount);
 
     SOL_REGISTER("delStatusEffect", CLuaBaseEntity::delStatusEffect);
     SOL_REGISTER("delStatusEffectsByFlag", CLuaBaseEntity::delStatusEffectsByFlag);
@@ -20380,6 +20416,7 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("addGambit", CLuaBaseEntity::addGambit);
     SOL_REGISTER("removeGambit", CLuaBaseEntity::removeGambit);
     SOL_REGISTER("removeAllGambits", CLuaBaseEntity::removeAllGambits);
+    SOL_REGISTER("clearGambits", CLuaBaseEntity::clearGambits);
     SOL_REGISTER("setTrustTPSkillSettings", CLuaBaseEntity::setTrustTPSkillSettings);
 
     // Mob Entity-Specific

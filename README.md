@@ -95,6 +95,10 @@ python3 tools/advanced_profiler.py report --output performance.json
 
 # Enhanced CI/CD pipeline
 tools/enhanced_ci_pipeline.sh all
+
+# Docker testing and validation
+python3 tools/docker_test_suite.py --verbose --report docker_report.json
+tools/docker_validation.sh all
 ```
 
 ## Docker Installation Guide

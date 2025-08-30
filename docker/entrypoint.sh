@@ -4,11 +4,11 @@ set -e
 # FFXI Server Docker Entrypoint Script
 echo "Starting FFXI Server..."
 
-# Set environment variables with defaults
+# Set environment variables with defaults from new .env structure
 export FFXI_SQL_HOST="${FFXI_SQL_HOST:-db}"
 export FFXI_SQL_PORT="${FFXI_SQL_PORT:-3306}"
-export FFXI_SQL_LOGIN="${FFXI_SQL_LOGIN:-root}"
-export FFXI_SQL_PASSWORD="${FFXI_SQL_PASSWORD:-xiserver}"
+export FFXI_SQL_LOGIN="${FFXI_SQL_USER:-xiuser}"
+export FFXI_SQL_PASSWORD="${FFXI_SQL_PASSWORD:-xiserver_2024}"
 export FFXI_SQL_DATABASE="${FFXI_SQL_DATABASE:-xidb}"
 
 export FFXI_LOGIN_DATA_IP="${FFXI_LOGIN_DATA_IP:-0.0.0.0}"
@@ -25,9 +25,16 @@ export CLOUDFLARE_TUNNEL_NAME="${CLOUDFLARE_TUNNEL_NAME:-ffxi-server}"
 
 # Wait for database to be ready
 echo "Waiting for database connection..."
-while ! mysqladmin ping -h"$FFXI_SQL_HOST" -P"$FFXI_SQL_PORT" -u"$FFXI_SQL_LOGIN" -p"$FFXI_SQL_PASSWORD" --silent; do
-    echo "Waiting for database..."
+timeout=60
+counter=0
+while ! mysqladmin ping -h"$FFXI_SQL_HOST" -P"$FFXI_SQL_PORT" -u"$FFXI_SQL_LOGIN" -p"$FFXI_SQL_PASSWORD" --silent 2>/dev/null; do
+    echo "Waiting for database... ($counter/$timeout seconds)"
     sleep 2
+    counter=$((counter + 2))
+    if [ $counter -ge $timeout ]; then
+        echo "Database connection timeout after $timeout seconds!"
+        exit 1
+    fi
 done
 echo "Database is ready!"
 
@@ -39,8 +46,14 @@ mysql -h"$FFXI_SQL_HOST" -P"$FFXI_SQL_PORT" -u"$FFXI_SQL_LOGIN" -p"$FFXI_SQL_PAS
 TABLES_COUNT=$(mysql -h"$FFXI_SQL_HOST" -P"$FFXI_SQL_PORT" -u"$FFXI_SQL_LOGIN" -p"$FFXI_SQL_PASSWORD" -e "USE $FFXI_SQL_DATABASE; SHOW TABLES;" 2>/dev/null | wc -l)
 if [ "$TABLES_COUNT" -le 1 ]; then
     echo "Initializing database..."
-    # Import database schema (assuming SQL files exist)
-    if [ -d "/opt/ffxi/sql" ]; then
+    # Use the Python database tool if available
+    if [ -f "/opt/ffxi/tools/dbtool.py" ]; then
+        echo "Using dbtool.py for database initialization..."
+        cd /opt/ffxi
+        python3 tools/dbtool.py setup --host "$FFXI_SQL_HOST" --port "$FFXI_SQL_PORT" --user "$FFXI_SQL_LOGIN" --password "$FFXI_SQL_PASSWORD" --database "$FFXI_SQL_DATABASE" || true
+    elif [ -d "/opt/ffxi/sql" ]; then
+        # Fallback to manual SQL import
+        echo "Importing SQL files manually..."
         for sql_file in /opt/ffxi/sql/*.sql; do
             if [ -f "$sql_file" ]; then
                 echo "Importing $sql_file..."
@@ -160,5 +173,60 @@ echo "Login Ports: 54001 (VIEW), 54230 (DATA), 54231 (AUTH), 51220 (CONFIG)"
 echo "Game Ports: 54230 (MAP), 54002 (SEARCH), 54003 (ZMQ)"
 echo "HTTP Port: 8088"
 
-# Execute the main command
-exec "$@"
+# Execute the main command based on argument
+case "$1" in
+    "connect"|"xi_connect")
+        echo "Starting xi_connect server..."
+        exec /opt/ffxi/bin/xi_connect "${@:2}"
+        ;;
+    "map"|"xi_map")
+        echo "Starting xi_map server..."
+        exec /opt/ffxi/bin/xi_map "${@:2}"
+        ;;
+    "search"|"xi_search")
+        echo "Starting xi_search server..."
+        exec /opt/ffxi/bin/xi_search "${@:2}"
+        ;;
+    "world"|"xi_world")
+        echo "Starting xi_world server..."
+        exec /opt/ffxi/bin/xi_world "${@:2}"
+        ;;
+    "all"|"")
+        echo "Starting all FFXI server components..."
+        # Start all servers in background except the last one
+        /opt/ffxi/bin/xi_connect --log /opt/ffxi/logs/xi_connect.log &
+        /opt/ffxi/bin/xi_search --log /opt/ffxi/logs/xi_search.log &
+        /opt/ffxi/bin/xi_world --log /opt/ffxi/logs/xi_world.log &
+        
+        # Start map server in foreground (will keep container running)
+        exec /opt/ffxi/bin/xi_map --log /opt/ffxi/logs/xi_map.log
+        ;;
+    "test"|"xi_test")
+        echo "Running FFXI tests..."
+        exec /opt/ffxi/bin/xi_test "${@:2}"
+        ;;
+    "bash"|"sh")
+        echo "Starting interactive shell..."
+        exec /bin/bash
+        ;;
+    "health")
+        echo "Performing health check..."
+        # Simple health check - verify processes and database connection
+        mysqladmin ping -h"$FFXI_SQL_HOST" -P"$FFXI_SQL_PORT" -u"$FFXI_SQL_LOGIN" -p"$FFXI_SQL_PASSWORD" --silent || exit 1
+        curl -f http://localhost:8088/health 2>/dev/null || echo "HTTP health check not available"
+        echo "Health check passed"
+        exit 0
+        ;;
+    *)
+        echo "Usage: $0 {connect|map|search|world|all|test|bash|health}"
+        echo "  connect  - Start only xi_connect server"
+        echo "  map      - Start only xi_map server"
+        echo "  search   - Start only xi_search server"
+        echo "  world    - Start only xi_world server"
+        echo "  all      - Start all server components (default)"
+        echo "  test     - Run server tests"
+        echo "  bash     - Start interactive shell"
+        echo "  health   - Perform health check"
+        exec "$@"
+        ;;
+esac

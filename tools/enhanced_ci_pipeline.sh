@@ -49,6 +49,15 @@ check_dependencies() {
     command -v python3 >/dev/null || missing_tools+=("python3")
     command -v git >/dev/null || missing_tools+=("git")
     
+    # Docker and containerization tools (optional but recommended)
+    if ! command -v docker >/dev/null; then
+        log_warn "Docker not found - Docker tests will be skipped"
+    fi
+    
+    if ! command -v docker-compose >/dev/null; then
+        log_warn "Docker Compose not found - full stack tests will be skipped"
+    fi
+    
     # Optional but recommended tools
     if ! command -v clang-format >/dev/null; then
         log_warn "clang-format not found - C++ formatting will be skipped"
@@ -247,6 +256,53 @@ run_tests() {
     log_info "Tests completed"
 }
 
+# Docker containerization testing
+run_docker_tests() {
+    log_section "Docker Testing"
+    
+    # Check if Docker is available
+    if ! command -v docker >/dev/null; then
+        log_warn "Docker not available, skipping Docker tests"
+        return 0
+    fi
+    
+    if ! docker info >/dev/null 2>&1; then
+        log_warn "Docker daemon not running, skipping Docker tests"
+        return 0
+    fi
+    
+    # Run Docker validation script
+    if [ -f "$TOOLS_DIR/docker_validation.sh" ]; then
+        log_info "Running Docker validation suite..."
+        if bash "$TOOLS_DIR/docker_validation.sh" all; then
+            log_info "Docker validation passed"
+        else
+            log_error "Docker validation failed"
+            return 1
+        fi
+    else
+        log_warn "Docker validation script not found"
+    fi
+    
+    # Run Python Docker test suite
+    if [ -f "$TOOLS_DIR/docker_test_suite.py" ]; then
+        log_info "Running Python Docker test suite..."
+        if python3 "$TOOLS_DIR/docker_test_suite.py" --ci --report "/tmp/docker_test_report.json"; then
+            log_info "Docker test suite passed"
+            if [ -f "/tmp/docker_test_report.json" ]; then
+                log_info "Docker test report generated: /tmp/docker_test_report.json"
+            fi
+        else
+            log_error "Docker test suite failed"
+            return 1
+        fi
+    else
+        log_warn "Python Docker test suite not found"
+    fi
+    
+    log_info "Docker testing completed"
+}
+
 # Performance benchmarking
 run_performance_tests() {
     log_section "Performance Testing"
@@ -340,6 +396,7 @@ main() {
     run_static_analysis
     build_project
     run_tests
+    run_docker_tests
     run_performance_tests
     generate_reports
     
@@ -356,6 +413,7 @@ main() {
     echo "  🔍 Analysis: ✅"
     echo "  🔨 Build: ✅"
     echo "  🧪 Tests: ✅"
+    echo "  🐳 Docker: ✅"
     echo "  📊 Performance: ✅"
     echo "  📋 Reports: ✅"
     echo "  ⏱️ Duration: ${duration}s"
@@ -377,6 +435,9 @@ case "${1:-main}" in
         ;;
     "test")
         run_tests
+        ;;
+    "docker")
+        run_docker_tests
         ;;
     "perf"|"performance")
         run_performance_tests

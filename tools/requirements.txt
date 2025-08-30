@@ -11,6 +11,10 @@ argparse
 requests
 bcrypt
 
+# Web administration
+flask>=3.0.0
+werkzeug>=3.0.0
+
 # Security and quality assurance tools
 pip-audit>=2.6.0
 safety>=2.0.0

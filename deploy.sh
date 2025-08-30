@@ -137,7 +137,7 @@ configure_profiles() {
     echo "4) Development (All services including debugging tools)"
     echo "5) Custom (Specify profiles manually)"
     
-    read -p "Choose deployment type [1-5]: " deployment_type
+    read -r -p "Choose deployment type [1-5]: " deployment_type
     
     case $deployment_type in
         1)
@@ -155,7 +155,7 @@ configure_profiles() {
             export FFXI_DEBUG_MODE=true
             ;;
         5)
-            read -p "Enter profiles (comma-separated): " custom_profiles
+            read -r -p "Enter profiles (comma-separated): " custom_profiles
             profiles="$custom_profiles"
             ;;
         *)
@@ -391,7 +391,7 @@ scale_services() {
         echo "  low     - 1 server instance (default)"
         echo "  medium  - 2 server instances"
         echo "  high    - 3 server instances"
-        read -p "Select scaling option: " scale_config
+        read -r -p "Select scaling option: " scale_config
     fi
     
     case "$scale_config" in

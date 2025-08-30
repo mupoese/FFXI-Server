@@ -384,14 +384,18 @@ namespace charutils
         float nationDayMultiplier = 1.0f;
         
         // Job-based elemental bonuses
-        uint8 jobElement = 0; // 0 = no element, 1-8 = elements
+        uint8 jobElement = 0; // 0 = no element, 1-8 = elements (Fire, Ice, Wind, Earth, Thunder, Water, Light, Dark)
         switch (mjob)
         {
-            case JOB_PLD: // Paladin = Light
+            case JOB_WAR: // Warrior = Earth (steadfast, grounded combat)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_MNK: // Monk = Wind (chi flow, spiritual energy)
+                jobElement = 3; // Wind element
+                break;
             case JOB_WHM: // White Mage = Light
                 jobElement = 7; // Light element
                 break;
-            case JOB_DRK: // Dark Knight = Dark
             case JOB_BLM: // Black Mage = Dark
                 jobElement = 8; // Dark element
                 break;
@@ -400,6 +404,57 @@ namespace charutils
                 {
                     jobDayMultiplier = 1.05f; // +5% bonus on either light or dark day
                 }
+                break;
+            case JOB_THF: // Thief = Dark (stealth, shadows)
+                jobElement = 8; // Dark element
+                break;
+            case JOB_PLD: // Paladin = Light
+                jobElement = 7; // Light element
+                break;
+            case JOB_DRK: // Dark Knight = Dark
+                jobElement = 8; // Dark element
+                break;
+            case JOB_BST: // Beastmaster = Earth (nature, animals)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_BRD: // Bard = Wind (music travels on air)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_RNG: // Ranger = Wind (arrows fly through air)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_SAM: // Samurai = Fire (passion, intensity, bushido spirit)
+                jobElement = 1; // Fire element
+                break;
+            case JOB_NIN: // Ninja = Water (fluid movement, adaptability)
+                jobElement = 6; // Water element
+                break;
+            case JOB_DRG: // Dragoon = Fire (dragon breath, aerial flame)
+                jobElement = 1; // Fire element
+                break;
+            case JOB_SMN: // Summoner = Light (divine connection to avatars)
+                jobElement = 7; // Light element
+                break;
+            case JOB_BLU: // Blue Mage = Water (adaptability, flow of knowledge)
+                jobElement = 6; // Water element
+                break;
+            case JOB_COR: // Corsair = Thunder (gunpowder, explosive shots)
+                jobElement = 5; // Thunder element
+                break;
+            case JOB_PUP: // Puppetmaster = Thunder (mechanical, electrical control)
+                jobElement = 5; // Thunder element
+                break;
+            case JOB_DNC: // Dancer = Wind (graceful movement, flowing steps)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_SCH: // Scholar = Light (knowledge, enlightenment)
+                jobElement = 7; // Light element
+                break;
+            case JOB_GEO: // Geomancer = Earth (geological magic)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_RUN: // Rune Fencer = Ice (defensive magic, protective barriers)
+                jobElement = 2; // Ice element
                 break;
             default:
                 jobElement = 0; // No elemental affinity

@@ -136,6 +136,11 @@ int16 CLuaItem::getMod(uint16 modID)
     return PItem->getModifier(mod);
 }
 
+int16 CLuaItem::getModifier(uint16 modID)
+{
+    return getMod(modID);
+}
+
 void CLuaItem::addMod(uint16 modID, int16 power)
 {
     auto* PItem = static_cast<CItemEquipment*>(m_PLuaItem);
@@ -158,6 +163,26 @@ void CLuaItem::delMod(uint16 modID, int16 power)
     Mod   mod   = static_cast<Mod>(modID);
 
     PItem->addModifier(CModifier(mod, -power));
+}
+
+float CLuaItem::getDPS()
+{
+    auto* PWeapon = dynamic_cast<CItemWeapon*>(m_PLuaItem);
+    if (PWeapon)
+    {
+        // Calculate DPS based on weapon damage and delay
+        uint16 damage = PWeapon->getDamage();
+        uint16 delay = PWeapon->getDelay();
+        
+        if (delay > 0)
+        {
+            // DPS = damage / (delay in seconds)
+            // delay is in 100ms units, so divide by 10 to get seconds
+            return static_cast<float>(damage) / (static_cast<float>(delay) / 10.0f);
+        }
+    }
+    
+    return 0.0f;
 }
 
 auto CLuaItem::getAugment(uint8 slot) -> sol::table
@@ -415,8 +440,10 @@ void CLuaItem::Register()
     SOL_REGISTER("getILvl", CLuaItem::getILvl);
     SOL_REGISTER("getReqLvl", CLuaItem::getReqLvl);
     SOL_REGISTER("getMod", CLuaItem::getMod);
+    SOL_REGISTER("getModifier", CLuaItem::getModifier);
     SOL_REGISTER("addMod", CLuaItem::addMod);
     SOL_REGISTER("delMod", CLuaItem::delMod);
+    SOL_REGISTER("getDPS", CLuaItem::getDPS);
     SOL_REGISTER("getAugment", CLuaItem::getAugment);
     SOL_REGISTER("getSkillType", CLuaItem::getSkillType);
     SOL_REGISTER("getWeaponskillPoints", CLuaItem::getWeaponskillPoints);

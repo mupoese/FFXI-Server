@@ -30,6 +30,7 @@
 #include "entities/trustentity.h"
 #include "lua_baseentity.h"
 #include "lua_battlefield.h"
+#include "luautils.h"
 #include "mob_modifier.h"
 #include "status_effect_container.h"
 #include "utils/mobutils.h"
@@ -716,6 +717,47 @@ void CLuaBattlefield::addGroups(sol::table const& groups, bool hasMultipleArenas
     }
 }
 
+CLuaBaseEntity* CLuaBattlefield::spawnMob(uint32 mobId, sol::table pos)
+{
+    if (!m_PLuaBattlefield)
+    {
+        ShowError("CLuaBattlefield::spawnMob called with null battlefield");
+        return nullptr;
+    }
+
+    // Use the existing SpawnMob function from luautils
+    CBaseEntity* PEntity = luautils::SpawnMob(mobId, sol::lua_nil, sol::lua_nil);
+    if (!PEntity)
+    {
+        ShowError("CLuaBattlefield::spawnMob: failed to spawn mob %u", mobId);
+        return nullptr;
+    }
+
+    CMobEntity* PMob = dynamic_cast<CMobEntity*>(PEntity);
+    if (!PMob)
+    {
+        ShowError("CLuaBattlefield::spawnMob: spawned entity is not a mob");
+        return nullptr;
+    }
+
+    // Set position if provided
+    if (pos.valid())
+    {
+        position_t position = {};
+        position.x = pos.get_or("x", PMob->loc.p.x);
+        position.y = pos.get_or("y", PMob->loc.p.y);
+        position.z = pos.get_or("z", PMob->loc.p.z);
+        position.rotation = pos.get_or("rot", PMob->loc.p.rotation);
+        PMob->loc.p = position;
+        PMob->m_SpawnPoint = position;
+    }
+
+    // Insert the mob into the battlefield
+    m_PLuaBattlefield->InsertEntity(PMob, true);
+
+    return new CLuaBaseEntity(PMob);
+}
+
 //==========================================================//
 
 void CLuaBattlefield::Register()
@@ -754,6 +796,7 @@ void CLuaBattlefield::Register()
     SOL_REGISTER("win", CLuaBattlefield::win);
     SOL_REGISTER("lose", CLuaBattlefield::lose);
     SOL_REGISTER("addGroups", CLuaBattlefield::addGroups);
+    SOL_REGISTER("spawnMob", CLuaBattlefield::spawnMob);
 };
 
 std::ostream& operator<<(std::ostream& os, const CLuaBattlefield& battlefield)

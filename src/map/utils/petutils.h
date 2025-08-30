@@ -201,6 +201,7 @@ namespace petutils
     void  AttackTarget(CBattleEntity* PMaster, CBattleEntity* PTarget);
     void  RetreatToMaster(CBattleEntity* PMaster);
     int16 PerpetuationCost(uint32 id, uint8 level);
+    int16 PerpetuationCost(uint32 id, uint8 level, CBattleEntity* PMaster);
     void  Familiar(CBattleEntity* PPet);
     void  LoadPet(CBattleEntity* PMaster, uint32 PetID, bool spawningFromZone);
 

@@ -23,6 +23,7 @@
 
 #include "lua_spell.h"
 #include "spell.h"
+#include "blue_spell.h"
 #include "utils/battleutils.h"
 
 /************************************************************************
@@ -94,6 +95,41 @@ void CLuaSpell::setCastTime(uint32 casttime)
 uint32 CLuaSpell::getPrimaryTargetID()
 {
     return m_PLuaSpell->getPrimaryTargetID();
+}
+
+uint8 CLuaSpell::getJob(uint8 jobID)
+{
+    return m_PLuaSpell->getJob(static_cast<JOBTYPE>(jobID));
+}
+
+uint16 CLuaSpell::getMobFamily()
+{
+    // For now, return 0 for all spells
+    // This could be enhanced later to return actual mob family data
+    return 0;
+}
+
+auto CLuaSpell::getTraits() -> sol::table
+{
+    sol::table traitsTable = lua.create_table();
+    
+    // Check if this is a Blue Mage spell
+    auto* pBlueSpell = dynamic_cast<CBlueSpell*>(m_PLuaSpell);
+    if (pBlueSpell)
+    {
+        uint8 traitCategory = pBlueSpell->getTraitCategory();
+        uint8 traitWeight = pBlueSpell->getTraitWeight();
+        
+        if (traitCategory > 0 && traitWeight > 0)
+        {
+            sol::table trait = lua.create_table();
+            trait["trait"] = traitCategory;
+            trait["value"] = traitWeight;
+            traitsTable[1] = trait;
+        }
+    }
+    
+    return traitsTable;
 }
 
 bool CLuaSpell::canTargetEnemy()
@@ -182,6 +218,9 @@ void CLuaSpell::Register()
     SOL_REGISTER("getFlag", CLuaSpell::getFlag);
     SOL_REGISTER("getCastTime", CLuaSpell::getCastTime);
     SOL_REGISTER("getPrimaryTargetID", CLuaSpell::getPrimaryTargetID);
+    SOL_REGISTER("getJob", CLuaSpell::getJob);
+    SOL_REGISTER("getMobFamily", CLuaSpell::getMobFamily);
+    SOL_REGISTER("getTraits", CLuaSpell::getTraits);
 }
 
 std::ostream& operator<<(std::ostream& os, const CLuaSpell& spell)

@@ -25,6 +25,7 @@
 #include "common/logging.h"
 #include "common/sql.h"
 #include "common/utils.h"
+#include "common/vana_time.h"
 
 #include "battlefield.h"
 #include "battleutils.h"
@@ -686,6 +687,45 @@ namespace mobutils
         PMob->stats.MND     = (uint16)(PMob->stats.MND * statMultiplier);
         PMob->stats.CHR     = (uint16)(PMob->stats.CHR * statMultiplier);
 
+        // Apply day-element difficulty modifiers
+        if (PMob->m_Element > 0 && PMob->m_Element <= 8)
+        {
+            uint32  WeekDay   = static_cast<uint8>(vanadiel_time::get_weekday());
+            DAYTYPE strongDay[8] = { FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, WATERSDAY, LIGHTSDAY, DARKSDAY };
+            DAYTYPE weakDay[8]   = { WATERSDAY, FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, DARKSDAY, LIGHTSDAY };
+            
+            float dayMultiplier = 1.0f;
+            
+            // Check if current day matches mob's strong day (increase difficulty)
+            if (WeekDay == strongDay[PMob->m_Element - 1])
+            {
+                dayMultiplier = 1.15f; // +15% difficulty increase
+            }
+            // Check if current day matches mob's weak day (decrease difficulty)
+            else if (WeekDay == weakDay[PMob->m_Element - 1])
+            {
+                dayMultiplier = 0.85f; // -15% difficulty decrease
+            }
+            
+            // Apply day modifier to stats and HP/MP if different from base
+            if (dayMultiplier != 1.0f)
+            {
+                PMob->stats.STR = (uint16)(PMob->stats.STR * dayMultiplier);
+                PMob->stats.DEX = (uint16)(PMob->stats.DEX * dayMultiplier);
+                PMob->stats.VIT = (uint16)(PMob->stats.VIT * dayMultiplier);
+                PMob->stats.AGI = (uint16)(PMob->stats.AGI * dayMultiplier);
+                PMob->stats.INT = (uint16)(PMob->stats.INT * dayMultiplier);
+                PMob->stats.MND = (uint16)(PMob->stats.MND * dayMultiplier);
+                PMob->stats.CHR = (uint16)(PMob->stats.CHR * dayMultiplier);
+                
+                PMob->health.maxhp = (int32)(PMob->health.maxhp * dayMultiplier);
+                if (PMob->health.maxmp > 0)
+                {
+                    PMob->health.maxmp = (int32)(PMob->health.maxmp * dayMultiplier);
+                }
+            }
+        }
+
         // special case, give spell list to my pet
         if (PMob->getMobMod(MOBMOD_PET_SPELL_LIST) && PMob->PPet != nullptr)
         {
@@ -735,6 +775,43 @@ namespace mobutils
         PMob->addModifier(Mod::ACC, GetBaseSkill(PMob, PMob->accRank));                    // Base Accuracy for all mobs is Rank A+ but pull from DB for specific cases
         PMob->addModifier(Mod::RATT, GetBaseSkill(PMob, PMob->attRank));                   // Base Ranged Attack for all mobs is Rank A+ but pull from DB for specific cases
         PMob->addModifier(Mod::RACC, GetBaseSkill(PMob, PMob->accRank));                   // Base Ranged Accuracy for all mobs is Rank A+ but pull from DB for specific cases
+
+        // Apply day-element difficulty modifiers to combat stats
+        if (PMob->m_Element > 0 && PMob->m_Element <= 8)
+        {
+            uint32  WeekDay   = static_cast<uint8>(vanadiel_time::get_weekday());
+            DAYTYPE strongDay[8] = { FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, WATERSDAY, LIGHTSDAY, DARKSDAY };
+            DAYTYPE weakDay[8]   = { WATERSDAY, FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, DARKSDAY, LIGHTSDAY };
+            
+            int16 dayModifier = 0;
+            
+            // Check if current day matches mob's strong day (increase difficulty)
+            if (WeekDay == strongDay[PMob->m_Element - 1])
+            {
+                dayModifier = 15; // +15% boost to combat stats
+            }
+            // Check if current day matches mob's weak day (decrease difficulty)
+            else if (WeekDay == weakDay[PMob->m_Element - 1])
+            {
+                dayModifier = -15; // -15% reduction to combat stats
+            }
+            
+            // Apply day modifier to combat stats if there's a change
+            if (dayModifier != 0)
+            {
+                int16 attMod = (int16)(PMob->getMod(Mod::ATT) * dayModifier / 100);
+                int16 defMod = (int16)(PMob->getMod(Mod::DEF) * dayModifier / 100);
+                int16 accMod = (int16)(PMob->getMod(Mod::ACC) * dayModifier / 100);
+                int16 evaMod = (int16)(PMob->getMod(Mod::EVA) * dayModifier / 100);
+                
+                PMob->addModifier(Mod::ATT, attMod);
+                PMob->addModifier(Mod::DEF, defMod);
+                PMob->addModifier(Mod::ACC, accMod);
+                PMob->addModifier(Mod::EVA, evaMod);
+                PMob->addModifier(Mod::RATT, attMod);
+                PMob->addModifier(Mod::RACC, accMod);
+            }
+        }
 
         // Known Base Parry for all mobs is Rank C
         // MOBMOD_CAN_PARRY uses the mod value as the rank, unknown if mobs in current retail or somewhere else have a different parry rank

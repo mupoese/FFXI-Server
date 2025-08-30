@@ -248,6 +248,7 @@ namespace luautils
         lua.set_function("GetConquestBalance", &luautils::GetConquestBalance);
         lua.set_function("IsConquestAlliance", &luautils::IsConquestAlliance);
         lua.set_function("SpawnMob", &luautils::SpawnMob);
+        lua.set_function("spawnMob", &luautils::SpawnMob); // Alias for compatibility
         lua.set_function("DespawnMob", &luautils::DespawnMob);
         lua.set_function("GetPlayerByName", &luautils::GetPlayerByName);
         lua.set_function("GetPlayerByID", &luautils::GetPlayerByID);

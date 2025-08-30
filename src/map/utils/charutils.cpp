@@ -374,6 +374,168 @@ namespace charutils
             ref<uint16>(&PChar->stats, counter) = (uint16)(settings::get<float>("map.PLAYER_STAT_MULTIPLIER") * (raceStat + jobStat + sJobStat) + MeritBonus);
             counter += 2;
         }
+
+        // Apply job and nation-based elemental day bonuses
+        uint32  WeekDay   = static_cast<uint8>(vanadiel_time::get_weekday());
+        DAYTYPE strongDay[8] = { FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, WATERSDAY, LIGHTSDAY, DARKSDAY };
+        DAYTYPE weakDay[8]   = { WATERSDAY, FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, DARKSDAY, LIGHTSDAY };
+        
+        float jobDayMultiplier = 1.0f;
+        float nationDayMultiplier = 1.0f;
+        
+        // Job-based elemental bonuses
+        uint8 jobElement = 0; // 0 = no element, 1-8 = elements (Fire, Ice, Wind, Earth, Thunder, Water, Light, Dark)
+        switch (mjob)
+        {
+            case JOB_WAR: // Warrior = Earth (steadfast, grounded combat)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_MNK: // Monk = Wind (chi flow, spiritual energy)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_WHM: // White Mage = Light
+                jobElement = 7; // Light element
+                break;
+            case JOB_BLM: // Black Mage = Dark
+                jobElement = 8; // Dark element
+                break;
+            case JOB_RDM: // Red Mage = Mixed (gets benefit from both light and dark)
+                if (WeekDay == LIGHTSDAY || WeekDay == DARKSDAY)
+                {
+                    jobDayMultiplier = 1.05f; // +5% bonus on either light or dark day
+                }
+                break;
+            case JOB_THF: // Thief = Dark (stealth, shadows)
+                jobElement = 8; // Dark element
+                break;
+            case JOB_PLD: // Paladin = Light
+                jobElement = 7; // Light element
+                break;
+            case JOB_DRK: // Dark Knight = Dark
+                jobElement = 8; // Dark element
+                break;
+            case JOB_BST: // Beastmaster = Earth (nature, animals)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_BRD: // Bard = Wind (music travels on air)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_RNG: // Ranger = Wind (arrows fly through air)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_SAM: // Samurai = Fire (passion, intensity, bushido spirit)
+                jobElement = 1; // Fire element
+                break;
+            case JOB_NIN: // Ninja = Water (fluid movement, adaptability)
+                jobElement = 6; // Water element
+                break;
+            case JOB_DRG: // Dragoon = Fire (dragon breath, aerial flame)
+                jobElement = 1; // Fire element
+                break;
+            case JOB_SMN: // Summoner = Light (divine connection to avatars)
+                jobElement = 7; // Light element
+                break;
+            case JOB_BLU: // Blue Mage = Water (adaptability, flow of knowledge)
+                jobElement = 6; // Water element
+                break;
+            case JOB_COR: // Corsair = Thunder (gunpowder, explosive shots)
+                jobElement = 5; // Thunder element
+                break;
+            case JOB_PUP: // Puppetmaster = Thunder (mechanical, electrical control)
+                jobElement = 5; // Thunder element
+                break;
+            case JOB_DNC: // Dancer = Wind (graceful movement, flowing steps)
+                jobElement = 3; // Wind element
+                break;
+            case JOB_SCH: // Scholar = Light (knowledge, enlightenment)
+                jobElement = 7; // Light element
+                break;
+            case JOB_GEO: // Geomancer = Earth (geological magic)
+                jobElement = 4; // Earth element
+                break;
+            case JOB_RUN: // Rune Fencer = Ice (defensive magic, protective barriers)
+                jobElement = 2; // Ice element
+                break;
+            default:
+                jobElement = 0; // No elemental affinity
+                break;
+        }
+        
+        // Apply job elemental bonuses for non-mixed jobs
+        if (jobElement > 0)
+        {
+            if (WeekDay == strongDay[jobElement - 1])
+            {
+                jobDayMultiplier = 1.1f; // +10% bonus on strong day
+            }
+            else if (WeekDay == weakDay[jobElement - 1])
+            {
+                jobDayMultiplier = 0.95f; // -5% penalty on weak day
+            }
+        }
+        
+        // Nation-based elemental bonuses (only for aligned race/nation combinations)
+        uint8 nationElement = 0;
+        bool isAligned = false;
+        
+        // Check for proper race/nation alignment
+        switch (PChar->profile.nation)
+        {
+            case 0: // San d'Oria = Fire element
+                if (race == 1) // Elvaan
+                {
+                    nationElement = 1; // Fire
+                    isAligned = true;
+                }
+                break;
+            case 1: // Bastok = Water element
+                if (race == 0 || race == 4) // Hume or Galka
+                {
+                    nationElement = 6; // Water
+                    isAligned = true;
+                }
+                break;
+            case 2: // Windurst = Wind element
+                if (race == 2 || race == 3) // Tarutaru or Mithra
+                {
+                    nationElement = 3; // Wind
+                    isAligned = true;
+                }
+                break;
+        }
+        
+        // Apply nation elemental bonuses for aligned players
+        if (isAligned && nationElement > 0)
+        {
+            if (WeekDay == strongDay[nationElement - 1])
+            {
+                nationDayMultiplier = 1.08f; // +8% bonus on nation's strong day
+            }
+            else if (WeekDay == weakDay[nationElement - 1])
+            {
+                nationDayMultiplier = 0.97f; // -3% penalty on nation's weak day
+            }
+        }
+        
+        // Apply combined bonuses to stats if different from base
+        float combinedMultiplier = jobDayMultiplier * nationDayMultiplier;
+        if (combinedMultiplier != 1.0f)
+        {
+            PChar->stats.STR = (uint16)(PChar->stats.STR * combinedMultiplier);
+            PChar->stats.DEX = (uint16)(PChar->stats.DEX * combinedMultiplier);
+            PChar->stats.VIT = (uint16)(PChar->stats.VIT * combinedMultiplier);
+            PChar->stats.AGI = (uint16)(PChar->stats.AGI * combinedMultiplier);
+            PChar->stats.INT = (uint16)(PChar->stats.INT * combinedMultiplier);
+            PChar->stats.MND = (uint16)(PChar->stats.MND * combinedMultiplier);
+            PChar->stats.CHR = (uint16)(PChar->stats.CHR * combinedMultiplier);
+            
+            // Apply to HP/MP as well
+            PChar->health.maxhp = (int32)(PChar->health.maxhp * combinedMultiplier);
+            if (PChar->health.maxmp > 0)
+            {
+                PChar->health.maxmp = (int32)(PChar->health.maxmp * combinedMultiplier);
+            }
+        }
     }
 
     /************************************************************************
@@ -4298,6 +4460,35 @@ namespace charutils
             double multiplier = (100.0 + killshotBonus) / 100.0;
 
             gil = gil * multiplier;
+        }
+
+        // Apply chain bonus to gil similar to experience chain bonuses
+        if (PChar->expChain.chainTime > timer::now() || PChar->expChain.chainTime == timer::time_point::min())
+        {
+            switch (PChar->expChain.chainNumber)
+            {
+                case 0:
+                    gil = static_cast<uint32>(gil * 1.0f);
+                    break;
+                case 1:
+                    gil = static_cast<uint32>(gil * 1.2f);
+                    break;
+                case 2:
+                    gil = static_cast<uint32>(gil * 1.25f);
+                    break;
+                case 3:
+                    gil = static_cast<uint32>(gil * 1.3f);
+                    break;
+                case 4:
+                    gil = static_cast<uint32>(gil * 1.4f);
+                    break;
+                case 5:
+                    gil = static_cast<uint32>(gil * 1.5f);
+                    break;
+                default:
+                    gil = static_cast<uint32>(gil * 1.55f);
+                    break;
+            }
         }
 
         // Distribute gil to player/party/alliance

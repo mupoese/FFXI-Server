@@ -76,6 +76,7 @@ public:
     void win();
     void lose();
     void addGroups(sol::table const& groups, bool hasMultipleArenas);
+    auto spawnMob(uint32 mobId, sol::table pos) -> CLuaBaseEntity*;
 
     bool operator==(const CLuaBattlefield& other) const
     {

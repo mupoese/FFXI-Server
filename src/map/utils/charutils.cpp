@@ -4300,6 +4300,35 @@ namespace charutils
             gil = gil * multiplier;
         }
 
+        // Apply chain bonus to gil similar to experience chain bonuses
+        if (PChar->expChain.chainTime > timer::now() || PChar->expChain.chainTime == timer::time_point::min())
+        {
+            switch (PChar->expChain.chainNumber)
+            {
+                case 0:
+                    gil = static_cast<uint32>(gil * 1.0f);
+                    break;
+                case 1:
+                    gil = static_cast<uint32>(gil * 1.2f);
+                    break;
+                case 2:
+                    gil = static_cast<uint32>(gil * 1.25f);
+                    break;
+                case 3:
+                    gil = static_cast<uint32>(gil * 1.3f);
+                    break;
+                case 4:
+                    gil = static_cast<uint32>(gil * 1.4f);
+                    break;
+                case 5:
+                    gil = static_cast<uint32>(gil * 1.5f);
+                    break;
+                default:
+                    gil = static_cast<uint32>(gil * 1.55f);
+                    break;
+            }
+        }
+
         // Distribute gil to player/party/alliance
         if (PChar->PParty != nullptr)
         {

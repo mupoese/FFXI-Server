@@ -492,6 +492,125 @@ def generate_summary_report() # Cross-reference with changelog entries
 
 This analysis validates that the network bonding and database connection pooling infrastructure provides significant value and should serve as the foundation for addressing the identified critical issues.
 
+## Job System Fixes and Implementation
+
+### Major Job Implementation Trackers
+
+Based on comprehensive analysis of LandSandBoat/server open issues, the following job-related work has been prioritized:
+
+#### Critical Priority Issues
+
+**1. Job Point Implementation Tracker [#13]**
+- [ ] Complete remaining job abilities across all jobs (WAR through SCH)
+- [ ] Job point effects and gifts implementation for multiple jobs
+- [ ] Job point system validation and testing
+
+**2. Rune Fencer Completeness Tracking [#1340]**
+- [ ] Job abilities: Elemental Sforzo, Odyllic Subterfuge completion
+- [ ] Missing JSE gear implementation (AF, Relic, Empyrean)
+- [ ] Job quest implementation and completion
+
+#### High Priority Spell and Magic Issues
+
+**3. Major Spells Audit [#7931]**
+- [ ] Comprehensive spell data validation against retail (200+ spells identified)
+- [ ] Cast times, recast times, MP costs, and job level requirements
+- [ ] Player spell accuracy and functionality verification
+
+**4. Trust AI and Behavior [#453, #5145]**
+- [ ] Enhanced Trust AI with advanced gambit management
+- [ ] Trust cure logic improvements (tier selection based on missing HP)
+- [ ] Trust weapon skill timing and TP coordination
+
+#### Job-Specific Critical Issues
+
+**5. Blue Mage System [#5085, #680]**
+- [ ] Clear Mind and Magic Attack Bonus trait corrections
+- [ ] Blue Mage LB5 quest implementation
+- [ ] Azure Lore effects and Blue Magic Point system
+- [ ] Spell learning and set point management
+
+**6. Red Mage Job Abilities [#6330, #4518]**
+- [ ] Composure accuracy buff value corrections (25-50 + JP bonuses)
+- [ ] Composure enspell damage 200% modifier implementation
+- [ ] Inundation spell implementation [#5443]
+
+**7. Dancer Flourish System [#7528, #166]**
+- [ ] Striking Flourish, Ternary Flourish implementation
+- [ ] High-level DNC flourish mechanics corrections
+
+#### Combat and Weaponskill Issues
+
+**8. Weaponskill System Overhaul [#4949, #5932, #6970]**
+- [ ] Auto-attack damage system migration to Lua
+- [ ] Offhand weapon damage, accuracy, fSTR/wrank audit
+- [ ] Weaponskill power settings and damage calculation fixes
+- [ ] Ranged weaponskill double/triple attack prevention [#1837]
+
+**9. Combat Mechanics [#7242, #849, #400]**
+- [ ] Treasure Hunter proc system on weaponskills
+- [ ] Enspells and spike spells magic accuracy vs magic evasion
+- [ ] Physical damage type resistances for mobskills and blood pacts
+
+#### Pet and Avatar Management
+
+**10. Pet System Issues [#5174, #5441, #5318]**
+- [ ] Player pet spell list respect and castSpell() functionality
+- [ ] Pet management stability and reference validation
+- [ ] Pet combat and AI behavior improvements
+
+#### Enmity and Job Ability System
+
+**11. Job Ability Mechanics [#2400, #844, #810]**
+- [ ] Area-of-effect job abilities enmity generation
+- [ ] Job ability cooldown display improvements
+- [ ] Ranged attacks and job abilities paralysis effects
+
+#### Testing and Status Effects
+
+**12. Status Effect System [#860, #233, #306]**
+- [ ] Chocobo Jig quickeness and Mazurka stacking fixes
+- [ ] Monster TP move casting interruption mechanics
+- [ ] Mob spell casting behavior with active Manafont/Chainspell
+
+### Implementation Timeline
+
+**Phase 1: Critical Stability (Weeks 1-4)**
+- [ ] Job Point Implementation completion
+- [ ] Rune Fencer JSE gear and abilities
+- [ ] Combat interruption mechanics fixes
+
+**Phase 2: Core Combat Systems (Weeks 5-8)**
+- [ ] Weaponskill system overhaul and damage calculations
+- [ ] Treasure Hunter and enmity system corrections
+- [ ] Pet management and AI improvements
+
+**Phase 3: Job-Specific Features (Weeks 9-12)**
+- [ ] Blue Mage, Red Mage, and Dancer ability implementations
+- [ ] Trust AI enhancements and behavior fixes
+- [ ] Spell system audit and corrections
+
+**Phase 4: Polish and Testing (Weeks 13-16)**
+- [ ] Status effect system refinements
+- [ ] Cross-job interaction testing
+- [ ] Retail accuracy validation
+
+### Success Metrics
+
+- **Job Completeness**: Target 95% implementation of core job abilities
+- **Combat Accuracy**: Target 90% retail match for damage calculations
+- **Pet Stability**: Target 99% uptime without reference errors
+- **Status Effects**: Target 95% retail-accurate behavior
+
+### Resource Requirements
+
+- **Critical Issues**: 200-250 development hours
+- **High Priority**: 150-200 development hours  
+- **Medium Priority**: 250-350 development hours
+- **Testing & Validation**: 100-150 hours
+
+This comprehensive job system roadmap addresses the most critical open issues identified in the LandSandBoat/server repository, ensuring systematic improvement of all job-related functionality with proper prioritization and resource allocation.
+
 ## Contributing to This Roadmap
 
 This roadmap is a living document that evolves with the project. To contribute:

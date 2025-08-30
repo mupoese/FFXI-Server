@@ -26,6 +26,54 @@ Required packages:
 - `psutil` - System monitoring
 - `sqlite3` - Analytics database (included in Python)
 
+## 🌟 Enhanced Web Administration Panel (`tools/web_admin.py`)
+
+### New Features in v2.0
+The web administration panel has been completely redesigned with comprehensive user management capabilities:
+
+- **Complete user registration system** with email/password authentication
+- **Character viewing portal** for registered users
+- **Moderator/GM management** system with role-based permissions
+- **Real-time game data display** including Vana'diel time, elemental day, auction house
+- **User approval workflow** for new registrations
+- **Character limit enforcement** (configurable, default 2 per user)
+
+### Quick Start
+```bash
+# Start the enhanced web admin panel
+python3 tools/web_admin.py --host 0.0.0.0 --port 8080
+
+# Access URLs:
+# User Registration: http://localhost:8080/register
+# User Login: http://localhost:8080/
+# Admin Panel: http://localhost:8080/admin (requires admin/moderator)
+# Player Portal: http://localhost:8080/portal (for registered users)
+```
+
+### User Registration System
+New users can register accounts through the web interface:
+1. **Registration Process**: Users provide email, username, and password
+2. **Account Approval**: New accounts require admin/moderator approval (configurable)
+3. **Character Limits**: Users can create up to 2 characters (configurable)
+4. **Security**: Passwords are hashed using SHA-256 for security
+
+### Player Portal Features
+Registered users can access a dedicated portal featuring:
+- **Character Overview**: View all characters with stats and information
+- **Inventory Display**: Visual grid showing character inventory
+- **Real-time Game Data**: Live Vana'diel time, elemental day, moon phase
+- **Auction House Activity**: Current market data and recent sales
+- **Character Progression**: Playtime, levels, zones, and activity
+
+### Administrative Interface
+Enhanced admin panel includes:
+- **User Management**: Review registration requests, approve/reject users
+- **Character Oversight**: Monitor all characters, levels, zones, GM status
+- **Real-time Monitoring**: Live server metrics, player activity, system health
+- **Game Data Dashboard**: Auction house metrics, zone population, server uptime
+- **Moderator Tools**: Promote users to moderator/GM status
+- **System Configuration**: Adjust character limits and approval settings
+
 ### Verify Installation
 
 ```bash

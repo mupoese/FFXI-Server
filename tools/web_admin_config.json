@@ -1,0 +1,22 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "database": "xidb",
+    "user": "root",
+    "password": ""
+  },
+  "monitoring": {
+    "refresh_interval": 2,
+    "alert_thresholds": {
+      "cpu_percent": 80,
+      "memory_percent": 85,
+      "disk_percent": 90
+    }
+  },
+  "user_management": {
+    "max_characters_per_user": 2,
+    "require_approval": true,
+    "admin_email": "admin@landsandboat.local"
+  }
+}

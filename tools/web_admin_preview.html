@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LandSandBoat - Enhanced Web Admin Preview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a1a; color: #fff; }
+        .header { background: #2d2d2d; padding: 1rem; border-bottom: 2px solid #4a90e2; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #4a90e2; }
+        .header .nav a { color: #fff; text-decoration: none; margin-left: 1rem; padding: 0.5rem 1rem; border-radius: 4px; background: #4a90e2; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .tabs { display: flex; border-bottom: 1px solid #444; margin-bottom: 2rem; }
+        .tab { padding: 1rem 2rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #4a90e2; background: #2d2d2d; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .card { background: #2d2d2d; padding: 1.5rem; border-radius: 8px; border: 1px solid #444; }
+        .card h3 { color: #4a90e2; margin-bottom: 1rem; }
+        .metric { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .metric-value { font-weight: bold; color: #27ae60; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .table th, .table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #444; }
+        .table th { background: #2d2d2d; }
+        .table tr:hover { background: #2d2d2d; }
+        .btn { background: #4a90e2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.2rem; font-size: 0.9rem; }
+        .btn-success { background: #27ae60; }
+        .btn-danger { background: #e74c3c; }
+        .status-pending { background: #f39c12; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .status-active { background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .preview-note { background: #2d2d2d; border: 2px solid #4a90e2; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 LandSandBoat Administration</h1>
+        <div class="nav">
+            <span>Admin: administrator</span>
+            <a href="#">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="preview-note">
+            <h2>🖥️ Enhanced Web Administration Panel - UI Preview</h2>
+            <p>This preview shows the comprehensive user management and administrative interface</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">Dashboard</div>
+            <div class="tab">User Management</div>
+            <div class="tab">Characters</div>
+            <div class="tab">Game Data</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>System Metrics</h3>
+                <div class="metric">
+                    <span>CPU Usage:</span>
+                    <span class="metric-value">25.3%</span>
+                </div>
+                <div class="metric">
+                    <span>Memory Usage:</span>
+                    <span class="metric-value">68.7%</span>
+                </div>
+                <div class="metric">
+                    <span>Disk Usage:</span>
+                    <span class="metric-value">42.1%</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Database Info</h3>
+                <div class="metric">
+                    <span>Online Players:</span>
+                    <span class="metric-value">42</span>
+                </div>
+                <div class="metric">
+                    <span>Total Characters:</span>
+                    <span class="metric-value">1,247</span>
+                </div>
+                <div class="metric">
+                    <span>Pending Registrations:</span>
+                    <span class="metric-value">7</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Game Information</h3>
+                <div class="metric">
+                    <span>Vana'diel Date:</span>
+                    <span class="metric-value">2025-08-30 17:35</span>
+                </div>
+                <div class="metric">
+                    <span>Elemental Day:</span>
+                    <span class="metric-value">Iceday</span>
+                </div>
+                <div class="metric">
+                    <span>Auction House Listings:</span>
+                    <span class="metric-value">1,089</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>User Registration Requests</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Registration Date</th>
+                        <th>Status</th>
+                        <th>Characters</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>adventurer01</td>
+                        <td>user1@ffxi.com</td>
+                        <td>2025-08-30</td>
+                        <td><span class="status-pending">pending</span></td>
+                        <td>0/2</td>
+                        <td>
+                            <button class="btn btn-success">Approve</button>
+                            <button class="btn btn-danger">Reject</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>healer_mage</td>
+                        <td>user2@ffxi.com</td>
+                        <td>2025-08-29</td>
+                        <td><span class="status-active">active</span></td>
+                        <td>2/2</td>
+                        <td>
+                            <button class="btn">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>tank_warrior</td>
+                        <td>user3@ffxi.com</td>
+                        <td>2025-08-28</td>
+                        <td><span class="status-active">active</span></td>
+                        <td>1/2</td>
+                        <td>
+                            <button class="btn">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center; color: #ccc;">
+            <p>✨ Features: User Registration • Character Management • Real-time Monitoring • GM Tools • Auction House Data ✨</p>
+        </div>
+    </div>
+</body>
+</html>

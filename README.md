@@ -70,9 +70,32 @@ For external access through Cloudflare tunnel:
 
 - **[Function Index](documentation/function_index/index.html)** - Comprehensive API documentation for C++, Lua, Python, and SQL
 - **[Development Guide](documentation/FUNCTION_INDEXING_SYSTEM.md)** - Function Indexing System implementation details
+- **[Modernization Summary](MODERNIZATION_SUMMARY.md)** - Recent codebase improvements and modern C++ features
 - **[Network Bonding Guide](NETWORK_BONDING.md)** - Network bonding/link aggregation implementation and configuration
 - **[Database Improvements](DATABASE_WORKFLOW_IMPROVEMENTS.md)** - Database connection pooling and performance enhancements
 - **[Tools Documentation](tools/README.md)** - Development tools and utilities reference
+
+### Developer Tools
+
+The project now includes modern development automation:
+
+```bash
+# Complete development workflow
+python3 tools/dev_automation.py all
+
+# Individual operations
+python3 tools/dev_automation.py setup    # Environment setup with git hooks
+python3 tools/dev_automation.py format   # Code formatting (Python + C++)
+python3 tools/dev_automation.py lint     # Static analysis and security scanning
+python3 tools/dev_automation.py build    # Optimized parallel build
+python3 tools/dev_automation.py test     # Comprehensive test suite
+
+# Performance profiling
+python3 tools/advanced_profiler.py report --output performance.json
+
+# Enhanced CI/CD pipeline
+tools/enhanced_ci_pipeline.sh all
+```
 
 ## Docker Installation Guide
 

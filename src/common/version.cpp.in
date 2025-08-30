@@ -1,26 +1,130 @@
 #include "version.h"
+#include <sstream>
+#include <iomanip>
 
-const char* version::GetGitSha()
+// Git information (populated by CMake)
+constexpr std::string_view version::GetGitSha() noexcept
 {
     return "@GIT_SHA1@";
 }
 
-const char* version::GetGitBranch()
+constexpr std::string_view version::GetGitBranch() noexcept
 {
     return "@GIT_BRANCH@";
 }
 
-const char* version::GetGitDate()
+constexpr std::string_view version::GetGitDate() noexcept
 {
     return "@GIT_DATE@";
 }
 
-const char* version::GetGitCommitSubject()
+constexpr std::string_view version::GetGitCommitSubject() noexcept
 {
     return "@GIT_COMMIT_SUBJECT@";
 }
 
-const char* version::GetVersionString()
+// Enhanced version information
+std::string version::GetVersionString()
 {
-    return "@GIT_BRANCH@ (@GIT_SHA1@)";
+    std::ostringstream oss;
+    oss << GetGitBranch() << " (" << GetGitSha().substr(0, 8) << ")";
+    return oss.str();
+}
+
+std::string version::GetFullVersionString()
+{
+    const auto info = GetVersionInfo();
+    std::ostringstream oss;
+    oss << "LandSandBoat v" << info.major << "." << info.minor << "." << info.patch
+        << " (" << info.git_branch << "@" << info.git_sha.substr(0, 8) << ")"
+        << " built on " << info.build_date;
+    return oss.str();
+}
+
+std::string version::GetBuildInfo()
+{
+    const auto info = GetVersionInfo();
+    std::ostringstream oss;
+    oss << "Compiler: " << info.compiler_version << "\n"
+        << "CMake: " << info.cmake_version << "\n"
+        << "Build Date: " << info.build_date << "\n"
+        << "Features: " << GetEnabledFeatures();
+    return oss.str();
+}
+
+constexpr version::VersionInfo version::GetVersionInfo() noexcept
+{
+    return VersionInfo{
+        .major = @PROJECT_VERSION_MAJOR@,
+        .minor = @PROJECT_VERSION_MINOR@,
+        .patch = @PROJECT_VERSION_PATCH@,
+        .git_sha = GetGitSha(),
+        .git_branch = GetGitBranch(),
+        .build_date = __DATE__ " " __TIME__,
+        .compiler_version = 
+#ifdef __clang__
+            "Clang " __clang_version__,
+#elif defined(__GNUC__)
+            "GCC " __VERSION__,
+#elif defined(_MSC_VER)
+            "MSVC " STRINGIFY(_MSC_VER),
+#else
+            "Unknown compiler",
+#endif
+        .cmake_version = "@CMAKE_VERSION@"
+    };
+}
+
+std::string version::GetRuntimeInfo()
+{
+    std::ostringstream oss;
+    oss << "Process started: " << std::put_time(std::localtime(&std::time_t{}), "%Y-%m-%d %H:%M:%S") << "\n"
+        << "Executable: @CMAKE_PROJECT_NAME@\n"
+        << "Working directory: " << std::filesystem::current_path().string();
+    return oss.str();
+}
+
+std::chrono::system_clock::time_point version::GetBuildTimestamp()
+{
+    // Parse build date/time into chrono time_point
+    std::tm tm = {};
+    std::istringstream ss(__DATE__ " " __TIME__);
+    ss >> std::get_time(&tm, "%b %d %Y %H:%M:%S");
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+}
+
+constexpr bool version::HasFeature(std::string_view feature) noexcept
+{
+    // Check for enabled features
+    if (feature == "database_pooling") return @ENABLE_DATABASE_POOLING@;
+    if (feature == "network_bonding") return @ENABLE_NETWORK_BONDING@;
+    if (feature == "tracy_profiling") return @TRACY_ENABLE@;
+    if (feature == "static_analysis") return @ENABLE_STATIC_ANALYSIS@;
+    if (feature == "testing") return @ENABLE_TESTING@;
+    if (feature == "asan") return @ENABLE_ASAN@;
+    if (feature == "lto") return @ENABLE_LTO@;
+    return false;
+}
+
+std::string version::GetEnabledFeatures()
+{
+    std::vector<std::string_view> features;
+    
+    if (HasFeature("database_pooling")) features.emplace_back("Database Pooling");
+    if (HasFeature("network_bonding")) features.emplace_back("Network Bonding");
+    if (HasFeature("tracy_profiling")) features.emplace_back("Tracy Profiling");
+    if (HasFeature("static_analysis")) features.emplace_back("Static Analysis");
+    if (HasFeature("testing")) features.emplace_back("Testing");
+    if (HasFeature("asan")) features.emplace_back("AddressSanitizer");
+    if (HasFeature("lto")) features.emplace_back("Link-Time Optimization");
+    
+    if (features.empty()) return "None";
+    
+    std::ostringstream oss;
+    for (size_t i = 0; i < features.size(); ++i) {
+        if (i > 0) oss << ", ";
+        oss << features[i];
+    }
+    
+    return oss.str();
 }

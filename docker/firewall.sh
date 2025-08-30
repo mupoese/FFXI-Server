@@ -49,7 +49,7 @@ install_iptables() {
 # Backup existing rules
 backup_rules() {
     log_info "Backing up existing iptables rules..."
-    iptables-save > /tmp/iptables_backup_$(date +%Y%m%d_%H%M%S).rules
+    iptables-save > "/tmp/iptables_backup_$(date +%Y%m%d_%H%M%S).rules"
 }
 
 # Clear existing rules
@@ -96,11 +96,11 @@ allow_ffxi_ports() {
     
     for port in "${FFXI_PORTS[@]}"; do
         # Allow TCP connections
-        iptables -A INPUT -p tcp --dport $port -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+        iptables -A INPUT -p tcp --dport "$port" -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
         
         # Allow UDP for game data (particularly important for port 54230)
         if [[ $port -eq 54230 ]]; then
-            iptables -A INPUT -p udp --dport $port -j ACCEPT
+            iptables -A INPUT -p udp --dport "$port" -j ACCEPT
             log_info "Allowing UDP traffic on port $port (game data)"
         fi
         
@@ -114,7 +114,7 @@ allow_admin_ports() {
     
     for port in "${ADMIN_PORTS[@]}"; do
         for network in "${ALLOWED_NETWORKS[@]}"; do
-            iptables -A INPUT -p tcp --dport $port -s $network -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+            iptables -A INPUT -p tcp --dport "$port" -s "$network" -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
         done
         log_info "Allowed admin access on port $port for trusted networks"
     done

@@ -900,7 +900,7 @@ namespace petutils
             PPet->addModifier(Mod::MEVA, PMaster->getMod(Mod::PET_MACC_MEVA));
         }
 
-        PMaster->setModifier(Mod::AVATAR_PERPETUATION, PerpetuationCost(petID, mLvl));
+        PMaster->setModifier(Mod::AVATAR_PERPETUATION, PerpetuationCost(petID, mLvl, PMaster));
 
         FinalizePetStatistics(PMaster, PPet);
     }
@@ -1710,6 +1710,90 @@ namespace petutils
         }
 
         return cost;
+    }
+
+    int16 PerpetuationCost(uint32 id, uint8 level, CBattleEntity* PMaster)
+    {
+        // Get base cost using original function
+        int16 baseCost = PerpetuationCost(id, level);
+        
+        // Apply day-based cost reductions for summoners
+        if (PMaster->objtype == TYPE_PC)
+        {
+            CCharEntity* PChar = static_cast<CCharEntity*>(PMaster);
+            
+            // Check if the player is a summoner (job class 15)
+            if (PChar->GetMJob() == JOB_SMN)
+            {
+                ELEMENT currentDayElement = battleutils::GetDayElement();
+                int16 costReduction = 0;
+                
+                // Summoner gets -1 MP cost on light day
+                if (currentDayElement == ELEMENT_LIGHT)
+                {
+                    costReduction += 1;
+                }
+                
+                // Get avatar element and apply -1 MP cost if it matches current day
+                ELEMENT avatarElement = ELEMENT_NONE;
+                
+                // Map avatar IDs to their elements (based on pet_list.sql)
+                switch (id)
+                {
+                    case PETID_FIRESPIRIT:
+                    case PETID_IFRIT:
+                        avatarElement = ELEMENT_FIRE;
+                        break;
+                    case PETID_ICESPIRIT:
+                    case PETID_SHIVA:
+                        avatarElement = ELEMENT_ICE;
+                        break;
+                    case PETID_AIRSPIRIT:
+                    case PETID_GARUDA:
+                        avatarElement = ELEMENT_WIND;
+                        break;
+                    case PETID_EARTHSPIRIT:
+                    case PETID_TITAN:
+                        avatarElement = ELEMENT_EARTH;
+                        break;
+                    case PETID_THUNDERSPIRIT:
+                    case PETID_RAMUH:
+                        avatarElement = ELEMENT_THUNDER;
+                        break;
+                    case PETID_WATERSPIRIT:
+                    case PETID_LEVIATHAN:
+                        avatarElement = ELEMENT_WATER;
+                        break;
+                    case PETID_LIGHTSPIRIT:
+                    case PETID_CARBUNCLE:
+                    case PETID_ALEXANDER:
+                    case PETID_CAIT_SITH:
+                        avatarElement = ELEMENT_LIGHT;
+                        break;
+                    case PETID_DARKSPIRIT:
+                    case PETID_FENRIR:
+                    case PETID_DIABOLOS:
+                    case PETID_ODIN:
+                        avatarElement = ELEMENT_DARK;
+                        break;
+                    default:
+                        avatarElement = ELEMENT_NONE;
+                        break;
+                }
+                
+                // Additional -1 MP cost if avatar element matches current day
+                if (avatarElement != ELEMENT_NONE && avatarElement == currentDayElement)
+                {
+                    costReduction += 1;
+                }
+                
+                // Apply reductions (minimum cost is 1)
+                int16 finalCost = baseCost - costReduction;
+                return std::max(finalCost, static_cast<int16>(1));
+            }
+        }
+        
+        return baseCost;
     }
 
     /*

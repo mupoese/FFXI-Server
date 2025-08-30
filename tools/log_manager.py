@@ -34,10 +34,19 @@ def calculate_file_hash(filepath):
 def log_file_operation(action, filepath, description=""):
     """Log file operations to the file structure log"""
     ensure_logs_directory()
-    
+
+    # Ensure filepath is a Path object and resolve it
+    path_obj = Path(filepath) if not isinstance(filepath, Path) else filepath
+    path_obj = path_obj.resolve()
+
     timestamp = datetime.now().isoformat() + 'Z'
-    relative_path = str(Path(filepath).relative_to(PROJECT_ROOT))
-    
+    try:
+        relative_path = str(path_obj.relative_to(PROJECT_ROOT))
+    except ValueError:
+        # If not within project root, use absolute path and note it
+        relative_path = str(path_obj)
+        # Optionally, you could log a warning here
+
     log_entry = f"[{timestamp}] {action} {relative_path} \"{description}\"\n"
     
     structure_log = LOGS_DIR / "file_structure.log"
@@ -289,6 +298,8 @@ def main():
     parser.add_argument('--component', help='Component tag for changelog entry')
     parser.add_argument('--pr-number', help='PR number for changelog entry')
     parser.add_argument('--contributors', help='Contributors for changelog entry')
+    parser.add_argument('--log-prompt', nargs=3, metavar=('PHASE', 'DESCRIPTION', 'IMPROVEMENTS'), 
+                       help='Log a development workflow phase prompt')
     
     args = parser.parse_args()
     
@@ -311,6 +322,17 @@ def main():
         log_file_operation(args.action, args.log_file, args.description or "")
         log_change(args.action, args.log_file, args.description or "")
         print(f"✅ Logged {args.action} for {args.log_file}")
+        return
+    
+    if args.log_prompt:
+        phase, description, improvements = args.log_prompt
+        timestamp = datetime.now().isoformat() + 'Z'
+        log_entry = f"[{timestamp}] WORKFLOW_PHASE {phase} \"{description}\" - Improvements: {improvements}\n"
+        
+        workflow_log = LOGS_DIR / "workflow.log"
+        with open(workflow_log, 'a') as f:
+            f.write(log_entry)
+        print(f"✅ Logged workflow phase: {phase}")
         return
     
     if args.scan or args.all:

@@ -348,7 +348,8 @@
     "Lua.workspace.maxPreload": 100000,
     "Lua.workspace.ignoreDir": [
         ".vscode",
-        "tools/ci/tests/stylecheck.lua"
+        "tools/ci/tests/stylecheck.lua",
+        "scripts/experimental"
     ],
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",

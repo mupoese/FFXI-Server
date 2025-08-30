@@ -35,6 +35,7 @@
 #include "common/utils.h"
 
 #include "ability.h"
+#include "blue_spell.h"
 #include "alliance.h"
 #include "aman.h"
 #include "battlefield.h"
@@ -2895,6 +2896,101 @@ bool CLuaBaseEntity::isInMogHouse()
 }
 
 /************************************************************************
+ *  Function: getEntitiesByType()
+ *  Purpose : Gets all entities of a specific type in the current zone
+ *  Example : local mobs = player:getEntitiesByType(xi.objType.MOB)
+ ************************************************************************/
+
+auto CLuaBaseEntity::getEntitiesByType(uint8 entityType) -> sol::table
+{
+    sol::table entityTable = lua.create_table();
+    
+    CZone* zone = m_PBaseEntity->loc.zone;
+    if (!zone)
+    {
+        return entityTable;
+    }
+
+    uint32 index = 1;
+    for (auto& entity : zone->m_entityList)
+    {
+        if (entity.second && entity.second->objtype == entityType)
+        {
+            entityTable[index] = entity.second;
+            index++;
+        }
+    }
+
+    return entityTable;
+}
+
+/************************************************************************
+ *  Function: getEntitiesNear()
+ *  Purpose : Gets all entities near the calling entity within a specified range
+ *  Example : local nearbyEntities = player:getEntitiesNear(10.0)
+ ************************************************************************/
+
+auto CLuaBaseEntity::getEntitiesNear(float range, sol::object const& entityType) -> sol::table
+{
+    sol::table entityTable = lua.create_table();
+    
+    CZone* zone = m_PBaseEntity->loc.zone;
+    if (!zone)
+    {
+        return entityTable;
+    }
+
+    uint8 filterType = entityType != sol::lua_nil ? entityType.as<uint8>() : 0xFF; // 0xFF = all types
+    uint32 index = 1;
+    
+    for (auto& entity : zone->m_entityList)
+    {
+        if (entity.second && entity.second != m_PBaseEntity)
+        {
+            if (filterType == 0xFF || entity.second->objtype == filterType)
+            {
+                float distance = distance(m_PBaseEntity->loc.p, entity.second->loc.p);
+                if (distance <= range)
+                {
+                    entityTable[index] = entity.second;
+                    index++;
+                }
+            }
+        }
+    }
+
+    return entityTable;
+}
+
+/************************************************************************
+ *  Function: isEnemy()
+ *  Purpose : Checks if the target entity is an enemy to the calling entity
+ *  Example : if player:isEnemy(mob) then
+ ************************************************************************/
+
+bool CLuaBaseEntity::isEnemy(CLuaBaseEntity* target)
+{
+    if (!target || !target->m_PBaseEntity)
+    {
+        return false;
+    }
+
+    // Simple enemy check - mobs are generally enemies to players
+    if (m_PBaseEntity->objtype == TYPE_PC && target->m_PBaseEntity->objtype == TYPE_MOB)
+    {
+        return true;
+    }
+    
+    // Players are generally enemies to mobs
+    if (m_PBaseEntity->objtype == TYPE_MOB && target->m_PBaseEntity->objtype == TYPE_PC)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+/************************************************************************
  *  Function: isPlayerInTriggerArea
  *  Purpose : Returns a boolean indiciating if the player is within the provided TriggerAreaID
  *  Example : local isInTriggerArea = player:isPlayerInTriggerArea(1)
@@ -3922,6 +4018,18 @@ auto CLuaBaseEntity::getEquippedItem(uint8 slot) -> CItem*
     }
 
     return nullptr;
+}
+
+/************************************************************************
+ *  Function: getEquip()
+ *  Purpose : Alias for getEquippedItem for compatibility with experimental scripts
+ *  Example : player:getEquip(xi.slot.MAIN)
+ *  Notes   : This is for backward compatibility
+ ************************************************************************/
+
+auto CLuaBaseEntity::getEquip(uint8 slot) -> CItem*
+{
+    return getEquippedItem(slot);
 }
 
 /************************************************************************
@@ -7130,6 +7238,81 @@ void CLuaBaseEntity::addJobTraits(uint8 jobID, uint8 level)
     {
         battleutils::AddTraits(PEntity, traits::GetTraits(jobID), level);
     }
+}
+
+/************************************************************************
+ *  Function: addJobTrait()
+ *  Purpose : Alias for addJobTraits for compatibility
+ *  Example : player:addJobTrait(xi.job.WHM, 75)
+ ************************************************************************/
+
+void CLuaBaseEntity::addJobTrait(uint8 jobID, uint8 level)
+{
+    addJobTraits(jobID, level);
+}
+
+/************************************************************************
+ *  Function: addTrait()
+ *  Purpose : Adds a trait to the player
+ *  Example : player:addTrait(xi.trait.DOUBLE_ATTACK)
+ ************************************************************************/
+
+int32 CLuaBaseEntity::addTrait(uint16 traitID)
+{
+    if (m_PBaseEntity->objtype != TYPE_PC)
+    {
+        ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
+        return -1;
+    }
+
+    auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+    return charutils::addTrait(PChar, traitID);
+}
+
+/************************************************************************
+ *  Function: delTrait()
+ *  Purpose : Removes a trait from the player
+ *  Example : player:delTrait(xi.trait.DOUBLE_ATTACK)
+ ************************************************************************/
+
+int32 CLuaBaseEntity::delTrait(uint16 traitID)
+{
+    if (m_PBaseEntity->objtype != TYPE_PC)
+    {
+        ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
+        return -1;
+    }
+
+    auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+    return charutils::delTrait(PChar, traitID);
+}
+
+/************************************************************************
+ *  Function: getTraitLevel()
+ *  Purpose : Gets the level of a trait for the player
+ *  Example : local level = player:getTraitLevel(xi.trait.DOUBLE_ATTACK)
+ ************************************************************************/
+
+uint8 CLuaBaseEntity::getTraitLevel(uint16 traitID)
+{
+    if (m_PBaseEntity->objtype != TYPE_PC)
+    {
+        ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
+        return 0;
+    }
+
+    auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+    
+    // Check if the character has this trait
+    for (auto& trait : PChar->TraitList)
+    {
+        if (trait->getID() == traitID)
+        {
+            return trait->getLevel();
+        }
+    }
+    
+    return 0; // Trait not found
 }
 
 sol::table CLuaBaseEntity::getMonstrosityData()
@@ -10867,6 +11050,86 @@ void CLuaBaseEntity::delSpell(uint16 spellID)
         charutils::DeleteSpell(PChar, spellID);
         PChar->pushPacket<CCharSpellsPacket>(PChar);
     }
+}
+
+/************************************************************************
+ *  Function: getSetBlueSpell()
+ *  Purpose : Gets the Blue Mage spell ID for a given set slot
+ *  Example : local spellId = player:getSetBlueSpell(0)
+ ************************************************************************/
+
+uint8 CLuaBaseEntity::getSetBlueSpell(uint8 slot)
+{
+    if (m_PBaseEntity->objtype != TYPE_PC)
+    {
+        ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
+        return 0;
+    }
+
+    auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+    
+    if (slot >= 20)
+    {
+        ShowWarning("Invalid slot passed to getSetBlueSpell (%d). Must be 0-19.", slot);
+        return 0;
+    }
+
+    return PChar->m_SetBlueSpells[slot];
+}
+
+/************************************************************************
+ *  Function: setSetBlueSpell()
+ *  Purpose : Sets a Blue Mage spell in a specific slot
+ *  Example : player:setSetBlueSpell(0, 515)
+ ************************************************************************/
+
+void CLuaBaseEntity::setSetBlueSpell(uint8 slot, uint16 spellID)
+{
+    if (m_PBaseEntity->objtype != TYPE_PC)
+    {
+        ShowWarning("Invalid entity type calling function (%s).", m_PBaseEntity->getName());
+        return;
+    }
+
+    auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
+    
+    if (slot >= 20)
+    {
+        ShowWarning("Invalid slot passed to setSetBlueSpell (%d). Must be 0-19.", slot);
+        return;
+    }
+
+    // Store with 0x200 offset removed for storage
+    if (spellID >= 0x200)
+    {
+        PChar->m_SetBlueSpells[slot] = spellID - 0x200;
+    }
+    else
+    {
+        PChar->m_SetBlueSpells[slot] = spellID;
+    }
+}
+
+/************************************************************************
+ *  Function: getSetPoints()
+ *  Purpose : Gets the Blue Magic set points cost for a spell
+ *  Example : local points = player:getSetPoints(515)
+ ************************************************************************/
+
+uint16 CLuaBaseEntity::getSetPoints(uint16 spellID)
+{
+    if (spellID < 0x200)
+    {
+        spellID += 0x200; // Add offset if not present
+    }
+
+    auto* PSpell = dynamic_cast<CBlueSpell*>(spell::GetSpell(static_cast<SpellID>(spellID)));
+    if (PSpell)
+    {
+        return PSpell->getSetPoints();
+    }
+
+    return 0;
 }
 
 /************************************************************************
@@ -19483,6 +19746,11 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("getContinentID", CLuaBaseEntity::getContinentID);
     SOL_REGISTER("isInMogHouse", CLuaBaseEntity::isInMogHouse);
 
+    // Zone Entity Functions
+    SOL_REGISTER("getEntitiesByType", CLuaBaseEntity::getEntitiesByType);
+    SOL_REGISTER("getEntitiesNear", CLuaBaseEntity::getEntitiesNear);
+    SOL_REGISTER("isEnemy", CLuaBaseEntity::isEnemy);
+
     SOL_REGISTER("getPos", CLuaBaseEntity::getPos);
     SOL_REGISTER("showPosition", CLuaBaseEntity::showPosition);
     SOL_REGISTER("getXPos", CLuaBaseEntity::getXPos);
@@ -19511,6 +19779,7 @@ void CLuaBaseEntity::Register()
     // Items
     SOL_REGISTER("getEquipID", CLuaBaseEntity::getEquipID);
     SOL_REGISTER("getEquippedItem", CLuaBaseEntity::getEquippedItem);
+    SOL_REGISTER("getEquip", CLuaBaseEntity::getEquip);
     SOL_REGISTER("hasEquipped", CLuaBaseEntity::hasEquipped);
     SOL_REGISTER("hasItem", CLuaBaseEntity::hasItem);
     SOL_REGISTER("getItemCount", CLuaBaseEntity::getItemCount);
@@ -19644,6 +19913,12 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("setLevelCap", CLuaBaseEntity::setLevelCap);
     SOL_REGISTER("levelRestriction", CLuaBaseEntity::levelRestriction);
     SOL_REGISTER("addJobTraits", CLuaBaseEntity::addJobTraits);
+    SOL_REGISTER("addJobTrait", CLuaBaseEntity::addJobTrait);
+
+    // Trait Functions
+    SOL_REGISTER("addTrait", CLuaBaseEntity::addTrait);
+    SOL_REGISTER("delTrait", CLuaBaseEntity::delTrait);
+    SOL_REGISTER("getTraitLevel", CLuaBaseEntity::getTraitLevel);
 
     // Monstrosity
     SOL_REGISTER("getMonstrosityData", CLuaBaseEntity::getMonstrosityData);
@@ -19818,6 +20093,11 @@ void CLuaBaseEntity::Register()
     SOL_REGISTER("hasSpell", CLuaBaseEntity::hasSpell);
     SOL_REGISTER("canLearnSpell", CLuaBaseEntity::canLearnSpell);
     SOL_REGISTER("delSpell", CLuaBaseEntity::delSpell);
+
+    // Blue Mage Functions
+    SOL_REGISTER("getSetBlueSpell", CLuaBaseEntity::getSetBlueSpell);
+    SOL_REGISTER("setSetBlueSpell", CLuaBaseEntity::setSetBlueSpell);
+    SOL_REGISTER("getSetPoints", CLuaBaseEntity::getSetPoints);
 
     SOL_REGISTER("recalculateSkillsTable", CLuaBaseEntity::recalculateSkillsTable);
     SOL_REGISTER("recalculateAbilitiesTable", CLuaBaseEntity::recalculateAbilitiesTable);

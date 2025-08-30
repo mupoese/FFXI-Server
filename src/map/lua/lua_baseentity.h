@@ -194,6 +194,11 @@ public:
     uint8  getContinentID();
     bool   isInMogHouse();
 
+    // Zone Entity Functions
+    auto   getEntitiesByType(uint8 entityType) -> sol::table;
+    auto   getEntitiesNear(float range, sol::object const& entityType) -> sol::table;
+    bool   isEnemy(CLuaBaseEntity* target);
+
     bool isPlayerInTriggerArea(uint32 triggerAreaId);
     void onPlayerTriggerAreaEnter(uint32 triggerAreaId);
     void onPlayerTriggerAreaLeave(uint32 triggerAreaId);
@@ -236,6 +241,7 @@ public:
     // Items
     uint16 getEquipID(SLOTTYPE slot);
     auto   getEquippedItem(uint8 slot) -> CItem*;
+    auto   getEquip(uint8 slot) -> CItem*; // Alias for getEquippedItem for compatibility
     bool   hasEquipped(uint16 equipmentID); // Returns true if item is equipped in any slot
     bool   hasItem(uint16 itemID, sol::object const& location);
     uint32 getItemCount(uint16 itemID);
@@ -370,6 +376,12 @@ public:
     void  setLevelCap(uint8 cap);
     uint8 levelRestriction(sol::object const& level); // Establish/return current level restriction
     void  addJobTraits(uint8 jobID, uint8 level);
+    void  addJobTrait(uint8 jobID, uint8 level); // Alias for addJobTraits
+
+    // Trait Functions
+    int32 addTrait(uint16 traitID);
+    int32 delTrait(uint16 traitID);
+    uint8 getTraitLevel(uint16 traitID);
 
     // Monstrosity
     auto getMonstrosityData() -> sol::table;
@@ -548,6 +560,11 @@ public:
     bool   hasSpell(uint16 spellID);
     uint32 canLearnSpell(uint16 spellID);
     void   delSpell(uint16 spellID);
+
+    // Blue Mage Functions
+    uint8  getSetBlueSpell(uint8 slot);
+    void   setSetBlueSpell(uint8 slot, uint16 spellID);
+    uint16 getSetPoints(uint16 spellID);
 
     void recalculateSkillsTable();
     void recalculateAbilitiesTable();

@@ -374,6 +374,113 @@ namespace charutils
             ref<uint16>(&PChar->stats, counter) = (uint16)(settings::get<float>("map.PLAYER_STAT_MULTIPLIER") * (raceStat + jobStat + sJobStat) + MeritBonus);
             counter += 2;
         }
+
+        // Apply job and nation-based elemental day bonuses
+        uint32  WeekDay   = static_cast<uint8>(vanadiel_time::get_weekday());
+        DAYTYPE strongDay[8] = { FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, WATERSDAY, LIGHTSDAY, DARKSDAY };
+        DAYTYPE weakDay[8]   = { WATERSDAY, FIRESDAY, ICEDAY, WINDSDAY, EARTHSDAY, LIGHTNINGDAY, DARKSDAY, LIGHTSDAY };
+        
+        float jobDayMultiplier = 1.0f;
+        float nationDayMultiplier = 1.0f;
+        
+        // Job-based elemental bonuses
+        uint8 jobElement = 0; // 0 = no element, 1-8 = elements
+        switch (mjob)
+        {
+            case JOB_PLD: // Paladin = Light
+            case JOB_WHM: // White Mage = Light
+                jobElement = 7; // Light element
+                break;
+            case JOB_DRK: // Dark Knight = Dark
+            case JOB_BLM: // Black Mage = Dark
+                jobElement = 8; // Dark element
+                break;
+            case JOB_RDM: // Red Mage = Mixed (gets benefit from both light and dark)
+                if (WeekDay == LIGHTSDAY || WeekDay == DARKSDAY)
+                {
+                    jobDayMultiplier = 1.05f; // +5% bonus on either light or dark day
+                }
+                break;
+            default:
+                jobElement = 0; // No elemental affinity
+                break;
+        }
+        
+        // Apply job elemental bonuses for non-mixed jobs
+        if (jobElement > 0)
+        {
+            if (WeekDay == strongDay[jobElement - 1])
+            {
+                jobDayMultiplier = 1.1f; // +10% bonus on strong day
+            }
+            else if (WeekDay == weakDay[jobElement - 1])
+            {
+                jobDayMultiplier = 0.95f; // -5% penalty on weak day
+            }
+        }
+        
+        // Nation-based elemental bonuses (only for aligned race/nation combinations)
+        uint8 nationElement = 0;
+        bool isAligned = false;
+        
+        // Check for proper race/nation alignment
+        switch (PChar->profile.nation)
+        {
+            case 0: // San d'Oria = Fire element
+                if (race == 1) // Elvaan
+                {
+                    nationElement = 1; // Fire
+                    isAligned = true;
+                }
+                break;
+            case 1: // Bastok = Water element
+                if (race == 0 || race == 4) // Hume or Galka
+                {
+                    nationElement = 6; // Water
+                    isAligned = true;
+                }
+                break;
+            case 2: // Windurst = Wind element
+                if (race == 2 || race == 3) // Tarutaru or Mithra
+                {
+                    nationElement = 3; // Wind
+                    isAligned = true;
+                }
+                break;
+        }
+        
+        // Apply nation elemental bonuses for aligned players
+        if (isAligned && nationElement > 0)
+        {
+            if (WeekDay == strongDay[nationElement - 1])
+            {
+                nationDayMultiplier = 1.08f; // +8% bonus on nation's strong day
+            }
+            else if (WeekDay == weakDay[nationElement - 1])
+            {
+                nationDayMultiplier = 0.97f; // -3% penalty on nation's weak day
+            }
+        }
+        
+        // Apply combined bonuses to stats if different from base
+        float combinedMultiplier = jobDayMultiplier * nationDayMultiplier;
+        if (combinedMultiplier != 1.0f)
+        {
+            PChar->stats.STR = (uint16)(PChar->stats.STR * combinedMultiplier);
+            PChar->stats.DEX = (uint16)(PChar->stats.DEX * combinedMultiplier);
+            PChar->stats.VIT = (uint16)(PChar->stats.VIT * combinedMultiplier);
+            PChar->stats.AGI = (uint16)(PChar->stats.AGI * combinedMultiplier);
+            PChar->stats.INT = (uint16)(PChar->stats.INT * combinedMultiplier);
+            PChar->stats.MND = (uint16)(PChar->stats.MND * combinedMultiplier);
+            PChar->stats.CHR = (uint16)(PChar->stats.CHR * combinedMultiplier);
+            
+            // Apply to HP/MP as well
+            PChar->health.maxhp = (int32)(PChar->health.maxhp * combinedMultiplier);
+            if (PChar->health.maxmp > 0)
+            {
+                PChar->health.maxmp = (int32)(PChar->health.maxmp * combinedMultiplier);
+            }
+        }
     }
 
     /************************************************************************

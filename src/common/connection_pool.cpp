@@ -52,7 +52,7 @@ namespace db
             return connection_.get();
         }
 
-        auto PooledConnection::isValid() -> bool
+        auto PooledConnection::isValid() const -> bool
         {
             if (!isValid_.load())
             {
@@ -70,23 +70,23 @@ namespace db
             catch (const std::exception& e)
             {
                 ShowWarning("Connection validation failed: %s", e.what());
-                isValid_ = false;
+                // Cannot modify isValid_ in const method, just return false
             }
 
             return false;
         }
 
-        auto PooledConnection::getLastUsed() -> uint64
+        auto PooledConnection::getLastUsed() const -> uint64
         {
             return lastUsedTime_;
         }
 
-        auto PooledConnection::getCreatedTime() -> uint64
+        auto PooledConnection::getCreatedTime() const -> uint64
         {
             return createdTime_;
         }
 
-        auto PooledConnection::getPoolId() -> uint32
+        auto PooledConnection::getPoolId() const -> uint32
         {
             return poolId_;
         }
@@ -311,7 +311,7 @@ namespace db
             connectionAvailable_.notify_one();
         }
 
-        auto ConnectionPool::getStats() -> PoolStats
+        auto ConnectionPool::getStats() const -> PoolStats
         {
             return stats_;
         }

@@ -1,0 +1,17 @@
+{
+  "test_type": "quick",
+  "connections": 5,
+  "duration": 3,
+  "summary": {
+    "successful_operations": 820,
+    "failed_operations": 0,
+    "avg_latency_ms": 6.347546054095757,
+    "max_latency_ms": 149.0762233734131,
+    "min_latency_ms": 1.4798641204833984,
+    "p95_latency_ms": 19.85931396484375,
+    "p99_latency_ms": 55.09185791015625,
+    "ops_per_second": 273.3333333333333,
+    "success_rate": 100.0
+  },
+  "timestamp": "2025-08-29T16:37:28.608373"
+}

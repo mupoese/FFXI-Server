@@ -1,4 +1,5 @@
 mariadb
+mysql-connector-python
 gitpython
 pylint
 pyyaml

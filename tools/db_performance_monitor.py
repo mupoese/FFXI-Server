@@ -12,6 +12,7 @@ import sqlite3
 import json
 import argparse
 import sys
+import os
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
@@ -490,12 +491,12 @@ def main():
                     'summary': {
                         'successful_operations': report.successful_operations,
                         'failed_operations': report.failed_operations,
-                        'avg_latency_ms': report.avg_latency_ms,
+                        'avg_latency_ms': report.average_latency_ms,
                         'max_latency_ms': report.max_latency_ms,
                         'min_latency_ms': report.min_latency_ms,
                         'p95_latency_ms': report.p95_latency_ms,
                         'p99_latency_ms': report.p99_latency_ms,
-                        'ops_per_second': report.ops_per_second,
+                        'ops_per_second': report.operations_per_second,
                         'success_rate': (report.successful_operations / (report.successful_operations + report.failed_operations)) * 100 if (report.successful_operations + report.failed_operations) > 0 else 0
                     },
                     'timestamp': datetime.now().isoformat()
@@ -566,8 +567,8 @@ def main():
                     'connections': connections,
                     'successful_operations': report.successful_operations,
                     'failed_operations': report.failed_operations,
-                    'avg_latency_ms': report.avg_latency_ms,
-                    'ops_per_second': report.ops_per_second
+                    'avg_latency_ms': report.average_latency_ms,
+                    'ops_per_second': report.operations_per_second
                 })
                 
                 if report.failed_operations > report.successful_operations * 0.1:

@@ -1,0 +1,8 @@
+Database Test Results
+====================
+Tests run: 8
+Successes: 8
+Failures: 0
+Errors: 0
+Success rate: 100.0%
+Overall result: PASS

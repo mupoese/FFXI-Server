@@ -23,16 +23,24 @@
 
 #include "cbasetypes.h"
 #include "logging.h"
-#include "tracy.h"
 #include "timer.h"
+#include "tracy.h"
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
+
 #include <atomic>
+#include <conncpp.hpp>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
 #include <unordered_map>
 
 // Connection pool implementation for improved database performance
@@ -46,24 +54,61 @@ namespace db
         // Connection pool statistics for monitoring
         struct PoolStats
         {
-            std::atomic<uint32> totalConnections{0};
-            std::atomic<uint32> activeConnections{0};
-            std::atomic<uint32> idleConnections{0};
-            std::atomic<uint32> waitingRequests{0};
-            std::atomic<uint64> totalRequestsServed{0};
-            std::atomic<uint64> totalConnectionsCreated{0};
-            std::atomic<uint64> totalConnectionsDestroyed{0};
-            std::atomic<double> averageWaitTimeMs{0.0};
-            std::atomic<uint64> lastConnectionTime{0};
-            std::atomic<uint64> lastStatsReset{0};
+            std::atomic<uint32> totalConnections{ 0 };
+            std::atomic<uint32> activeConnections{ 0 };
+            std::atomic<uint32> idleConnections{ 0 };
+            std::atomic<uint32> waitingRequests{ 0 };
+            std::atomic<uint64> totalRequestsServed{ 0 };
+            std::atomic<uint64> totalConnectionsCreated{ 0 };
+            std::atomic<uint64> totalConnectionsDestroyed{ 0 };
+            std::atomic<double> averageWaitTimeMs{ 0.0 };
+            std::atomic<uint64> lastConnectionTime{ 0 };
+            std::atomic<uint64> lastStatsReset{ 0 };
+
+            // Custom copy constructor
+            PoolStats(const PoolStats& other)
+            : totalConnections(other.totalConnections.load())
+            , activeConnections(other.activeConnections.load())
+            , idleConnections(other.idleConnections.load())
+            , waitingRequests(other.waitingRequests.load())
+            , totalRequestsServed(other.totalRequestsServed.load())
+            , totalConnectionsCreated(other.totalConnectionsCreated.load())
+            , totalConnectionsDestroyed(other.totalConnectionsDestroyed.load())
+            , averageWaitTimeMs(other.averageWaitTimeMs.load())
+            , lastConnectionTime(other.lastConnectionTime.load())
+            , lastStatsReset(other.lastStatsReset.load())
+            {
+            }
+
+            // Custom assignment operator
+            PoolStats& operator=(const PoolStats& other)
+            {
+                if (this != &other)
+                {
+                    totalConnections          = other.totalConnections.load();
+                    activeConnections         = other.activeConnections.load();
+                    idleConnections           = other.idleConnections.load();
+                    waitingRequests           = other.waitingRequests.load();
+                    totalRequestsServed       = other.totalRequestsServed.load();
+                    totalConnectionsCreated   = other.totalConnectionsCreated.load();
+                    totalConnectionsDestroyed = other.totalConnectionsDestroyed.load();
+                    averageWaitTimeMs         = other.averageWaitTimeMs.load();
+                    lastConnectionTime        = other.lastConnectionTime.load();
+                    lastStatsReset            = other.lastStatsReset.load();
+                }
+                return *this;
+            }
+
+            // Default constructor
+            PoolStats() = default;
 
             void reset()
             {
-                totalRequestsServed = 0;
-                totalConnectionsCreated = 0;
+                totalRequestsServed       = 0;
+                totalConnectionsCreated   = 0;
                 totalConnectionsDestroyed = 0;
-                averageWaitTimeMs = 0.0;
-                lastStatsReset = timer::get_utc_microseconds();
+                averageWaitTimeMs         = 0.0;
+                lastStatsReset            = timer::get_utc_microseconds();
             }
         };
 
@@ -75,28 +120,28 @@ namespace db
             ~PooledConnection();
 
             auto getConnection() -> sql::Connection*;
-            auto isValid() -> bool;
-            auto getLastUsed() -> uint64;
-            auto getCreatedTime() -> uint64;
-            auto getPoolId() -> uint32;
+            auto isValid() const -> bool;
+            auto getLastUsed() const -> uint64;
+            auto getCreatedTime() const -> uint64;
+            auto getPoolId() const -> uint32;
 
             void markUsed();
             void resetConnection();
 
         private:
             std::unique_ptr<sql::Connection> connection_;
-            uint32 poolId_;
-            uint64 createdTime_;
-            uint64 lastUsedTime_;
-            std::atomic<bool> isValid_;
+            uint32                           poolId_;
+            uint64                           createdTime_;
+            uint64                           lastUsedTime_;
+            std::atomic<bool>                isValid_;
         };
 
         // Database connection pool
         class ConnectionPool
         {
         public:
-            explicit ConnectionPool(uint32 minConnections = 5, uint32 maxConnections = 20, 
-                                    uint32 connectionTimeoutMs = 30000, uint32 idleTimeoutMs = 300000);
+            explicit ConnectionPool(uint32 minConnections = 10, uint32 maxConnections = 50,
+                                    uint32 connectionTimeoutMs = 10000, uint32 idleTimeoutMs = 600000);
             ~ConnectionPool();
 
             // Get a connection from the pool
@@ -111,7 +156,7 @@ namespace db
             void cleanupIdleConnections();
 
             // Statistics and monitoring
-            auto getStats() -> PoolStats;
+            auto getStats() const -> PoolStats;
             void resetStats();
             void logStats();
 
@@ -129,20 +174,20 @@ namespace db
             uint32 idleTimeoutMs_;
 
             // Pool state
-            std::queue<std::unique_ptr<PooledConnection>> availableConnections_;
+            std::queue<std::unique_ptr<PooledConnection>>                 availableConnections_;
             std::unordered_map<uint32, std::unique_ptr<PooledConnection>> activeConnections_;
-            std::mutex poolMutex_;
-            std::condition_variable connectionAvailable_;
-            std::atomic<bool> isInitialized_{false};
-            std::atomic<bool> isShuttingDown_{false};
-            std::atomic<uint32> nextConnectionId_{1};
+            std::mutex                                                    poolMutex_;
+            std::condition_variable                                       connectionAvailable_;
+            std::atomic<bool>                                             isInitialized_{ false };
+            std::atomic<bool>                                             isShuttingDown_{ false };
+            std::atomic<uint32>                                           nextConnectionId_{ 1 };
 
             // Statistics
             PoolStats stats_;
 
             // Background cleanup thread
-            std::thread cleanupThread_;
-            std::atomic<bool> cleanupShouldRun_{false};
+            std::thread       cleanupThread_;
+            std::atomic<bool> cleanupShouldRun_{ false };
 
             // Internal methods
             auto createNewConnection() -> std::unique_ptr<PooledConnection>;

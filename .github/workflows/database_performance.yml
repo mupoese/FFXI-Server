@@ -56,6 +56,11 @@ jobs:
         shell: bash
         run: |
           python3 ./tools/dbtool.py setup
+      - name: Apply Database CI Optimizations
+        run: |
+          # Apply MySQL/MariaDB optimizations for better CI performance
+          echo "Applying database optimizations for CI environment..."
+          python3 tools/database_ci_optimizations.py --host 127.0.0.1 --user root --password root --database xidb --all || echo "Some optimizations failed but continuing..."
       - name: Run Comprehensive Database Tests
         env:
           TEST_DURATION: ${{ github.event.inputs.test_duration || '300' }}

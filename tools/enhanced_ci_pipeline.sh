@@ -12,11 +12,11 @@ readonly BLUE='\033[0;34m'
 readonly NC='\033[0m' # No Color
 
 # Configuration
-readonly SCRIPT_DIR
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 
-readonly PROJECT_ROOT
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly PROJECT_ROOT
 
 readonly BUILD_DIR="$PROJECT_ROOT/build"
 readonly TOOLS_DIR="$PROJECT_ROOT/tools"

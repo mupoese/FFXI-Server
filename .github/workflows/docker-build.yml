@@ -75,6 +75,16 @@ jobs:
             exit 1
           fi
           
+          if [ ! -f "docker/scripts/entrypoint.sh" ]; then
+            echo "ERROR: docker/scripts/entrypoint.sh not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "docker/supervisord.conf" ]; then
+            echo "ERROR: docker/supervisord.conf not found!"
+            exit 1
+          fi
+          
           if [ ! -f "docker-compose.yml" ]; then
             echo "ERROR: docker-compose.yml not found!"
             exit 1

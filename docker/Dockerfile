@@ -102,7 +102,7 @@ COPY --chown=$FFXI_USER:$FFXI_USER scripts/ $FFXI_HOME/scripts/
 COPY --chown=$FFXI_USER:$FFXI_USER sql/ $FFXI_HOME/sql/
 COPY --chown=$FFXI_USER:$FFXI_USER tools/ $FFXI_HOME/tools/
 COPY --chown=$FFXI_USER:$FFXI_USER res/ $FFXI_HOME/res/
-COPY --chown=$FFXI_USER:$FFXI_USER docker/entrypoint.sh $FFXI_HOME/entrypoint.sh
+COPY --chown=$FFXI_USER:$FFXI_USER docker/scripts/entrypoint.sh $FFXI_HOME/entrypoint.sh
 COPY --chown=$FFXI_USER:$FFXI_USER docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set proper permissions

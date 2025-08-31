@@ -526,7 +526,7 @@ This roadmap outlines planned improvements, development priorities, and architec
 
 - [x] **Dependency Management & Security**
   - [x] Updated Python dependencies to latest secure versions
-  - [x] Updated CMake dependencies (fmt 11.2.0, spdlog 1.16.0)
+  - [x] Updated CMake dependencies (fmt 11.2.0, spdlog 1.15.3)
   - [x] Enhanced vulnerability scanning and monitoring
   - [x] Automated dependency update checking
 

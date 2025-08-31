@@ -35,7 +35,7 @@
 
 - **Updated CMake Dependencies**
   - Updated fmt library to 11.2.0 (from 10.1.1)
-  - Updated spdlog library to 1.16.0 (from 1.15.0)
+  - Updated spdlog library to 1.15.3 (from 1.15.0)
   - Maintained compatibility with existing codebase
   - Enhanced logging and formatting capabilities
 

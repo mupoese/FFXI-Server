@@ -73,6 +73,7 @@ RUN groupadd -r $FFXI_USER && useradd -r -g $FFXI_USER -d $FFXI_HOME -s /bin/bas
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
     libmariadb3 \
+    libmariadb-dev \
     mariadb-client \
     libluajit-5.1-2 \
     libzmq5 \

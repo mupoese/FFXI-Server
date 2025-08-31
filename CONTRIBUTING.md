@@ -31,6 +31,42 @@
 
 - For more specific guides on how to contribute using Git, GitHub, C++, Lua, SQL, Python, other technical changes, and how to style your code, etc. please see the [Development Guide](https://github.com/LandSandBoat/server/wiki/Development-Guide) and [Development Landing Page](https://github.com/LandSandBoat/server/wiki/Development) as well as other pages in the [Wiki](https://github.com/LandSandBoat/server/wiki).
 
+### 🌐 Web Interface and Monitoring
+
+This repository now includes a comprehensive web administration interface with integrated monitoring:
+
+- **Homepage**: `http://localhost:8000` - Beautiful responsive landing page with real-time server status
+- **Admin Dashboard**: `http://localhost:8000/admin.html` - 8-tab comprehensive administration interface
+- **Monitoring Stack**: Prometheus + Grafana + Node Exporter integration with Docker profiles
+
+**Quick Start:**
+```bash
+# Start with web interface and monitoring
+COMPOSE_PROFILES=monitoring docker-compose up -d
+
+# Access interfaces
+open http://localhost:8000              # Homepage with server status
+open http://localhost:8000/admin.html   # Admin dashboard
+open http://localhost:3000              # Grafana dashboards
+```
+
+### Development Environment Setup
+
+**Docker Development Environment:**
+```bash
+# Clone and setup
+git clone https://github.com/mupoese/FFXI-Server.git
+cd FFXI-Server
+cp .env.example .env
+
+# Start development environment with full monitoring
+COMPOSE_PROFILES=admin,redis,monitoring docker-compose up -d
+
+# Development tools
+python3 tools/dev_automation.py all
+tools/enhanced_ci_pipeline.sh all
+```
+
 ## Workflow Guide
 
 - It is **always** better to ask questions and ask for advice instead of investing a lot of time into work that we may end up asking you to rewrite or split up into smaller contributions.

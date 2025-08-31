@@ -28,19 +28,46 @@ cd FFXI-Server
 cp .env.example .env
 # Edit .env with your database passwords and settings
 
-# Start the server
+# Start the server with web interface
 docker-compose up -d
+
+# Start with full monitoring stack
+COMPOSE_PROFILES=monitoring docker-compose up -d
 
 # View logs
 docker-compose logs -f ffxi-server
 ```
 
-**Server will be available on:**
+**🌐 Web Interface Access:**
+- **Homepage**: `http://localhost:8000` - Beautiful landing page with real-time server status
+- **Admin Dashboard**: `http://localhost:8000/admin.html` - Comprehensive 8-tab administration interface
+- **Grafana Monitoring**: `http://localhost:3000` - Advanced metrics dashboards (with monitoring profile)
+- **Prometheus Metrics**: `http://localhost:9090` - Raw metrics collection (with monitoring profile)
+
+**🎮 Game Server Endpoints:**
 - Login: `localhost:54001`
 - Game Data: `localhost:54230` 
 - Search: `localhost:54002`
-- Admin Panel: `http://localhost:8088`
 - Database Admin: `http://localhost:8080` (optional, add `--profile admin`)
+
+### Docker with Full Monitoring Stack
+
+For complete server monitoring with Prometheus + Grafana:
+
+```bash
+# Start with comprehensive monitoring
+COMPOSE_PROFILES=monitoring docker-compose up -d
+
+# Or combine with other profiles for full functionality
+COMPOSE_PROFILES=redis,admin,monitoring docker-compose up -d
+```
+
+**📊 Monitoring Stack Includes:**
+- **Prometheus**: Advanced metrics collection with FFXI-specific recording rules
+- **Grafana**: Pre-configured dashboards with multiple visualization panels
+- **Node Exporter**: System-level performance metrics (CPU, memory, disk, network)
+- **MySQL Exporter**: Database performance monitoring and query analysis
+- **AlertManager**: Intelligent alert routing with webhook notifications
 
 ### Docker with Cloudflare Tunnel
 
@@ -59,16 +86,57 @@ For external access through Cloudflare tunnel:
    ```
 
 **Cloudflare tunnel endpoints:**
-- `https://admin.yourdomain.com` - Admin panel
+- `https://admin.yourdomain.com` - Web admin interface
 - `https://login.yourdomain.com` - Login service  
 - `https://auth.yourdomain.com` - Authentication
 - `https://search.yourdomain.com` - Search service
 
 > **Note:** FFXI uses UDP for game traffic which Cloudflare tunnels don't support directly. For full game access, you may need Cloudflare Spectrum (Enterprise) or direct port access.
 
+## 🌐 Web Administration Interface
+
+LandSandBoat now includes a comprehensive web-based administration system with real-time monitoring capabilities:
+
+### **Homepage (`index.html`)**
+- Beautiful, responsive landing page with modern dark theme
+- **Real-time server status footer** displaying:
+  - Online player count with 24-hour trends
+  - Server uptime and response times
+  - Load balancer status with instance health
+  - Database connection monitoring
+- Mobile and tablet optimized with touch-friendly design
+- Direct links to admin dashboard and monitoring interfaces
+
+### **Admin Dashboard (`admin.html`)**
+Comprehensive 8-tab administration interface featuring:
+
+- **🔧 Dashboard Tab**: System metrics, player statistics, and critical alerts
+- **📊 Monitoring Tab**: Embedded Grafana dashboards and Prometheus metrics
+- **⚖️ Servers Tab**: Multi-instance management with HAProxy load balancer statistics
+- **👥 Players Tab**: Online player management with search and admin actions
+- **🗄️ Database Tab**: Performance monitoring with connection pooling stats
+- **🌐 Network Tab**: Port status testing and connectivity monitoring
+- **📋 Logs Tab**: Real-time log viewing with filtering capabilities
+- **⚙️ Settings Tab**: Server configuration management and system controls
+
+### **Integrated Monitoring Stack**
+- **Prometheus**: FFXI-specific metrics collection with custom recording and alert rules
+- **Grafana**: Pre-configured dashboards with multiple visualization panels
+- **Node Exporter**: System performance metrics (CPU, memory, disk, network)
+- **MySQL Exporter**: Database performance monitoring with query analysis
+- **AlertManager**: Intelligent alert routing with webhook notifications
+
+### **Multi-Server Load Balancing**
+- **HAProxy Integration**: Real-time load balancer statistics in admin dashboard
+- **Multi-Instance Support**: Health monitoring across multiple FFXI server instances
+- **Automatic Failover**: Visual indication of server health and traffic distribution
+- **Performance Monitoring**: Live backend response times and load distribution
+
 ## Documentation
 
 - **[Function Index](documentation/function_index/index.html)** - Comprehensive API documentation for C++, Lua, Python, and SQL
+- **[Web Admin Guide](ENHANCED_WEB_ADMIN_GUIDE.md)** - Complete web interface documentation and usage guide
+- **[Docker Infrastructure](DOCKER_INFRASTRUCTURE_SUMMARY.md)** - Docker deployment with monitoring stack setup
 - **[Development Guide](documentation/FUNCTION_INDEXING_SYSTEM.md)** - Function Indexing System implementation details
 - **[Modernization Summary](MODERNIZATION_SUMMARY.md)** - Recent codebase improvements and modern C++ features
 - **[Network Bonding Guide](NETWORK_BONDING.md)** - Network bonding/link aggregation implementation and configuration
@@ -144,17 +212,26 @@ tools/docker_validation.sh all
    docker-compose logs -f ffxi-server
    ```
 
-4. **Start with All Services**
+4. **Start with Full Monitoring Stack**
    ```bash
-   # Include admin tools and caching
-   docker-compose --profile admin --profile redis up -d
+   # Include monitoring (Prometheus + Grafana + Node Exporter)
+   COMPOSE_PROFILES=monitoring docker-compose up -d
+   
+   # Or combine with admin tools and caching
+   COMPOSE_PROFILES=admin,redis,monitoring docker-compose up -d
    ```
 
 5. **Start with Cloudflare Tunnel**
    ```bash
    # For external access via Cloudflare
-   docker-compose --profile cloudflare up -d
+   COMPOSE_PROFILES=cloudflare up -d
    ```
+
+**🌐 Access the Web Interface:**
+- **Homepage**: `http://localhost:8000` - Server status and information
+- **Admin Dashboard**: `http://localhost:8000/admin.html` - Complete administration interface
+- **Grafana**: `http://localhost:3000` - Monitoring dashboards (monitoring profile)
+- **Prometheus**: `http://localhost:9090` - Metrics collection (monitoring profile)
 
 ### Network Ports
 
@@ -168,9 +245,14 @@ The FFXI server uses these ports:
 | 54231 | TCP      | Login Auth | Authentication |
 | 51220 | TCP      | Login Config | Configuration |
 | 54003 | TCP      | ZMQ | Inter-service messaging |
-| 8088  | HTTP     | Admin | Web management panel |
+| 8000  | HTTP     | Web Interface | Homepage and admin dashboard |
+| 3000  | HTTP     | Grafana | Monitoring dashboards (monitoring profile) |
+| 9090  | HTTP     | Prometheus | Metrics collection (monitoring profile) |
+| 9093  | HTTP     | AlertManager | Alert management (monitoring profile) |
+| 9100  | HTTP     | Node Exporter | System metrics (monitoring profile) |
+| 9104  | HTTP     | MySQL Exporter | Database metrics (monitoring profile) |
 | 3306  | TCP      | Database | MariaDB |
-| 8080  | HTTP     | PhpMyAdmin | Database admin (optional) |
+| 8080  | HTTP     | PhpMyAdmin | Database admin (admin profile) |
 
 ### Docker Management
 
@@ -185,10 +267,22 @@ docker-compose restart ffxi-server
 # View logs
 docker-compose logs -f [service-name]
 
+# Start with monitoring stack
+COMPOSE_PROFILES=monitoring docker-compose up -d
+
+# Start with all services (admin + monitoring + caching)
+COMPOSE_PROFILES=admin,redis,monitoring docker-compose up -d
+
 # Update and rebuild
 git pull
 docker-compose build --no-cache
 docker-compose up -d
+
+# Access web interfaces
+open http://localhost:8000              # Homepage with server status
+open http://localhost:8000/admin.html   # Admin dashboard
+open http://localhost:3000              # Grafana (monitoring profile)
+open http://localhost:9090              # Prometheus (monitoring profile)
 
 # Backup database
 docker-compose exec db mysqldump -u root -p xidb > backup.sql
@@ -205,8 +299,12 @@ docker-compose down -v
 
 **Troubleshooting:**
 ```bash
+# Check web interface health
+curl -f http://localhost:8000
+curl -f http://localhost:8000/admin.html
+
 # Check container health
-docker-compose exec ffxi-server curl -f http://localhost:8088/health
+docker-compose exec ffxi-server curl -f http://localhost:8000/health
 
 # Access container shell
 docker-compose exec ffxi-server /bin/bash
@@ -216,6 +314,13 @@ docker-compose exec ffxi-server mysqladmin ping -h db -u xiuser -p
 
 # View detailed logs
 docker-compose logs --timestamps --tail=100 ffxi-server
+
+# Check monitoring stack (if enabled)
+curl -f http://localhost:9090/-/healthy  # Prometheus
+curl -f http://localhost:3000/api/health # Grafana
+
+# Monitor system resources
+docker stats
 ```
 
 ### Cloudflare Tunnel Setup

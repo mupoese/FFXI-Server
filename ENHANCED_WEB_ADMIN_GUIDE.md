@@ -1,41 +1,129 @@
-# LandSandBoat Enhanced Web Administration Panel
+# LandSandBoat Enhanced Web Administration Interface
 
 ## Overview
 
-The enhanced web administration panel provides comprehensive user management, character viewing, and administrative capabilities for the LandSandBoat FFXI server emulator.
+The enhanced web administration interface provides a comprehensive web-based management system for the LandSandBoat FFXI server with real-time monitoring, beautiful responsive design, and integrated Prometheus+Grafana monitoring stack.
 
-## New Features Added
+## 🌐 Complete Web Interface
 
-### 🔐 User Registration & Authentication System
-- **Email/password registration** with secure password hashing
-- **Account approval workflow** - new users require moderator/admin approval
-- **Character limit enforcement** - maximum 2 characters per user (configurable)
-- **Session management** with role-based access control
+### **Homepage (`index.html`)**
+- **Beautiful responsive landing page** with modern dark theme design
+- **Real-time server status footer** with live updates every 30 seconds:
+  - Server status, online player count, and 24-hour trends
+  - Server uptime and response times
+  - Load balancer status with multi-instance support
+  - Database connection health monitoring
+  - Direct links to monitoring dashboards
+- **Mobile and tablet optimized** with touch-friendly controls
+- **Feature showcase** highlighting server capabilities
 
-### 👥 User Management Interface
-- **Registration requests dashboard** - approve/reject pending users
-- **User account overview** - view all registered users, their status, and character counts
-- **Search and filtering** capabilities for user management
-- **Status management** - active, pending, banned account states
+### **Admin Dashboard (`admin.html`)**
+Comprehensive 8-tab administration interface featuring:
 
-### 🎮 Player Portal
-- **Character viewing** - registered users can view their character information
-- **Real-time game data** - Vana'diel time, elemental day, moon phase
-- **Character statistics** - level, job, zone, playtime
-- **Inventory display** - visual inventory grid showing items
-- **Auction house activity** - real-time auction house data
+#### **🔧 Dashboard Tab**
+- System metrics overview (CPU, memory, disk usage)
+- Player statistics with trend charts
+- Critical alerts and system notifications
+- Quick action buttons for common tasks
 
-### 📊 Enhanced Game Data Display
-- **Real-time Vana'diel calendar** - current date, elemental day, moon phase
-- **Auction house metrics** - active listings, daily sales, total gil
-- **Zone population tracking** - see where players are active
-- **Server uptime and performance metrics**
+#### **📊 Monitoring Tab**
+- **Embedded Grafana dashboards** with multiple visualization panels
+- **Prometheus metrics integration** with custom FFXI recording rules
+- Real-time system performance charts
+- Database performance monitoring with query analysis
 
-### 🛡️ Moderator/GM Management
-- **Role-based permissions** - admin, moderator, and user levels
-- **GM promotion system** - admins can promote moderators to GM status
-- **Privilege management** - control access to different admin functions
-- **Configuration management** - adjust character limits and approval requirements
+#### **⚖️ Servers Tab**
+- **Multi-instance management** with health monitoring
+- **HAProxy load balancer statistics** and configuration
+- Real-time backend server status and load distribution
+- Server instance scaling and management controls
+
+#### **👥 Players Tab**
+- Online player management with search capabilities
+- Player statistics and character information
+- Administrative actions (kick, ban, promote)
+- Real-time player activity monitoring
+
+#### **🗄️ Database Tab**
+- Database performance monitoring with connection pooling stats
+- Query performance analysis and optimization tools
+- Real-time connection counts and health metrics
+- Database maintenance and backup controls
+
+#### **🌐 Network Tab**
+- Port status testing and connectivity monitoring
+- Network performance metrics and diagnostics
+- Firewall status and configuration
+- Connection tracking and analysis
+
+#### **📋 Logs Tab**
+- Real-time log viewing with filtering capabilities
+- Log level filtering and search functionality
+- Export and download options
+- Multi-service log aggregation
+
+#### **⚙️ Settings Tab**
+- Server configuration management
+- System settings and preferences
+- User management and permissions
+- Monitoring configuration controls
+
+## 📊 Integrated Monitoring Stack
+
+### **Prometheus Integration**
+- **FFXI-specific metrics collection** with custom recording rules
+- **Advanced alert rules** for server health and performance monitoring
+- **Custom metrics endpoints** for game-specific data
+- **Performance tracking** with historical data storage
+
+### **Grafana Dashboards**
+- **Pre-configured dashboards** with multiple visualization panels:
+  - Server performance metrics (CPU, memory, network, disk)
+  - Player activity and game statistics
+  - Database performance and query analysis
+  - Multi-instance load balancer monitoring
+- **Real-time updates** with customizable refresh intervals
+- **Alert integration** with visual notifications
+
+### **System Monitoring**
+- **Node Exporter**: System-level performance metrics
+- **MySQL Exporter**: Database performance monitoring
+- **AlertManager**: Intelligent alert routing with webhook notifications
+- **Custom exporters**: FFXI server-specific metrics collection
+
+## ⚖️ Load Balancer & Multi-Server Support
+
+### **HAProxy Integration**
+- **Load balancer statistics** displayed in admin dashboard
+- **Real-time backend monitoring** with health checks
+- **Traffic distribution visualization** and management
+- **Automatic failover detection** and notification
+
+### **Multi-Instance Management**
+- **Health monitoring** across multiple FFXI server instances
+- **Performance tracking** with individual instance metrics
+- **Scaling controls** for dynamic instance management
+- **Load distribution analytics** and optimization
+
+## 🔧 Enhanced API Layer
+
+### **REST API Endpoints**
+- **Comprehensive server metrics** from Prometheus integration
+- **Player management** with search and administrative actions
+- **System monitoring** with real-time performance data
+- **Configuration management** for server settings
+
+### **Real-time Data**
+- **Live updates every 30 seconds** for server status and metrics
+- **WebSocket integration** for instant notifications
+- **Event streaming** for real-time log monitoring
+- **Push notifications** for critical alerts
+
+### **Security Features**
+- **Token-based authentication** for admin API access
+- **Role-based permissions** for different access levels
+- **Input validation** and sanitization
+- **CSRF protection** for form submissions
 
 ## Technical Implementation
 
@@ -87,67 +175,237 @@ The enhanced web administration panel provides comprehensive user management, ch
 
 ## Installation & Usage
 
-### Prerequisites
+### Quick Start with Docker
+
 ```bash
-pip install flask mysql-connector-python psutil
-```
+# Start basic server with web interface
+docker-compose up -d
 
-### Starting the Web Panel
-```bash
-# Start on default port 8080
-python3 tools/web_admin.py
+# Start with full monitoring stack
+COMPOSE_PROFILES=monitoring docker-compose up -d
 
-# Custom configuration
-python3 tools/web_admin.py --host 0.0.0.0 --port 8080 --config config.json
-
-# Debug mode
-python3 tools/web_admin.py --debug
+# Start with all services (admin + monitoring + caching)
+COMPOSE_PROFILES=admin,redis,monitoring docker-compose up -d
 ```
 
 ### Access URLs
-- **User Login/Registration**: `http://localhost:8080/`
-- **Admin Panel**: `http://localhost:8080/admin` (requires admin/moderator privileges)
-- **Player Portal**: `http://localhost:8080/portal` (for registered users)
 
-## User Workflow
+#### **Main Interfaces**
+- **Homepage**: `http://localhost:8000` - Beautiful landing page with server status
+- **Admin Dashboard**: `http://localhost:8000/admin.html` - Complete administration interface
 
-### New User Registration
-1. User visits registration page at `/register`
-2. Fills out email, username, password
-3. Account created with "pending" status if approval required
-4. Admin/moderator reviews and approves/rejects registration
-5. User can login and access player portal
+#### **Monitoring Stack** (with monitoring profile)
+- **Grafana Dashboards**: `http://localhost:3000` - Advanced visualization
+- **Prometheus Metrics**: `http://localhost:9090` - Raw metrics collection
+- **AlertManager**: `http://localhost:9093` - Alert management
 
-### Character Viewing
-1. User logs in and accesses player portal
-2. Can view all their characters with stats and information
-3. Click on character to see detailed inventory
-4. Real-time game information displayed
+#### **Additional Services** (with admin profile)
+- **Database Admin**: `http://localhost:8080` - PhpMyAdmin interface
 
-### Administrative Functions
-1. Admin/moderator logs in to admin panel
-2. Review pending user registrations
-3. Manage existing users and characters
-4. Monitor real-time game data and server metrics
-5. Configure system settings
+### Configuration
 
-## API Endpoints
+#### **Environment Variables**
+```env
+# Database Configuration
+MYSQL_ROOT_PASSWORD=your_secure_root_password
+MYSQL_PASSWORD=your_secure_user_password
+MYSQL_DATABASE=xidb
+MYSQL_USER=xiuser
 
-### Authentication
-- `POST /` - User login
-- `POST /register` - User registration
-- `GET /logout` - User logout
+# Monitoring Configuration
+GRAFANA_ADMIN_PASSWORD=admin
+PROMETHEUS_RETENTION=15d
 
-### Admin API
-- `GET /api/users` - Get user list for management
-- `POST /api/users/approve` - Approve user registration
-- `POST /api/users/reject` - Reject user registration
-- `GET /api/characters` - Get character list
-- `GET /api/gamedata` - Get real-time game data
+# Cloudflare Tunnel (optional)
+CLOUDFLARE_TUNNEL_TOKEN=your_tunnel_token
+CLOUDFLARE_DOMAIN=yourdomain.com
+```
 
-### User API
-- `GET /api/user/characters` - Get current user's characters
-- `GET /api/user/character/{id}/inventory` - Get character inventory
+#### **Docker Profiles**
+- **Default**: Basic FFXI server + database + web interface
+- **monitoring**: Adds Prometheus + Grafana + Node Exporter + AlertManager
+- **admin**: Adds PhpMyAdmin for database management
+- **redis**: Adds Redis caching for improved performance
+- **cloudflare**: Adds Cloudflare tunnel for external access
+- **multi-instance**: Load balancer with multiple server instances
+
+## Features in Detail
+
+### **Real-time Server Status Footer**
+The homepage footer displays live server information updated every 30 seconds:
+- **Server Status**: Online/offline indicator with uptime
+- **Players Online**: Current count with 24-hour trend indicator
+- **Load Balancer**: Instance count and health status
+- **Database**: Connection count and response time
+- **Response Time**: Server latency and performance metrics
+
+### **Comprehensive Admin Dashboard**
+The admin dashboard provides full server management through multiple specialized tabs:
+
+#### **Dashboard Overview**
+- System resource usage (CPU, memory, disk)
+- Player statistics and activity trends
+- Critical alerts and notifications
+- Quick access to common administrative tasks
+
+#### **Advanced Monitoring**
+- Embedded Grafana dashboards with real-time charts
+- Prometheus metrics with custom FFXI recording rules
+- System performance trends and historical data
+- Database query performance and optimization metrics
+
+#### **Multi-Server Management**
+- Load balancer statistics and health monitoring
+- Individual server instance performance tracking
+- Traffic distribution and failover status
+- Scaling controls and instance management
+
+### **Mobile and Tablet Support**
+- **Responsive design** adapts to all screen sizes
+- **Touch-friendly controls** optimized for mobile interaction
+- **Adaptive layouts** provide optimal viewing on any device
+- **Modern CSS** with smooth animations and transitions
+
+## API Documentation
+
+### **Server Status API**
+```bash
+# Get real-time server status
+GET /api/server/status
+
+# Response:
+{
+  "status": "online",
+  "players_online": 27,
+  "uptime": "2d 14h 23m",
+  "response_time": "35ms",
+  "database_connections": 42,
+  "load_balancer": {
+    "instances": 2,
+    "healthy": 2
+  }
+}
+```
+
+### **Monitoring API**
+```bash
+# Get Prometheus metrics
+GET /api/metrics/prometheus
+
+# Get system performance
+GET /api/metrics/system
+
+# Get database performance
+GET /api/metrics/database
+```
+
+### **Admin Management API**
+```bash
+# Get player list
+GET /api/admin/players
+
+# Server management actions
+POST /api/admin/server/restart
+POST /api/admin/server/config
+```
+
+## Advanced Configuration
+
+### **Prometheus Configuration**
+The monitoring stack includes FFXI-specific recording rules:
+```yaml
+groups:
+  - name: ffxi.rules
+    rules:
+      - record: ffxi:players_online_rate
+        expr: rate(ffxi_players_online_total[5m])
+      - record: ffxi:database_connections_avg
+        expr: avg_over_time(mysql_threads_connected[1m])
+```
+
+### **Grafana Dashboard Configuration**
+Pre-configured dashboards include:
+- **FFXI Server Overview**: Player counts, system metrics, alerts
+- **Database Performance**: Query performance, connection pooling
+- **System Resources**: CPU, memory, disk, network metrics
+- **Load Balancer**: Multi-instance monitoring and traffic distribution
+
+### **Alert Rules**
+Custom alert rules for FFXI server monitoring:
+```yaml
+groups:
+  - name: ffxi.alerts
+    rules:
+      - alert: FFXIServerDown
+        expr: up{job="ffxi-server"} == 0
+        for: 1m
+        annotations:
+          summary: "FFXI Server is down"
+      
+      - alert: HighPlayerLoad
+        expr: ffxi_players_online > 100
+        for: 5m
+        annotations:
+          summary: "High player count detected"
+```
+
+## Monitoring Stack Details
+
+### **Prometheus Setup**
+- **Metrics collection** from all server components
+- **Custom recording rules** for FFXI-specific metrics
+- **Alert rules** for proactive monitoring
+- **Data retention** configurable (default: 15 days)
+
+### **Grafana Integration**
+- **Pre-configured data sources** connecting to Prometheus
+- **Custom dashboards** for FFXI server monitoring
+- **Alert channels** for notifications
+- **User authentication** with admin controls
+
+### **Node Exporter Metrics**
+- System CPU, memory, disk, and network metrics
+- Process monitoring for FFXI server components
+- File system monitoring and alerts
+- Hardware health monitoring
+
+### **MySQL Exporter Metrics**
+- Database connection pool monitoring
+- Query performance and slow query tracking
+- InnoDB buffer pool statistics
+- Replication status and lag monitoring
+
+## Troubleshooting
+
+### **Web Interface Issues**
+```bash
+# Check web interface availability
+curl -f http://localhost:8000
+
+# Check API endpoints
+curl -f http://localhost:8000/api/server/status
+
+# View web server logs
+docker-compose logs -f web-admin
+```
+
+### **Monitoring Stack Issues**
+```bash
+# Check Prometheus health
+curl -f http://localhost:9090/-/healthy
+
+# Check Grafana health
+curl -f http://localhost:3000/api/health
+
+# Verify metrics collection
+curl http://localhost:9090/api/v1/targets
+```
+
+### **Performance Optimization**
+- **Enable Redis caching**: Use `COMPOSE_PROFILES=redis,monitoring`
+- **Adjust refresh rates**: Configure dashboard update intervals
+- **Optimize queries**: Use database performance monitoring
+- **Scale instances**: Use multi-instance profile for load distribution
 
 ## Database Schema Integration
 

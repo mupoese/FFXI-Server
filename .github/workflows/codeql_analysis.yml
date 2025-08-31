@@ -71,6 +71,8 @@ jobs:
       name: Configure and Build
       run: |
         mkdir -p build
+        # Clear CMake cache if it exists to avoid path conflicts
+        rm -f build/CMakeCache.txt
         CFLAGS=-m64 CXXFLAGS=-m64 LDFLAGS=-m64 cmake -S . -B build
         cmake --build build -j4
 

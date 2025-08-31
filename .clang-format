@@ -1,4 +1,4 @@
-﻿---
+---
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # We base things of WebKit + Allman braces
 # BasedOnStyle: WebKit

@@ -31,13 +31,25 @@
 
 find_library(ZeroMQ_LIBRARY 
     NAMES 
-        "zmq${lib_debug}" "zmq${lib_debug}_64" "libzmq${lib_debug}" "libzmq${lib_debug}_64" "zmq" "libzmq"
+        "zmq${lib_debug}" "zmq${lib_debug}_64" "libzmq${lib_debug}" "libzmq${lib_debug}_64" "zmq" "libzmq" "zmq5" "libzmq5"
     PATHS
         ${PROJECT_SOURCE_DIR}/ext/zmq/${libpath}
         /usr/lib/x86_64-linux-gnu/
         /usr/lib/
         /usr/local/lib/
         /opt/lib/)
+
+# If not found in standard locations, try versioned libraries
+if(NOT ZeroMQ_LIBRARY)
+    find_library(ZeroMQ_LIBRARY 
+        NAMES 
+            "libzmq.so.5" "libzmq.so.4" "libzmq.so.3"
+        PATHS
+            /usr/lib/x86_64-linux-gnu/
+            /usr/lib/
+            /usr/local/lib/
+            /opt/lib/)
+endif()
 
 # For system installations, check both internal and system paths
 find_path(ZeroMQ_INCLUDE_DIR

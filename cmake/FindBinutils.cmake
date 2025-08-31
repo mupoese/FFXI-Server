@@ -1,14 +1,11 @@
 find_library(BINUTILS_LIBRARY
     NAMES
-        libbfd bfd
+        libbfd bfd libbfd-2.42-system
     PATHS
-        /usr/
-        /usr/bin/
-        /usr/include/
+        /usr/lib/x86_64-linux-gnu/
         /usr/lib/
-        /usr/local/
-        /usr/local/bin/
-        /opt/)
+        /usr/local/lib/
+        /opt/lib/)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Binutils DEFAULT_MSG BINUTILS_LIBRARY)

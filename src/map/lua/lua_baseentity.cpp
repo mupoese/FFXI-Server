@@ -35,10 +35,10 @@
 #include "common/utils.h"
 
 #include "ability.h"
-#include "blue_spell.h"
 #include "alliance.h"
 #include "aman.h"
 #include "battlefield.h"
+#include "blue_spell.h"
 #include "daily_system.h"
 #include "enmity_container.h"
 #include "fishingcontest.h"
@@ -2904,7 +2904,7 @@ bool CLuaBaseEntity::isInMogHouse()
 auto CLuaBaseEntity::getEntitiesByType(uint8 entityType) -> sol::table
 {
     sol::table entityTable = lua.create_table();
-    
+
     CZone* zone = m_PBaseEntity->loc.zone;
     if (!zone)
     {
@@ -2918,10 +2918,10 @@ auto CLuaBaseEntity::getEntitiesByType(uint8 entityType) -> sol::table
     }
 
     uint32 index = 1;
-    
+
     // Check appropriate entity lists based on type
     std::vector<EntityList_t> listsToCheck;
-    
+
     switch (entityType)
     {
         case TYPE_PC:
@@ -2932,71 +2932,71 @@ auto CLuaBaseEntity::getEntitiesByType(uint8 entityType) -> sol::table
             break;
         case TYPE_NPC:
             // NPC list is private, use ForEach instead
-            zoneEntities->ForEachNpc([&](CNpcEntity* npc) {
+            zoneEntities->ForEachNpc([&](CNpcEntity* npc)
+                                     {
                 if (npc)
                 {
                     entityTable[index] = npc;
                     index++;
-                }
-            });
+                } });
             return entityTable;
         case TYPE_PET:
-            // Pet list is private, use ForEach instead  
-            zoneEntities->ForEachPet([&](CPetEntity* pet) {
+            // Pet list is private, use ForEach instead
+            zoneEntities->ForEachPet([&](CPetEntity* pet)
+                                     {
                 if (pet)
                 {
                     entityTable[index] = pet;
                     index++;
-                }
-            });
+                } });
             return entityTable;
         case TYPE_TRUST:
             // Trust list is private, use ForEach instead
-            zoneEntities->ForEachTrust([&](CTrustEntity* trust) {
+            zoneEntities->ForEachTrust([&](CTrustEntity* trust)
+                                       {
                 if (trust)
                 {
                     entityTable[index] = trust;
                     index++;
-                }
-            });
+                } });
             return entityTable;
         default:
             // For unspecified types, check all lists
             listsToCheck.push_back(zoneEntities->GetCharList());
             listsToCheck.push_back(zoneEntities->GetMobList());
-            
+
             // Use ForEach for private lists
-            zoneEntities->ForEachNpc([&](CNpcEntity* npc) {
+            zoneEntities->ForEachNpc([&](CNpcEntity* npc)
+                                     {
                 if (npc && npc->objtype == entityType)
                 {
                     entityTable[index] = npc;
                     index++;
-                }
-            });
-            zoneEntities->ForEachPet([&](CPetEntity* pet) {
+                } });
+            zoneEntities->ForEachPet([&](CPetEntity* pet)
+                                     {
                 if (pet && pet->objtype == entityType)
                 {
                     entityTable[index] = pet;
                     index++;
-                }
-            });
-            zoneEntities->ForEachTrust([&](CTrustEntity* trust) {
+                } });
+            zoneEntities->ForEachTrust([&](CTrustEntity* trust)
+                                       {
                 if (trust && trust->objtype == entityType)
                 {
                     entityTable[index] = trust;
                     index++;
-                }
-            });
-            zoneEntities->ForEachAlly([&](CMobEntity* ally) {
+                } });
+            zoneEntities->ForEachAlly([&](CMobEntity* ally)
+                                      {
                 if (ally && ally->objtype == entityType)
                 {
                     entityTable[index] = ally;
                     index++;
-                }
-            });
+                } });
             break;
     }
-    
+
     // Process the public entity lists
     for (const auto& entityList : listsToCheck)
     {
@@ -3022,7 +3022,7 @@ auto CLuaBaseEntity::getEntitiesByType(uint8 entityType) -> sol::table
 auto CLuaBaseEntity::getEntitiesNear(float range, sol::object const& entityType) -> sol::table
 {
     sol::table entityTable = lua.create_table();
-    
+
     CZone* zone = m_PBaseEntity->loc.zone;
     if (!zone)
     {
@@ -3035,11 +3035,12 @@ auto CLuaBaseEntity::getEntitiesNear(float range, sol::object const& entityType)
         return entityTable;
     }
 
-    uint8 filterType = entityType != sol::lua_nil ? entityType.as<uint8>() : 0xFF; // 0xFF = all types
-    uint32 index = 1;
-    
+    uint8  filterType = entityType != sol::lua_nil ? entityType.as<uint8>() : 0xFF; // 0xFF = all types
+    uint32 index      = 1;
+
     // Helper lambda to check distance and add entity
-    auto checkAndAddEntity = [&](CBaseEntity* entity) {
+    auto checkAndAddEntity = [&](CBaseEntity* entity)
+    {
         if (entity && entity != m_PBaseEntity)
         {
             if (filterType == 0xFF || entity->objtype == filterType)
@@ -3053,39 +3054,35 @@ auto CLuaBaseEntity::getEntitiesNear(float range, sol::object const& entityType)
             }
         }
     };
-    
+
     // Check all entity types using appropriate methods
     // Check chars - public list
     for (const auto& entity : zoneEntities->GetCharList())
     {
         checkAndAddEntity(entity.second);
     }
-    
-    // Check mobs - public list  
+
+    // Check mobs - public list
     for (const auto& entity : zoneEntities->GetMobList())
     {
         checkAndAddEntity(entity.second);
     }
-    
+
     // Check NPCs - use ForEach
-    zoneEntities->ForEachNpc([&](CNpcEntity* npc) {
-        checkAndAddEntity(npc);
-    });
-    
+    zoneEntities->ForEachNpc([&](CNpcEntity* npc)
+                             { checkAndAddEntity(npc); });
+
     // Check pets - use ForEach
-    zoneEntities->ForEachPet([&](CPetEntity* pet) {
-        checkAndAddEntity(pet);
-    });
-    
+    zoneEntities->ForEachPet([&](CPetEntity* pet)
+                             { checkAndAddEntity(pet); });
+
     // Check trusts - use ForEach
-    zoneEntities->ForEachTrust([&](CTrustEntity* trust) {
-        checkAndAddEntity(trust);
-    });
-    
+    zoneEntities->ForEachTrust([&](CTrustEntity* trust)
+                               { checkAndAddEntity(trust); });
+
     // Check allies - use ForEach
-    zoneEntities->ForEachAlly([&](CMobEntity* ally) {
-        checkAndAddEntity(ally);
-    });
+    zoneEntities->ForEachAlly([&](CMobEntity* ally)
+                              { checkAndAddEntity(ally); });
 
     return entityTable;
 }
@@ -3108,7 +3105,7 @@ bool CLuaBaseEntity::isEnemy(CLuaBaseEntity* target)
     {
         return true;
     }
-    
+
     // Players are generally enemies to mobs
     if (m_PBaseEntity->objtype == TYPE_MOB && target->m_PBaseEntity->objtype == TYPE_PC)
     {
@@ -7430,7 +7427,7 @@ uint8 CLuaBaseEntity::getTraitLevel(uint16 traitID)
     }
 
     auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
-    
+
     // Check if the character has this trait
     for (auto& trait : PChar->TraitList)
     {
@@ -7439,7 +7436,7 @@ uint8 CLuaBaseEntity::getTraitLevel(uint16 traitID)
             return trait->getLevel();
         }
     }
-    
+
     return 0; // Trait not found
 }
 
@@ -11206,7 +11203,7 @@ uint8 CLuaBaseEntity::getSetBlueSpell(uint8 slot)
     }
 
     auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
-    
+
     if (slot >= 20)
     {
         ShowWarning("Invalid slot passed to getSetBlueSpell (%d). Must be 0-19.", slot);
@@ -11231,7 +11228,7 @@ void CLuaBaseEntity::setSetBlueSpell(uint8 slot, uint16 spellID)
     }
 
     auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
-    
+
     if (slot >= 20)
     {
         ShowWarning("Invalid slot passed to setSetBlueSpell (%d). Must be 0-19.", slot);

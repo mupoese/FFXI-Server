@@ -1,0 +1,57 @@
+# Build artifacts
+build/
+build*/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.bin
+
+# External dependency directories (use system packages instead)
+ext/
+
+# Git directory
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local test files
+*.log
+logs/
+test_*
+*_test
+db_test_results.txt
+database_test_report.json
+system_test_report.json
+db_performance_quick_*.json
+network_bonding_test_results/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Documentation
+docs/
+documentation/
+README.md
+LICENSE
+*.md
+
+# Development tools
+tools/test_*
+tools/*_test*
+xi_test
+
+# Environment files
+.env
+.env.*

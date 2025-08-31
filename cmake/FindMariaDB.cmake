@@ -85,18 +85,25 @@ endif()
 
 find_library(MARIADB_LIBRARY
     NAMES
-        libmariadb64 mariadb64 libmysql64 mysql64 libmariadb mariadb libmysql mysql
+        libmariadb64 mariadb64 libmysql64 mysql64 libmariadb mariadb libmysql mysql mysqlclient
     PATHS
         ${PROJECT_SOURCE_DIR}/ext/mariadb/${lib_dir}/
-        /usr/
-        /usr/bin/
-        /usr/include/
+        /usr/lib/x86_64-linux-gnu/
         /usr/lib/
-        /usr/local/
-        /usr/local/bin/
-        /opt/)
+        /usr/local/lib/
+        /opt/lib/)
 
-set(MARIADB_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ext/mariadb/include/) # Only look internally
+# For system installations, check both internal and system paths
+find_path(MARIADB_INCLUDE_DIR
+    NAMES mysql.h mariadb.h
+    PATHS
+        ${PROJECT_SOURCE_DIR}/ext/mariadb/include/
+        /usr/include/mariadb/
+        /usr/include/mysql/
+        /usr/local/include/mariadb/
+        /usr/local/include/mysql/
+        /opt/include/mariadb/
+        /opt/include/mysql/)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MariaDB DEFAULT_MSG MARIADB_LIBRARY MARIADB_INCLUDE_DIR)

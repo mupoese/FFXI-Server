@@ -31,18 +31,35 @@
 
 find_library(ZeroMQ_LIBRARY 
     NAMES 
-        "zmq${lib_debug}" "zmq${lib_debug}_64" "libzmq${lib_debug}" "libzmq${lib_debug}_64"
+        "zmq${lib_debug}" "zmq${lib_debug}_64" "libzmq${lib_debug}" "libzmq${lib_debug}_64" "zmq" "libzmq" "zmq5" "libzmq5"
     PATHS
         ${PROJECT_SOURCE_DIR}/ext/zmq/${libpath}
-        /usr/
-        /usr/bin/
-        /usr/include/
+        /usr/lib/x86_64-linux-gnu/
         /usr/lib/
-        /usr/local/
-        /usr/local/bin/
-        /opt/)
+        /usr/local/lib/
+        /opt/lib/)
 
-set(ZeroMQ_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ext/zmq/include/zmq/) # Only look internally
+# If not found in standard locations, try versioned libraries
+if(NOT ZeroMQ_LIBRARY)
+    find_library(ZeroMQ_LIBRARY 
+        NAMES 
+            "libzmq.so.5" "libzmq.so.4" "libzmq.so.3"
+        PATHS
+            /usr/lib/x86_64-linux-gnu/
+            /usr/lib/
+            /usr/local/lib/
+            /opt/lib/)
+endif()
+
+# For system installations, check both internal and system paths
+find_path(ZeroMQ_INCLUDE_DIR
+    NAMES zmq.h
+    PATHS
+        ${PROJECT_SOURCE_DIR}/ext/zmq/include/zmq/
+        ${PROJECT_SOURCE_DIR}/ext/zmq/include/
+        /usr/include/
+        /usr/local/include/
+        /opt/include/)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ZeroMQ DEFAULT_MSG ZeroMQ_LIBRARY ZeroMQ_INCLUDE_DIR)

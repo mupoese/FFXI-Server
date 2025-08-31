@@ -4,6 +4,65 @@
 This repository is an open-source server emulator for Final Fantasy XI (FFXI), written primarily in C++ with Lua scripting support.
 </repository_context>
 
+<priority_workflow_function>
+
+<pre_task_validation>
+**CRITICAL**: Before addressing any comment, prompt, or development task, ALWAYS execute this validation workflow first:
+
+<step_1_check_workflow_status>
+- Check for failed or failing workflow runs in the repository
+- Identify any CI/CD pipeline failures that need immediate attention
+- Use GitHub API or direct workflow inspection to assess current build status
+</step_1_check_workflow_status>
+
+<step_2_analyze_job_logs>
+- Read job logs for any failed workflow runs
+- Identify specific error messages and failure points
+- Categorize failures by type (formatting, compilation, testing, etc.)
+- Document root causes and required fixes
+</step_2_analyze_job_logs>
+
+<step_3_fix_cicd_issues>
+- Address CI/CD failures in order of severity:
+  1. Configuration file issues (BOM, formatting, syntax)
+  2. Build and compilation errors
+  3. Code formatting and style violations
+  4. Test failures and validation errors
+- Fix one issue at a time and validate each fix
+- Re-run relevant CI checks after each fix
+</step_3_fix_cicd_issues>
+
+<step_4_validate_fixes>
+- Ensure all CI/CD pipelines pass after fixes
+- Confirm no new issues were introduced by the fixes
+- Test the build and validation process end-to-end
+</step_4_validate_fixes>
+
+<step_5_proceed_with_original_task>
+- Only after ALL CI/CD issues are resolved, proceed with the original comment or prompt
+- Apply the same systematic approach to the new task
+- Continue with subsequent issues in order of priority
+</step_5_proceed_with_original_task>
+
+<step_6_changelog_management>
+- Always read existing changelogs to understand recent changes and context
+- Document all fixes and changes made during the session
+- Generate or update changelog entries following project format
+- Include component tags and proper documentation for all modifications
+</step_6_changelog_management>
+
+</pre_task_validation>
+
+<workflow_integration>
+This priority workflow must be integrated into ALL development activities:
+- **Issue Resolution**: Fix CI/CD first, then address the issue
+- **Feature Development**: Ensure clean pipeline before adding features  
+- **Code Reviews**: Validate CI status before implementing feedback
+- **Documentation Updates**: Check build status before content changes
+</workflow_integration>
+
+</priority_workflow_function>
+
 <repository_structure>
 
 <core_technologies>

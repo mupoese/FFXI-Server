@@ -203,7 +203,13 @@ std::string lua_to_string(sol::variadic_args va)
         }
     }
 
-    return fmt::format("{}", fmt::join(vec.begin(), vec.end(), " "));
+    std::string result;
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        if (i > 0) result += " ";
+        result += vec[i];
+    }
+    return result;
 }
 
 /**

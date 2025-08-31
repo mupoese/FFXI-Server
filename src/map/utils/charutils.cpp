@@ -1095,6 +1095,12 @@ namespace charutils
         //
         // NOTE: We normally don't want to build a prepared statement with fmt::format,
         //     : but this query is entirely internal, so it's OK.
+        std::string enabledExpansionsStr;
+        for (size_t i = 0; i < enabledExpansions.size(); ++i)
+        {
+            if (i > 0) enabledExpansionsStr += ",";
+            enabledExpansionsStr += enabledExpansions[i];
+        }
         auto query = fmt::format("SELECT char_spells.spellid "
                                  "FROM char_spells "
                                  "JOIN spell_list "
@@ -1102,7 +1108,7 @@ namespace charutils
                                  "WHERE charid = ? AND "
                                  "(spell_list.content_tag IN ({}) OR "
                                  "spell_list.content_tag IS NULL)",
-                                 fmt::join(enabledExpansions, ","));
+                                 enabledExpansionsStr);
 
         auto rset = db::preparedStmt(query, PChar->id);
         if (rset && rset->rowsCount())

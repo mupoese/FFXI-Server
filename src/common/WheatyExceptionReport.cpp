@@ -207,7 +207,13 @@ const char* GetCommandLineArgsString()
         strvec.emplace_back(wstrtostr(argv[i]));
     }
 
-    gCommandLineArgString = fmt::format("{}", fmt::join(strvec, " "));
+    std::string result;
+    for (size_t i = 0; i < strvec.size(); ++i)
+    {
+        if (i > 0) result += " ";
+        result += strvec[i];
+    }
+    gCommandLineArgString = result;
 
     return gCommandLineArgString.c_str();
 }

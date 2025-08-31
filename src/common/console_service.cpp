@@ -191,7 +191,13 @@ void ConsoleService::registerDefaultCommands()
             // Remove "lua" from the front of the inputs
             inputs = std::vector<std::string>(inputs.begin() + 1, inputs.end());
 
-            auto input = fmt::format("local var = {}; if type(var) ~= \"nil\" then print(var) end", fmt::join(inputs, " "));
+            std::string joinedInputs;
+            for (size_t i = 0; i < inputs.size(); ++i)
+            {
+                if (i > 0) joinedInputs += " ";
+                joinedInputs += inputs[i];
+            }
+            auto input = fmt::format("local var = {}; if type(var) ~= \"nil\" then print(var) end", joinedInputs);
 
             // TODO: Make sure to execute on the main thread
             lua.safe_script(input);

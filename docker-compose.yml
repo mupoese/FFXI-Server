@@ -1,0 +1,250 @@
+# FFXI LandSandBoat Server - Docker Compose Configuration
+# Comprehensive multi-service deployment with multiple profiles
+
+services:
+  # MariaDB Database Service
+  db:
+    image: mariadb:11.0
+    container_name: ffxi-database
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-xiserver_root_2024}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-xidb}
+      MYSQL_USER: ${MYSQL_USER:-xiuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-xiserver_2024}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - ffxi_database:/var/lib/mysql
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/custom.cnf:ro
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    networks:
+      - ffxi-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-xiserver_root_2024}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # FFXI Server Main Service
+  ffxi-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime-stage
+    container_name: ffxi-server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database Configuration
+      FFXI_SQL_HOST: db
+      FFXI_SQL_PORT: 3306
+      FFXI_SQL_USER: ${MYSQL_USER:-xiuser}
+      FFXI_SQL_PASSWORD: ${MYSQL_PASSWORD:-xiserver_2024}
+      FFXI_SQL_DATABASE: ${MYSQL_DATABASE:-xidb}
+      
+      # Network Configuration
+      FFXI_LOGIN_DATA_IP: ${FFXI_LOGIN_DATA_IP:-0.0.0.0}
+      FFXI_LOGIN_VIEW_IP: ${FFXI_LOGIN_VIEW_IP:-0.0.0.0}
+      FFXI_LOGIN_AUTH_IP: ${FFXI_LOGIN_AUTH_IP:-0.0.0.0}
+      FFXI_LOGIN_CONF_IP: ${FFXI_LOGIN_CONF_IP:-0.0.0.0}
+      
+      # Advanced Configuration
+      FFXI_ZMQ_IP: ${FFXI_ZMQ_IP:-127.0.0.1}
+      FFXI_HTTP_HOST: ${FFXI_HTTP_HOST:-0.0.0.0}
+      FFXI_DEBUG_MODE: ${FFXI_DEBUG_MODE:-false}
+      FFXI_LOG_LEVEL: ${FFXI_LOG_LEVEL:-INFO}
+      
+      # Cloudflare Configuration (optional)
+      CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+      CLOUDFLARE_TUNNEL_NAME: ${CLOUDFLARE_TUNNEL_NAME:-ffxi-server}
+      CLOUDFLARE_DOMAIN: ${CLOUDFLARE_DOMAIN:-}
+    ports:
+      # FFXI Game Ports
+      - "${FFXI_LOGIN_VIEW_PORT:-54001}:54001/tcp"    # Login View
+      - "${FFXI_LOGIN_DATA_PORT:-54230}:54230/tcp"    # Login Data (TCP)
+      - "${FFXI_LOGIN_DATA_PORT:-54230}:54230/udp"    # Login Data (UDP)
+      - "${FFXI_LOGIN_AUTH_PORT:-54231}:54231/tcp"    # Login Auth
+      - "${FFXI_LOGIN_CONF_PORT:-51220}:51220/tcp"    # Login Config
+      - "${FFXI_SEARCH_PORT:-54002}:54002/tcp"        # Search Server
+      - "${FFXI_ZMQ_PORT:-54003}:54003/tcp"           # ZMQ
+      - "${FFXI_HTTP_PORT:-8088}:8088/tcp"            # HTTP Management
+    volumes:
+      - ffxi_logs:/opt/ffxi/logs
+      - ffxi_settings:/opt/ffxi/settings
+      - ./res:/opt/ffxi/res:ro
+    networks:
+      - ffxi-network
+    healthcheck:
+      test: ["CMD", "/opt/ffxi/entrypoint.sh", "health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+
+  # Redis Cache Service (Optional - Profile: redis)
+  redis:
+    image: redis:7.2-alpine
+    container_name: ffxi-redis
+    restart: unless-stopped
+    profiles:
+      - redis
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - ffxi_redis:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - ffxi-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PhpMyAdmin Database Management (Optional - Profile: admin)
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: ffxi-phpmyadmin
+    restart: unless-stopped
+    profiles:
+      - admin
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-xiserver_root_2024}
+      UPLOAD_LIMIT: 256M
+      MEMORY_LIMIT: 512M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - ffxi-network
+
+  # Cloudflare Tunnel Service (Optional - Profile: cloudflare)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: ffxi-cloudflared
+    restart: unless-stopped
+    profiles:
+      - cloudflare
+    depends_on:
+      - ffxi-server
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel run
+    networks:
+      - ffxi-network
+
+  # HAProxy Load Balancer (Optional - Profile: multi-instance)
+  haproxy:
+    image: haproxy:2.8-alpine
+    container_name: ffxi-haproxy
+    restart: unless-stopped
+    profiles:
+      - multi-instance
+    volumes:
+      - ./docker/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./docker/haproxy-errors:/usr/local/etc/haproxy/errors:ro
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"  # HAProxy Stats
+    networks:
+      - ffxi-network
+    depends_on:
+      - ffxi-server
+
+  # Prometheus Monitoring (Optional - Profile: monitoring)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: ffxi-prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ffxi_prometheus:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - ffxi-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+
+  # Grafana Dashboard (Optional - Profile: monitoring)
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: ffxi-grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - ffxi_grafana:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    networks:
+      - ffxi-network
+    depends_on:
+      - prometheus
+
+  # Node Exporter for System Metrics (Optional - Profile: monitoring)
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: ffxi-node-exporter
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "${NODE_EXPORTER_PORT:-9100}:9100"
+    networks:
+      - ffxi-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+
+# Network Configuration
+networks:
+  ffxi-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+# Volume Configuration
+volumes:
+  ffxi_database:
+    driver: local
+  ffxi_logs:
+    driver: local
+  ffxi_settings:
+    driver: local
+  ffxi_redis:
+    driver: local
+  ffxi_prometheus:
+    driver: local
+  ffxi_grafana:
+    driver: local

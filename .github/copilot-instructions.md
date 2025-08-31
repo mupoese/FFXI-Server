@@ -109,7 +109,7 @@ When working on this repository, follow this enhanced 11-step process for optima
 
 #### Minimal Change Principle
 - **Surgical Modifications**: Make the best and correct possible changes to achieve the best possible outcome
-- **Preserve Working Code**: Never modify or remove functional code unless absolutely necessary
+- **Preserve Working Code**: Leverage existing code and ensure compatibility with previous implementations. Only make necessary changes that complement the current codebase while maintaining backwards compatibility with older versions.
 - **Incremental Validation**: Test each change immediately after implementation
 
 #### Tool-First Approach

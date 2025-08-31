@@ -98,25 +98,37 @@ std::chrono::system_clock::time_point version::GetBuildTimestamp() {
 constexpr bool version::HasFeature(std::string_view feature) noexcept {
   // Check for enabled features
   if (feature == "database_pooling") {
-    return @ENABLE_DATABASE_POOLING@;
+    return false; // @ENABLE_DATABASE_POOLING@ - not implemented yet
   }
   if (feature == "network_bonding") {
-    return @ENABLE_NETWORK_BONDING@;
+    return false; // @ENABLE_NETWORK_BONDING@ - not implemented yet
   }
   if (feature == "tracy_profiling") {
-    return @TRACY_ENABLE@;
+#ifdef TRACY_ENABLE
+    return true;
+#else
+    return false;
+#endif
   }
   if (feature == "static_analysis") {
-    return @ENABLE_STATIC_ANALYSIS@;
+    return false; // @ENABLE_STATIC_ANALYSIS@ - not implemented yet
   }
   if (feature == "testing") {
-    return @ENABLE_TESTING@;
+    return false; // @ENABLE_TESTING@ - not implemented yet
   }
   if (feature == "asan") {
-    return @ENABLE_ASAN@;
+#ifdef __has_feature
+    #if __has_feature(address_sanitizer)
+      return true;
+    #endif
+#endif
+#ifdef __SANITIZE_ADDRESS__
+    return true;
+#endif
+    return false;
   }
   if (feature == "lto") {
-    return @ENABLE_LTO@;
+    return false; // @ENABLE_LTO@ - not implemented yet
   }
   return false;
 }

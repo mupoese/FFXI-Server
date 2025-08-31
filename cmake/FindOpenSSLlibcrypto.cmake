@@ -3,16 +3,21 @@ find_library(OpenSSLlibcrypto_LIBRARY
         crypto crypto_64 libcrypto libcrypto_64
     PATHS
         ${PROJECT_SOURCE_DIR}/ext/openssl/${libpath}
-        /usr/
-        /usr/bin/
-        /usr/include/
+        /usr/lib/x86_64-linux-gnu/
         /usr/lib/
-        /usr/local/
-        /usr/local/bin/
+        /usr/local/lib/
         /usr/local/opt/openssl/lib/		 # OSX brew install location
-        /opt/)
+        /opt/lib/)
 
-set(OpenSSLlibcrypto_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ext/openssl/include/) # Only look internally
+# For system installations, check both internal and system paths
+find_path(OpenSSLlibcrypto_INCLUDE_DIR
+    NAMES openssl/crypto.h
+    PATHS
+        ${PROJECT_SOURCE_DIR}/ext/openssl/include/
+        /usr/include/
+        /usr/local/include/
+        /usr/local/opt/openssl/include/
+        /opt/include/)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(OpenSSLlibcrypto DEFAULT_MSG OpenSSLlibcrypto_LIBRARY OpenSSLlibcrypto_INCLUDE_DIR)

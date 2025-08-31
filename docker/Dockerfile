@@ -44,7 +44,7 @@ WORKDIR /build
 COPY . .
 
 # Configure and build with optimizations
-RUN cmake -B build -S . \
+RUN rm -rf build && cmake -B build -S . \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=20 \

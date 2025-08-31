@@ -118,7 +118,9 @@ if(ENABLE_TRACY OR TRACY_ENABLED OR TRACY) # Also handle close flags
 endif()
 message(STATUS "TRACY_ENABLE: ${TRACY_ENABLE}")
 
-add_subdirectory(ext)
+if(EXISTS ${CMAKE_SOURCE_DIR}/ext)
+    add_subdirectory(ext)
+endif()
 
 include(ClangTidy)
 include(Fuzzing)

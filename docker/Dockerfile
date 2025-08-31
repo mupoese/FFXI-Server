@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     curl \
     ca-certificates \
+    binutils-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create build directory and copy source
@@ -73,6 +74,7 @@ RUN groupadd -r $FFXI_USER && useradd -r -g $FFXI_USER -d $FFXI_HOME -s /bin/bas
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
     libmariadb3 \
+    libmariadb-dev \
     mariadb-client \
     libluajit-5.1-2 \
     libzmq5 \
@@ -87,7 +89,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 COPY tools/requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+RUN pip3 install --break-system-packages --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 # Create application directory structure
 RUN mkdir -p $FFXI_HOME/{bin,settings,logs,sql,scripts,tools,res} \
@@ -102,7 +104,7 @@ COPY --chown=$FFXI_USER:$FFXI_USER scripts/ $FFXI_HOME/scripts/
 COPY --chown=$FFXI_USER:$FFXI_USER sql/ $FFXI_HOME/sql/
 COPY --chown=$FFXI_USER:$FFXI_USER tools/ $FFXI_HOME/tools/
 COPY --chown=$FFXI_USER:$FFXI_USER res/ $FFXI_HOME/res/
-COPY --chown=$FFXI_USER:$FFXI_USER docker/entrypoint.sh $FFXI_HOME/entrypoint.sh
+COPY --chown=$FFXI_USER:$FFXI_USER docker/scripts/entrypoint.sh $FFXI_HOME/entrypoint.sh
 COPY --chown=$FFXI_USER:$FFXI_USER docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set proper permissions

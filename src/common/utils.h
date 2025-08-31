@@ -207,7 +207,13 @@ namespace utils
         {
             randomNumbers.push_back(xirand::GetRandomNumber(min, max));
         }
-        return fmt::format("{}", fmt::join(randomNumbers, " "));
+        std::string result;
+        for (size_t i = 0; i < randomNumbers.size(); ++i)
+        {
+            if (i > 0) result += " ";
+            result += std::to_string(randomNumbers[i]);
+        }
+        return result;
     }
 } // namespace utils
 

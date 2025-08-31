@@ -37,6 +37,12 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -57,7 +63,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
 
       - name: Validate Docker configuration
         run: |
@@ -66,6 +72,16 @@ jobs:
           # Check if required files exist
           if [ ! -f "docker/Dockerfile" ]; then
             echo "ERROR: docker/Dockerfile not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "docker/scripts/entrypoint.sh" ]; then
+            echo "ERROR: docker/scripts/entrypoint.sh not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "docker/supervisord.conf" ]; then
+            echo "ERROR: docker/supervisord.conf not found!"
             exit 1
           fi
           
@@ -163,6 +179,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
 
       - name: Set up test environment
         run: |
@@ -382,6 +404,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install docker-compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
 
       - name: Set up integration test environment
         run: |

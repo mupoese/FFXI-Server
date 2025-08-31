@@ -58,13 +58,13 @@ endif(TRACY_ENABLE)
 CPMAddPackage(
     NAME fmt
     GITHUB_REPOSITORY fmtlib/fmt
-    GIT_TAG 11.0.3
+    GIT_TAG 11.2.0
 ) # defines: fmt::fmt
 
 CPMAddPackage(
     NAME spdlog
     GITHUB_REPOSITORY gabime/spdlog
-    GIT_TAG v1.16.0
+    GIT_TAG v1.15.3
     OPTIONS
         "SPDLOG_ENABLE_PCH ON"
         "SPDLOG_FMT_EXTERNAL ON"

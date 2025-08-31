@@ -278,12 +278,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: ${{ runner.os }}-clang
+          key: ${{ github.repository }}-${{ runner.os }}-clang
       - name: Configure CMake
         run: |
           export CC=/usr/bin/clang-18
           export CXX=/usr/bin/clang++-18
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build
       - name: Build
         run: |
@@ -314,12 +316,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: ${{ runner.os }}-clang-tidy
+          key: ${{ github.repository }}-${{ runner.os }}-clang-tidy
       - name: Configure CMake
         run: |
           export CC=/usr/bin/clang-18
           export CXX=/usr/bin/clang++-18
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build -DENABLE_CLANG_TIDY=ON
       - name: Build
         run: |
@@ -346,12 +350,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: ${{ runner.os }}-gcc
+          key: ${{ github.repository }}-${{ runner.os }}-gcc
       - name: Configure CMake
         run: |
           export CC=/usr/bin/gcc-14
           export CXX=/usr/bin/g++-14
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           CFLAGS=-m64 CXXFLAGS=-m64 LDFLAGS=-m64 cmake -S . -B build
       - name: Build
         run: |
@@ -359,7 +365,7 @@ jobs:
 
   Windows_64bit_Debug:
     needs: Sanity_Checks
-    runs-on: windows-2025
+    runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
         with:
@@ -371,11 +377,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: ${{ runner.os }}-msvc64d
+          key: ${{ github.repository }}-${{ runner.os }}-msvc64d
       - name: Configure CMake
         shell: bash
         run: |
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build
       - name: Build
         shell: bash
@@ -394,7 +402,7 @@ jobs:
 
   Windows_64bit_Release_Tracy_Modules:
     needs: Sanity_Checks
-    runs-on: windows-2025
+    runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
         with:
@@ -406,7 +414,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: ${{ runner.os }}-msvc64-t
+          key: ${{ github.repository }}-${{ runner.os }}-msvc64-t
       - name: Enable Modules
         shell: bash
         run: |
@@ -421,6 +429,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_TRACY=ON
       - name: Build
         shell: bash
@@ -451,6 +461,8 @@ jobs:
       - name: Configure CMake
         run: |
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build
       - name: Build
         run: |
@@ -759,7 +771,7 @@ jobs:
           fi
 
   Full_Startup_Checks_Windows:
-    runs-on: windows-2025
+    runs-on: windows-2022
     needs: Windows_64bit_Debug
     steps:
       - uses: actions/checkout@v4
@@ -792,7 +804,7 @@ jobs:
           python3 ./tools/ci/startup_checks.py
 
   Full_Startup_Checks_Windows_Tracy_Modules:
-    runs-on: windows-2025
+    runs-on: windows-2022
     needs: Windows_64bit_Release_Tracy_Modules
     steps:
       - uses: actions/checkout@v4

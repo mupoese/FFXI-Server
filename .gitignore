@@ -286,3 +286,4 @@ cloudflare-tunnel.json
 
 # Docker build cache
 .docker/
+test_build/

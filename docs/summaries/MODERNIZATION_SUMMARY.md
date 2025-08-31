@@ -11,7 +11,7 @@ This document outlines the comprehensive modernization and improvements made to 
   - Flask 3.0.3, Werkzeug 3.0.4 for enhanced web administration
   - Black 24.8.0, pylint 3.2.7 for improved code quality
   - Added modern tools: ruff, pre-commit, bandit, isort
-- **CMake Dependencies**: Already using latest versions (fmt 11.0.3, spdlog 1.16.0)
+- **CMake Dependencies**: Already using latest versions (fmt 11.2.0, spdlog 1.15.3)
 - **Security Focus**: All dependencies scanned for vulnerabilities
 
 ### 🛡️ Security Improvements

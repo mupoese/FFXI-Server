@@ -228,6 +228,8 @@ jobs:
         run: |
           # Test if database components build correctly
           mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
           cmake -S . -B build
           
           # Build only database-related components

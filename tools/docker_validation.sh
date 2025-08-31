@@ -48,7 +48,7 @@ cleanup() {
     
     # Clean up Docker Compose
     cd "$PROJECT_ROOT"
-    docker-compose down -v 2>/dev/null || true
+    docker compose down -v 2>/dev/null || true
     
     # Clean up test files
     rm -f .env.test
@@ -76,7 +76,7 @@ validate_prerequisites() {
     fi
     
     # Check Docker Compose
-    if ! command -v docker-compose &> /dev/null; then
+    if ! command -v docker compose &> /dev/null; then
         log_error "Docker Compose is not installed"
         return 1
     fi
@@ -86,7 +86,7 @@ validate_prerequisites() {
     
     required_files=(
         "Dockerfile"
-        "docker-compose.yml"
+        "docker compose.yml"
         ".env.example"
         "docker/entrypoint.sh"
         "docker/mysql.cnf"
@@ -108,9 +108,9 @@ validate_docker_configuration() {
     
     cd "$PROJECT_ROOT"
     
-    # Validate docker-compose syntax
-    if ! docker-compose config -q; then
-        log_error "docker-compose.yml syntax validation failed"
+    # Validate docker compose syntax
+    if ! docker compose config -q; then
+        log_error "docker compose.yml syntax validation failed"
         return 1
     fi
     
@@ -195,7 +195,7 @@ COMPOSE_PROJECT_NAME=ffxi_test
 EOF
     
     # Start database first
-    if ! docker-compose --env-file .env.test up -d db; then
+    if ! docker compose --env-file .env.test up -d db; then
         log_error "Failed to start database container"
         return 1
     fi
@@ -205,12 +205,12 @@ EOF
     local timeout=60
     local counter=0
     
-    while ! docker-compose --env-file .env.test exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; do
+    while ! docker compose --env-file .env.test exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; do
         sleep 2
         counter=$((counter + 2))
         if [[ $counter -ge $timeout ]]; then
             log_error "Database failed to start within ${timeout}s"
-            docker-compose --env-file .env.test logs db
+            docker compose --env-file .env.test logs db
             return 1
         fi
     done
@@ -258,7 +258,7 @@ test_docker_compose_stack() {
     cd "$PROJECT_ROOT"
     
     # Start all services
-    if ! docker-compose --env-file .env.test up -d; then
+    if ! docker compose --env-file .env.test up -d; then
         log_error "Failed to start Docker Compose stack"
         return 1
     fi
@@ -267,7 +267,7 @@ test_docker_compose_stack() {
     sleep 30
     
     # Check service status
-    if ! docker-compose --env-file .env.test ps; then
+    if ! docker compose --env-file .env.test ps; then
         log_error "Failed to get service status"
         return 1
     fi
@@ -277,7 +277,7 @@ test_docker_compose_stack() {
     local attempt=0
     
     while [[ $attempt -lt $max_attempts ]]; do
-        if docker-compose --env-file .env.test exec -T ffxi-server curl -f http://localhost:8088/health 2>/dev/null; then
+        if docker compose --env-file .env.test exec -T ffxi-server curl -f http://localhost:8088/health 2>/dev/null; then
             log_success "Health endpoint responding"
             break
         fi
@@ -293,7 +293,7 @@ test_docker_compose_stack() {
     # Check logs for critical errors
     log "Checking service logs for critical errors..."
     
-    if docker-compose --env-file .env.test logs ffxi-server | grep -i "error\|fatal\|critical" | grep -v "expected"; then
+    if docker compose --env-file .env.test logs ffxi-server | grep -i "error\|fatal\|critical" | grep -v "expected"; then
         log_warning "Found error messages in server logs (review required)"
     fi
     
@@ -376,7 +376,7 @@ Log File: $LOG_FILE
 
 Docker Environment:
 - Docker Version: $(docker --version)
-- Docker Compose Version: $(docker-compose --version)
+- Docker Compose Version: $(docker compose --version)
 - System: $(uname -a)
 
 Image Information:

@@ -58,7 +58,7 @@ endif(TRACY_ENABLE)
 CPMAddPackage(
     NAME fmt
     GITHUB_REPOSITORY fmtlib/fmt
-    GIT_TAG 11.0.3
+    GIT_TAG 11.2.0
 ) # defines: fmt::fmt
 
 CPMAddPackage(

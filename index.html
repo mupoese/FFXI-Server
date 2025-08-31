@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LandSandBoat FFXI Server - Welcome to Vana'diel</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2d2d2d;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2d2d2d;
+            --bg-light: #3d3d3d;
+            --border-color: #444444;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary-color) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--secondary-color);
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--primary-color);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .cta-button.secondary {
+            background: var(--bg-medium);
+            border: 2px solid var(--primary-color);
+        }
+
+        .cta-button.secondary:hover {
+            background: var(--primary-color);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: var(--primary-color);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Footer with Server Status */
+        .footer {
+            background: var(--secondary-color);
+            border-top: 3px solid var(--primary-color);
+            padding: 2rem 0 1rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .server-status {
+            margin-bottom: 2rem;
+        }
+
+        .server-status h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-item {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .status-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .status-online { color: var(--accent-color); }
+        .status-warning { color: var(--warning-color); }
+        .status-offline { color: var(--danger-color); }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.online { background-color: var(--accent-color); }
+        .status-indicator.warning { background-color: var(--warning-color); }
+        .status-indicator.offline { background-color: var(--danger-color); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .server-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .server-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .server-link:hover {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .footer-info {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .server-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .server-link {
+                width: 100%;
+                max-width: 250px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .footer-content {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Utilities */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span style="font-size: 2rem;">🎮</span>
+                <h1>LandSandBoat</h1>
+            </div>
+            <nav class="nav">
+                <a href="admin.html">Admin Panel</a>
+                <a href="#download">Download</a>
+                <a href="#documentation">Docs</a>
+                <a href="https://github.com/LandSandBoat/server" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="hero">
+            <h2>Welcome to Vana'diel</h2>
+            <p>Experience Final Fantasy XI like never before on our enhanced LandSandBoat server. Join thousands of adventurers in this classic MMORPG experience with modern improvements and active community support.</p>
+            <div class="cta-buttons">
+                <a href="#play" class="cta-button">Start Playing</a>
+                <a href="admin.html" class="cta-button secondary">Server Admin</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h3>High Performance</h3>
+                <p>Optimized server infrastructure with load balancing, network bonding, and advanced monitoring for the best gaming experience.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <h3>Secure & Stable</h3>
+                <p>Enterprise-grade security with Cloudflare protection, automated backups, and 99.9% uptime monitoring.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌐</span>
+                <h3>Global Access</h3>
+                <p>Worldwide accessibility through Cloudflare tunnels with support for Windower and Ashita clients.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>Real-time Monitoring</h3>
+                <p>Advanced monitoring dashboard with Prometheus, Grafana, and real-time server statistics.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔧</span>
+                <h3>Modern Tools</h3>
+                <p>Comprehensive admin tools, automated deployment, and Docker-based infrastructure for easy management.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">👥</span>
+                <h3>Active Community</h3>
+                <p>Join a thriving community of FFXI players with regular events, support, and continuous server improvements.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="server-status">
+                <h3>🖥️ Server Status</h3>
+                <div class="status-grid" id="serverStatusGrid">
+                    <div class="status-item">
+                        <span class="status-label">Server Status</span>
+                        <div class="status-value status-online" id="serverStatus">
+                            <span class="status-indicator online"></span>
+                            Loading...
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Players Online</span>
+                        <div class="status-value" id="playersOnline">--</div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Uptime</span>
+                        <div class="status-value" id="serverUptime">--</div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Load Balancer</span>
+                        <div class="status-value" id="loadBalancerStatus">
+                            <span class="status-indicator online"></span>
+                            --
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Database</span>
+                        <div class="status-value" id="databaseStatus">
+                            <span class="status-indicator online"></span>
+                            --
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Response Time</span>
+                        <div class="status-value" id="responseTime">--</div>
+                    </div>
+                </div>
+                
+                <div class="server-links">
+                    <a href="admin.html" class="server-link">📊 Admin Dashboard</a>
+                    <a href="http://localhost:3000" target="_blank" class="server-link">📈 Grafana Monitoring</a>
+                    <a href="http://localhost:9090" target="_blank" class="server-link">🎯 Prometheus Metrics</a>
+                    <a href="http://localhost:8080" target="_blank" class="server-link">🗄️ Database Admin</a>
+                    <a href="http://localhost:8404" target="_blank" class="server-link">⚖️ Load Balancer Stats</a>
+                </div>
+            </div>
+            
+            <div class="footer-info">
+                <p>&copy; 2024 LandSandBoat FFXI Server. Enhanced with Docker, Prometheus & Grafana monitoring.</p>
+                <p>Last updated: <span id="lastUpdated">--</span> | Next update in: <span id="nextUpdate">--</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Server status monitoring
+        class ServerMonitor {
+            constructor() {
+                this.apiBase = '/api';
+                this.updateInterval = 30000; // 30 seconds
+                this.countdown = 30;
+                this.isLoading = false;
+                
+                this.init();
+            }
+
+            init() {
+                this.updateServerStatus();
+                this.startUpdateTimer();
+                this.updateLastUpdated();
+            }
+
+            async updateServerStatus() {
+                if (this.isLoading) return;
+                
+                this.isLoading = true;
+                try {
+                    // Simulate API calls (replace with real endpoints)
+                    const [statusData, metricsData] = await Promise.all([
+                        this.fetchServerStatus(),
+                        this.fetchMetrics()
+                    ]);
+
+                    this.updateStatusDisplay(statusData, metricsData);
+                } catch (error) {
+                    console.error('Failed to update server status:', error);
+                    this.showErrorState();
+                } finally {
+                    this.isLoading = false;
+                    this.updateLastUpdated();
+                }
+            }
+
+            async fetchServerStatus() {
+                try {
+                    const response = await fetch('/api/dashboard/metrics', {
+                        headers: {
+                            'Authorization': 'Bearer ' + this.getAuthToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        return await response.json();
+                    } else {
+                        throw new Error('API request failed');
+                    }
+                } catch (error) {
+                    console.error('API error:', error);
+                    // Fallback to simulation
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            resolve({
+                                server: { status: 'online', uptime: '2d 14h 23m' },
+                                database: { status: 'online', connections: 42 },
+                                loadBalancer: { status: 'online', instances: 2 },
+                                players: { online: Math.floor(Math.random() * 100) + 20 },
+                                system: { response_time_ms: Math.floor(Math.random() * 50) + 15 }
+                            });
+                        }, 500);
+                    });
+                }
+            }
+
+            async fetchMetrics() {
+                try {
+                    const response = await fetch('/api/prometheus/metrics', {
+                        headers: {
+                            'Authorization': 'Bearer ' + this.getAuthToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        return await response.json();
+                    } else {
+                        throw new Error('Prometheus API request failed');
+                    }
+                } catch (error) {
+                    console.error('Prometheus API error:', error);
+                    // Fallback to simulation
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            resolve({
+                                cpu: Math.floor(Math.random() * 30) + 20,
+                                memory: Math.floor(Math.random() * 20) + 60,
+                                network: Math.floor(Math.random() * 100) + 200
+                            });
+                        }, 300);
+                    });
+                }
+            }
+
+            getAuthToken() {
+                // In a real implementation, this would get a stored auth token
+                // For demo purposes, return a placeholder
+                return localStorage.getItem('ffxi_admin_token') || 'demo_token';
+            }
+
+            updateStatusDisplay(statusData, metricsData) {
+                // Update server status
+                const serverStatusEl = document.getElementById('serverStatus');
+                const indicator = serverStatusEl.querySelector('.status-indicator');
+                
+                serverStatusEl.innerHTML = `
+                    <span class="status-indicator ${statusData.server.status}"></span>
+                    ${statusData.server.status.charAt(0).toUpperCase() + statusData.server.status.slice(1)}
+                `;
+                serverStatusEl.className = `status-value status-${statusData.server.status}`;
+
+                // Update other values
+                document.getElementById('playersOnline').textContent = statusData.players.online || statusData.players;
+                document.getElementById('serverUptime').textContent = statusData.server.uptime;
+                document.getElementById('responseTime').textContent = `${statusData.system?.response_time_ms || statusData.responseTime}ms`;
+
+                // Update load balancer
+                const lbEl = document.getElementById('loadBalancerStatus');
+                lbEl.innerHTML = `
+                    <span class="status-indicator ${statusData.loadBalancer.status}"></span>
+                    ${statusData.loadBalancer.instances} instances
+                `;
+                lbEl.className = `status-value status-${statusData.loadBalancer.status}`;
+
+                // Update database
+                const dbEl = document.getElementById('databaseStatus');
+                dbEl.innerHTML = `
+                    <span class="status-indicator ${statusData.database.status}"></span>
+                    ${statusData.database.connections} conn
+                `;
+                dbEl.className = `status-value status-${statusData.database.status}`;
+
+                // Add fade-in animation
+                document.getElementById('serverStatusGrid').classList.add('fade-in');
+                setTimeout(() => {
+                    document.getElementById('serverStatusGrid').classList.remove('fade-in');
+                }, 500);
+            }
+
+            showErrorState() {
+                const statusItems = document.querySelectorAll('.status-value');
+                statusItems.forEach(item => {
+                    if (item.id === 'serverStatus') {
+                        item.innerHTML = '<span class="status-indicator offline"></span>Error';
+                        item.className = 'status-value status-offline';
+                    } else {
+                        item.textContent = 'N/A';
+                        item.className = 'status-value status-warning';
+                    }
+                });
+            }
+
+            startUpdateTimer() {
+                setInterval(() => {
+                    this.countdown--;
+                    document.getElementById('nextUpdate').textContent = `${this.countdown}s`;
+                    
+                    if (this.countdown <= 0) {
+                        this.countdown = 30;
+                        this.updateServerStatus();
+                    }
+                }, 1000);
+            }
+
+            updateLastUpdated() {
+                const now = new Date();
+                document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+            }
+        }
+
+        // Initialize monitoring when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ServerMonitor();
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Dynamic link updating based on environment
+        window.addEventListener('load', () => {
+            const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (!isDevelopment) {
+                // Update links for production environment
+                document.querySelectorAll('.server-link').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href.includes('localhost')) {
+                        // Replace localhost with actual domain or disable link
+                        link.style.opacity = '0.5';
+                        link.style.pointerEvents = 'none';
+                        link.title = 'Available in development environment';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,26 +4,84 @@ global:
   evaluation_interval: 15s
 
 rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
+  - "ffxi_alerts.yml"
 
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # Prometheus self-monitoring
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
 
+  # Node Exporter for system metrics
   - job_name: "node-exporter"
     static_configs:
       - targets: ["node-exporter:9100"]
+    scrape_interval: 30s
 
+  # FFXI Server instances
   - job_name: "ffxi-server"
     static_configs:
       - targets: ["ffxi-server:8088"]
     metrics_path: /metrics
     scrape_interval: 30s
+    
+  # Additional FFXI server instances (for load balancing)
+  - job_name: "ffxi-server-instances"
+    static_configs:
+      - targets: 
+        - "ffxi-server-1:8089"
+        - "ffxi-server-2:8090"
+    metrics_path: /metrics
+    scrape_interval: 30s
 
+  # MySQL/MariaDB database monitoring
   - job_name: "mysql"
     static_configs:
       - targets: ["db:3306"]
     scrape_interval: 30s
+    
+  # MySQL Exporter for detailed database metrics
+  - job_name: "mysql-exporter"
+    static_configs:
+      - targets: ["mysql-exporter:9104"]
+    scrape_interval: 30s
+
+  # HAProxy Load Balancer
+  - job_name: "haproxy"
+    static_configs:
+      - targets: ["haproxy:8404"]
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Redis Cache (if enabled)
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis:6379"]
+    scrape_interval: 60s
+
+  # Custom FFXI API metrics
+  - job_name: "ffxi-api"
+    static_configs:
+      - targets: ["ffxi-server:5000"]
+    metrics_path: /api/metrics
+    scrape_interval: 30s
+    basic_auth:
+      username: "prometheus"
+      password: "monitoring_secret"
+
+  # Docker container metrics
+  - job_name: "docker"
+    static_configs:
+      - targets: ["docker-host:9323"]
+    scrape_interval: 30s
+
+# Alert manager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Recording rules for FFXI-specific metrics
+rule_files:
+  - "ffxi_recording_rules.yml"

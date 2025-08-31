@@ -1,0 +1,231 @@
+# Grafana Dashboard Configuration for FFXI Server
+apiVersion: 1
+
+providers:
+  - name: 'FFXI Server Dashboards'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+
+dashboards:
+  - name: ffxi-server-overview
+    title: "FFXI Server Overview"
+    uid: "ffxi-server"
+    tags: ["ffxi", "server", "monitoring"]
+    
+    panels:
+      - title: "Players Online"
+        type: "stat"
+        targets:
+          - expr: "ffxi_players_online"
+            legendFormat: "Players"
+        
+      - title: "Server Instances"
+        type: "stat"
+        targets:
+          - expr: "ffxi_server_instances"
+            legendFormat: "Instances"
+            
+      - title: "CPU Usage"
+        type: "graph"
+        targets:
+          - expr: "rate(cpu_usage_active[5m]) * 100"
+            legendFormat: "CPU %"
+            
+      - title: "Memory Usage"
+        type: "graph"
+        targets:
+          - expr: "memory_usage_percent"
+            legendFormat: "Memory %"
+            
+      - title: "Network Traffic"
+        type: "graph"
+        targets:
+          - expr: "rate(network_bytes_total[5m])"
+            legendFormat: "Network I/O"
+            
+      - title: "Database Connections"
+        type: "stat"
+        targets:
+          - expr: "mysql_global_status_threads_connected"
+            legendFormat: "Connections"
+            
+      - title: "Load Balancer Status"
+        type: "table"
+        targets:
+          - expr: "haproxy_backend_status"
+            legendFormat: "Backend Status"
+            
+      - title: "Response Time"
+        type: "graph"
+        targets:
+          - expr: "ffxi_response_time_ms"
+            legendFormat: "Response Time (ms)"
+
+  - name: ffxi-player-activity
+    title: "FFXI Player Activity"
+    uid: "ffxi-players"
+    tags: ["ffxi", "players", "activity"]
+    
+    panels:
+      - title: "Online Players (24h)"
+        type: "graph"
+        targets:
+          - expr: "ffxi_players_online"
+            legendFormat: "Online Players"
+            
+      - title: "Player Distribution by Zone"
+        type: "piechart"
+        targets:
+          - expr: "ffxi_players_by_zone"
+            legendFormat: "{{ zone }}"
+            
+      - title: "Player Levels"
+        type: "histogram"
+        targets:
+          - expr: "ffxi_player_levels"
+            legendFormat: "Level {{ level }}"
+            
+      - title: "Jobs Distribution"
+        type: "bargraph"
+        targets:
+          - expr: "ffxi_players_by_job"
+            legendFormat: "{{ job }}"
+
+  - name: ffxi-system-performance
+    title: "FFXI System Performance"
+    uid: "ffxi-performance"
+    tags: ["ffxi", "system", "performance"]
+    
+    panels:
+      - title: "CPU Usage by Core"
+        type: "graph"
+        targets:
+          - expr: "rate(node_cpu_seconds_total[5m]) * 100"
+            legendFormat: "CPU {{ cpu }}"
+            
+      - title: "Memory Usage Details"
+        type: "graph"
+        targets:
+          - expr: "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes"
+            legendFormat: "Used Memory"
+          - expr: "node_memory_MemAvailable_bytes"
+            legendFormat: "Available Memory"
+            
+      - title: "Disk I/O"
+        type: "graph"
+        targets:
+          - expr: "rate(node_disk_read_bytes_total[5m])"
+            legendFormat: "Read"
+          - expr: "rate(node_disk_written_bytes_total[5m])"
+            legendFormat: "Write"
+            
+      - title: "Network Interfaces"
+        type: "graph"
+        targets:
+          - expr: "rate(node_network_receive_bytes_total[5m])"
+            legendFormat: "RX {{ device }}"
+          - expr: "rate(node_network_transmit_bytes_total[5m])"
+            legendFormat: "TX {{ device }}"
+
+  - name: ffxi-database-monitoring
+    title: "FFXI Database Monitoring"
+    uid: "ffxi-database"
+    tags: ["ffxi", "database", "mysql"]
+    
+    panels:
+      - title: "Query Performance"
+        type: "graph"
+        targets:
+          - expr: "mysql_global_status_slow_queries"
+            legendFormat: "Slow Queries"
+          - expr: "rate(mysql_global_status_queries[5m])"
+            legendFormat: "Queries/sec"
+            
+      - title: "Connection Pool"
+        type: "graph"
+        targets:
+          - expr: "mysql_global_status_threads_connected"
+            legendFormat: "Connected"
+          - expr: "mysql_global_status_threads_running"
+            legendFormat: "Running"
+            
+      - title: "Buffer Pool"
+        type: "graph"
+        targets:
+          - expr: "mysql_global_status_innodb_buffer_pool_pages_data * mysql_global_variables_innodb_page_size"
+            legendFormat: "Data Pages"
+          - expr: "mysql_global_status_innodb_buffer_pool_pages_free * mysql_global_variables_innodb_page_size"
+            legendFormat: "Free Pages"
+            
+      - title: "Table Locks"
+        type: "graph"
+        targets:
+          - expr: "rate(mysql_global_status_table_locks_immediate[5m])"
+            legendFormat: "Immediate"
+          - expr: "rate(mysql_global_status_table_locks_waited[5m])"
+            legendFormat: "Waited"
+
+datasources:
+  - name: "Prometheus"
+    type: "prometheus"
+    access: "proxy"
+    url: "http://prometheus:9090"
+    isDefault: true
+    
+  - name: "MySQL"
+    type: "mysql"
+    access: "proxy"
+    url: "db:3306"
+    database: "xidb"
+    user: "xiuser"
+    password: "xiserver_2024"
+
+alerting:
+  rules:
+    - name: "FFXI Server Alerts"
+      interval: "30s"
+      rules:
+        - alert: "HighCPUUsage"
+          expr: "rate(cpu_usage_active[5m]) * 100 > 80"
+          for: "5m"
+          annotations:
+            summary: "High CPU usage detected on FFXI server"
+            
+        - alert: "HighMemoryUsage"
+          expr: "memory_usage_percent > 85"
+          for: "5m"
+          annotations:
+            summary: "High memory usage detected on FFXI server"
+            
+        - alert: "LowPlayerCount"
+          expr: "ffxi_players_online < 5"
+          for: "10m"
+          annotations:
+            summary: "Very low player count - potential server issue"
+            
+        - alert: "DatabaseConnectionIssue"
+          expr: "mysql_up == 0"
+          for: "1m"
+          annotations:
+            summary: "Database connection lost"
+            
+        - alert: "LoadBalancerDown"
+          expr: "haproxy_up == 0"
+          for: "2m"
+          annotations:
+            summary: "Load balancer is down"
+
+notifications:
+  - name: "webhook"
+    type: "webhook"
+    url: "http://ffxi-server:8088/api/alerts/webhook"
+    
+  - name: "email"
+    type: "email"
+    addresses: ["admin@ffxi-server.local"]

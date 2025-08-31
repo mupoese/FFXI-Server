@@ -172,6 +172,8 @@ services:
       - monitoring
     volumes:
       - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/ffxi_alerts.yml:/etc/prometheus/ffxi_alerts.yml:ro
+      - ./docker/ffxi_recording_rules.yml:/etc/prometheus/ffxi_recording_rules.yml:ro
       - ffxi_prometheus:/prometheus
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
@@ -184,6 +186,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=30d'
       - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
 
   # Grafana Dashboard (Optional - Profile: monitoring)
   grafana:
@@ -195,8 +198,11 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: false
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/ffxi-server.json
     volumes:
       - ffxi_grafana:/var/lib/grafana
+      - ./docker/grafana-dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml:ro
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     networks:
@@ -225,6 +231,73 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
 
+  # MySQL Exporter for Database Metrics (Optional - Profile: monitoring)
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: ffxi-mysql-exporter
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    environment:
+      DATA_SOURCE_NAME: "${MYSQL_USER:-xiuser}:${MYSQL_PASSWORD:-xiserver_2024}@(db:3306)/"
+    ports:
+      - "${MYSQL_EXPORTER_PORT:-9104}:9104"
+    networks:
+      - ffxi-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # AlertManager for Alert Handling (Optional - Profile: monitoring)
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: ffxi-alertmanager
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    volumes:
+      - ./docker/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ffxi_alertmanager:/alertmanager
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    networks:
+      - ffxi-network
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+
+  # Web Admin Interface Service
+  web-admin:
+    build:
+      context: ./docker/api
+      dockerfile: ../Dockerfile.api
+    container_name: ffxi-web-admin
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FFXI_SQL_HOST: db
+      FFXI_SQL_PORT: 3306
+      FFXI_SQL_USER: ${MYSQL_USER:-xiuser}
+      FFXI_SQL_PASSWORD: ${MYSQL_PASSWORD:-xiserver_2024}
+      FFXI_SQL_DATABASE: ${MYSQL_DATABASE:-xidb}
+      FFXI_API_SECRET_KEY: ${FFXI_API_SECRET_KEY:-change_this_secret_key}
+      FFXI_API_PORT: 5000
+    ports:
+      - "${WEB_ADMIN_PORT:-5000}:5000"
+    volumes:
+      - ./index.html:/app/static/index.html:ro
+      - ./admin.html:/app/static/admin.html:ro
+    networks:
+      - ffxi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 # Network Configuration
 networks:
   ffxi-network:
@@ -247,4 +320,6 @@ volumes:
   ffxi_prometheus:
     driver: local
   ffxi_grafana:
+    driver: local
+  ffxi_alertmanager:
     driver: local

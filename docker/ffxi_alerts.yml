@@ -1,0 +1,184 @@
+# FFXI Server Alert Rules for Prometheus
+groups:
+  - name: ffxi_server_alerts
+    rules:
+      # System Resource Alerts
+      - alert: FFXIHighCPUUsage
+        expr: rate(node_cpu_seconds_total{mode!="idle"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: ffxi-server
+        annotations:
+          summary: "High CPU usage on FFXI server"
+          description: "CPU usage is above 80% for more than 5 minutes"
+
+      - alert: FFXIHighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: ffxi-server
+        annotations:
+          summary: "High memory usage on FFXI server"
+          description: "Memory usage is above 85% for more than 5 minutes"
+
+      - alert: FFXILowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 10m
+        labels:
+          severity: critical
+          service: ffxi-server
+        annotations:
+          summary: "Low disk space on FFXI server"
+          description: "Disk usage is above 90% for more than 10 minutes"
+
+      # FFXI-Specific Alerts
+      - alert: FFXIServerDown
+        expr: up{job="ffxi-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: ffxi-server
+        annotations:
+          summary: "FFXI server is down"
+          description: "FFXI server instance is not responding"
+
+      - alert: FFXILowPlayerCount
+        expr: ffxi_players_online < 5
+        for: 15m
+        labels:
+          severity: warning
+          service: ffxi-server
+        annotations:
+          summary: "Very low player count"
+          description: "Less than 5 players online for more than 15 minutes - potential server issue"
+
+      - alert: FFXIHighResponseTime
+        expr: ffxi_response_time_ms > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: ffxi-server
+        annotations:
+          summary: "High response time"
+          description: "Server response time is above 1000ms for more than 5 minutes"
+
+      # Database Alerts
+      - alert: FFXIDatabaseDown
+        expr: up{job="mysql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "FFXI database is down"
+          description: "MySQL/MariaDB database is not responding"
+
+      - alert: FFXIHighDatabaseConnections
+        expr: mysql_global_status_threads_connected > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connection count"
+          description: "More than 80 database connections active"
+
+      - alert: FFXISlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High number of slow queries"
+          description: "More than 5 slow queries per second"
+
+      # Load Balancer Alerts
+      - alert: FFXILoadBalancerDown
+        expr: up{job="haproxy"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: load-balancer
+        annotations:
+          summary: "Load balancer is down"
+          description: "HAProxy load balancer is not responding"
+
+      - alert: FFXIBackendServerDown
+        expr: haproxy_backend_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: load-balancer
+        annotations:
+          summary: "Backend server is down"
+          description: "One or more backend servers are not responding"
+
+      # Network Alerts
+      - alert: FFXIHighNetworkTraffic
+        expr: rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m]) > 100000000
+        for: 10m
+        labels:
+          severity: warning
+          service: network
+        annotations:
+          summary: "High network traffic"
+          description: "Network traffic is above 100MB/s for more than 10 minutes"
+
+      - alert: FFXINetworkPacketLoss
+        expr: rate(node_network_receive_drop_total[5m]) + rate(node_network_transmit_drop_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: network
+        annotations:
+          summary: "Network packet loss detected"
+          description: "Network packet drops detected"
+
+  - name: ffxi_player_alerts
+    rules:
+      # Player-specific alerts
+      - alert: FFXIPlayerSurge
+        expr: increase(ffxi_players_online[10m]) > 50
+        for: 2m
+        labels:
+          severity: info
+          service: ffxi-server
+        annotations:
+          summary: "Player surge detected"
+          description: "More than 50 new players joined in the last 10 minutes"
+
+      - alert: FFXIUnusualZoneActivity
+        expr: ffxi_players_by_zone > 100
+        for: 5m
+        labels:
+          severity: info
+          service: ffxi-server
+        annotations:
+          summary: "Unusual zone activity"
+          description: "More than 100 players in a single zone"
+
+  - name: ffxi_security_alerts
+    rules:
+      # Security-related alerts
+      - alert: FFXIFailedLogins
+        expr: rate(ffxi_failed_logins_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "High number of failed logins"
+          description: "More than 10 failed login attempts per second"
+
+      - alert: FFXISuspiciousActivity
+        expr: ffxi_suspicious_activity_score > 80
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Suspicious activity detected"
+          description: "Security monitoring detected suspicious activity"

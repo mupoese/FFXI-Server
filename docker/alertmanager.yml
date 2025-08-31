@@ -1,0 +1,77 @@
+# AlertManager Configuration for FFXI Server
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@ffxi-server.local'
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'web.hook'
+  routes:
+  - match:
+      severity: critical
+    receiver: 'critical-alerts'
+  - match:
+      service: ffxi-server
+    receiver: 'ffxi-server-alerts'
+  - match:
+      service: database
+    receiver: 'database-alerts'
+  - match:
+      service: load-balancer
+    receiver: 'load-balancer-alerts'
+
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://ffxi-server:8088/api/alerts/webhook'
+    send_resolved: true
+    http_config:
+      basic_auth:
+        username: 'alertmanager'
+        password: 'webhook_secret'
+
+- name: 'critical-alerts'
+  email_configs:
+  - to: 'admin@ffxi-server.local'
+    subject: '[CRITICAL] FFXI Server Alert: {{ .GroupLabels.alertname }}'
+    body: |
+      Alert: {{ .GroupLabels.alertname }}
+      Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+      Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+      
+      Time: {{ range .Alerts }}{{ .StartsAt }}{{ end }}
+      Severity: {{ .GroupLabels.severity }}
+      Service: {{ .GroupLabels.service }}
+      
+      Please investigate immediately.
+  webhook_configs:
+  - url: 'http://ffxi-server:8088/api/alerts/critical'
+    send_resolved: true
+
+- name: 'ffxi-server-alerts'
+  webhook_configs:
+  - url: 'http://ffxi-server:8088/api/alerts/server'
+    send_resolved: true
+
+- name: 'database-alerts'
+  webhook_configs:
+  - url: 'http://ffxi-server:8088/api/alerts/database'
+    send_resolved: true
+
+- name: 'load-balancer-alerts'
+  webhook_configs:
+  - url: 'http://ffxi-server:8088/api/alerts/loadbalancer'
+    send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+
+templates:
+- '/etc/alertmanager/templates/*.tmpl'

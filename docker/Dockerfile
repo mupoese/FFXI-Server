@@ -87,7 +87,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 COPY tools/requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+RUN pip3 install --break-system-packages --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 # Create application directory structure
 RUN mkdir -p $FFXI_HOME/{bin,settings,logs,sql,scripts,tools,res} \

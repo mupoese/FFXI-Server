@@ -85,11 +85,11 @@ validate_prerequisites() {
     cd "$PROJECT_ROOT"
     
     required_files=(
-        "Dockerfile"
-        "docker compose.yml"
+        "docker/Dockerfile"
+        "docker-compose.yml"
         ".env.example"
-        "docker/entrypoint.sh"
-        "docker/mysql.cnf"
+        "docker/scripts/entrypoint.sh"
+        "docker/configs/mysql.cnf"
     )
     
     for file in "${required_files[@]}"; do
@@ -110,14 +110,14 @@ validate_docker_configuration() {
     
     # Validate docker compose syntax
     if ! docker compose config -q; then
-        log_error "docker compose.yml syntax validation failed"
+        log_error "docker-compose.yml syntax validation failed"
         return 1
     fi
     
     # Check Dockerfile with hadolint if available
     if command -v hadolint &> /dev/null; then
         log "Running Dockerfile linting with hadolint..."
-        if ! hadolint Dockerfile; then
+        if ! hadolint docker/Dockerfile; then
             log_warning "Dockerfile linting found issues (not blocking)"
         else
             log_success "Dockerfile linting passed"

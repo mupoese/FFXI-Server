@@ -64,8 +64,8 @@ jobs:
           echo "Validating Docker configuration files..."
           
           # Check if required files exist
-          if [ ! -f "Dockerfile" ]; then
-            echo "ERROR: Dockerfile not found!"
+          if [ ! -f "docker/Dockerfile" ]; then
+            echo "ERROR: docker/Dockerfile not found!"
             exit 1
           fi
           
@@ -101,7 +101,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           platforms: linux/amd64
           push: false
           tags: ${{ steps.meta.outputs.tags }}
@@ -116,7 +116,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -183,7 +183,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           platforms: linux/amd64
           load: true
           tags: ffxi-server:test
@@ -304,7 +304,7 @@ jobs:
           
           # Test build cache efficiency
           echo "Testing build cache..."
-          time docker build --cache-from ffxi-server:test -t ffxi-server:cache-test .
+          time docker build --cache-from ffxi-server:test -f docker/Dockerfile -t ffxi-server:cache-test .
           
           echo "Performance testing completed!"
 
@@ -329,7 +329,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           platforms: linux/amd64
           load: true
           tags: ffxi-server:security-scan

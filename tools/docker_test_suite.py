@@ -89,11 +89,11 @@ class DockerTestSuite:
         self.log("Validating Docker configuration files...")
         
         required_files = [
-            "Dockerfile",
+            "docker/Dockerfile",
             "docker-compose.yml", 
             ".env.example",
-            "docker/entrypoint.sh",
-            "docker/mysql.cnf"
+            "docker/scripts/entrypoint.sh",
+            "docker/configs/mysql.cnf"
         ]
         
         missing_files = []
@@ -112,7 +112,7 @@ class DockerTestSuite:
             return False
         
         # Check Dockerfile syntax with hadolint if available
-        success, stdout, stderr = self.run_command(["hadolint", "Dockerfile"], ignore_errors=True)
+        success, stdout, stderr = self.run_command(["hadolint", "docker/Dockerfile"], ignore_errors=True)
         if success and stdout.strip():
             self.log(f"Dockerfile linting suggestions: {stdout}", "WARNING")
         

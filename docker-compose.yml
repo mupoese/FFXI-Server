@@ -1,0 +1,13 @@
+# FFXI LandSandBoat Server - Docker Compose Wrapper
+# This file provides a convenient way to run Docker services from the root directory
+# All actual configuration is in ./docker/docker-compose.yml
+
+# Quick Start Commands:
+# docker-compose up -d                                 # Basic FFXI server
+# COMPOSE_PROFILES=redis docker-compose up -d         # With Redis cache
+# COMPOSE_PROFILES=admin docker-compose up -d         # With PhpMyAdmin
+# COMPOSE_PROFILES=monitoring docker-compose up -d    # With monitoring stack
+# COMPOSE_PROFILES=multi-instance docker-compose up -d # With load balancer
+
+include:
+  - docker/docker-compose.yml

@@ -21,13 +21,45 @@
 
 #pragma once
 
+#include <chrono>
+#include <cstdint>
 #include <string>
+#include <string_view>
 
 namespace version
 {
-    const char* GetGitSha();
-    const char* GetGitBranch();
-    const char* GetGitDate();
-    const char* GetGitCommitSubject();
-    const char* GetVersionString();
+    // Git information
+    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept;
+    [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept;
+    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept;
+    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept;
+
+    // Enhanced version information
+    [[nodiscard]] std::string GetVersionString();
+    [[nodiscard]] std::string GetFullVersionString();
+    [[nodiscard]] std::string GetBuildInfo();
+
+    // Version components
+    struct VersionInfo
+    {
+        std::uint16_t    major;
+        std::uint16_t    minor;
+        std::uint16_t    patch;
+        std::string_view git_sha;
+        std::string_view git_branch;
+        std::string_view build_date;
+        std::string_view compiler_version;
+        std::string_view cmake_version;
+    };
+
+    [[nodiscard]] constexpr VersionInfo GetVersionInfo() noexcept;
+
+    // Runtime information
+    [[nodiscard]] std::string                           GetRuntimeInfo();
+    [[nodiscard]] std::chrono::system_clock::time_point GetBuildTimestamp();
+
+    // Feature flags
+    [[nodiscard]] constexpr bool HasFeature(std::string_view feature) noexcept;
+    [[nodiscard]] std::string    GetEnabledFeatures();
+
 } // namespace version

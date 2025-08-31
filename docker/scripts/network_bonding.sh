@@ -16,7 +16,7 @@ BONDING_INTERFACE="bond0"
 BONDING_MODE="${FFXI_BONDING_MODE:-balance-xor}"
 BONDING_HASH_POLICY="${FFXI_BONDING_HASH_POLICY:-layer3+4}"
 MII_MON_INTERVAL="${FFXI_BONDING_MII_MON_INTERVAL:-100}"
-FAILOVER_TIMEOUT="${FFXI_BONDING_FAILOVER_TIMEOUT:-5000}"
+export FAILOVER_TIMEOUT="${FFXI_BONDING_FAILOVER_TIMEOUT:-5000}"
 BONDING_INTERFACES="${FFXI_BONDING_INTERFACES:-}"
 
 # Functions
@@ -252,7 +252,8 @@ configure_bonding_network() {
         
         # Check if IP was assigned
         if ip addr show "$BONDING_INTERFACE" | grep -q "inet "; then
-            local assigned_ip=$(ip addr show "$BONDING_INTERFACE" | grep "inet " | awk '{print $2}')
+            local assigned_ip
+            assigned_ip=$(ip addr show "$BONDING_INTERFACE" | grep "inet " | awk '{print $2}')
             log_info "DHCP assigned IP: $assigned_ip"
         else
             log_warn "DHCP failed, bonding interface has no IP address"
@@ -410,7 +411,7 @@ monitor_bonding() {
         
         # Show interface statistics
         echo -e "\n${GREEN}Interface Statistics:${NC}"
-        cat "/proc/net/dev" | grep -E "(${BONDING_INTERFACE}|$(echo "$BONDING_INTERFACES" | tr ',' '|'))"
+        grep -E "(${BONDING_INTERFACE}|$(echo "$BONDING_INTERFACES" | tr ',' '|'))" "/proc/net/dev"
         
         sleep 30
     done

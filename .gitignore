@@ -238,9 +238,9 @@ modules/init.txt
 # Doxygen
 doxygen/
 
-# Docker (not supported)
-Dockerfile
-docker-compose*
+# Docker (not supported) - temporarily allowing for CI testing
+#Dockerfile
+#docker-compose*
 
 # dSYM folders for Mac OS debugging
 xi_map.dSYM
@@ -276,7 +276,7 @@ changelog-*.md
 
 # Docker environment files and data
 .env
-docker-compose.override.yml
+#docker-compose.override.yml
 docker/data/
 docker/logs/
 

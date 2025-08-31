@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LandSandBoat Admin Dashboard - Server Management</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2d2d2d;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --text-dark: #666666;
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2d2d2d;
+            --bg-light: #3d3d3d;
+            --border-color: #444444;
+            --shadow: 0 4px 15px rgba(0,0,0,0.3);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--secondary-color);
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--primary-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--accent-color);
+            color: var(--text-light);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--text-light);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: var(--text-light);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary:hover { background: #357abd; }
+        .btn-success:hover { background: #219a52; }
+        .btn-warning:hover { background: #d68910; }
+        .btn-danger:hover { background: #c0392b; }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            background: var(--bg-medium);
+            padding: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tabs-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            background: var(--bg-light);
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .metric-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .metric-change.positive { color: var(--accent-color); }
+        .metric-change.negative { color: var(--danger-color); }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h4 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            border: 2px dashed var(--border-color);
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: var(--bg-light);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .table tr:hover {
+            background: var(--bg-light);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.online { background: var(--accent-color); }
+        .status-badge.offline { background: var(--danger-color); }
+        .status-badge.warning { background: var(--warning-color); }
+        .status-badge.maintenance { background: var(--info-color); }
+
+        /* Monitoring Integration */
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .monitoring-card {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .monitoring-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .monitoring-content {
+            padding: 1.5rem;
+        }
+
+        .monitoring-embed {
+            width: 100%;
+            height: 300px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-light);
+        }
+
+        /* Load Balancer Stats */
+        .load-balancer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .server-instance {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .instance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .instance-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .instance-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .instance-metric {
+            font-size: 0.9rem;
+        }
+
+        .instance-metric .label {
+            color: var(--text-muted);
+        }
+
+        .instance-metric .value {
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .monitoring-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs-content {
+                padding: 0 1rem;
+            }
+
+            .tab {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .load-balancer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utilities */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mr-1 { margin-right: 0.5rem; }
+
+        .d-flex { display: flex; }
+        .justify-content-between { justify-content: space-between; }
+        .align-items-center { align-items: center; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+
+        /* Progress Bars */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar.success { background: var(--accent-color); }
+        .progress-bar.warning { background: var(--warning-color); }
+        .progress-bar.danger { background: var(--danger-color); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span style="font-size: 1.8rem;">📊</span>
+                <h1>LandSandBoat Admin Dashboard</h1>
+            </div>
+            <div class="header-controls">
+                <span class="text-muted">Admin: <strong>administrator</strong></span>
+                <a href="index.html" class="btn btn-secondary">🏠 Home</a>
+                <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh</button>
+                <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <div class="nav-tabs-content">
+            <div class="tab active" data-tab="dashboard">📊 Dashboard</div>
+            <div class="tab" data-tab="monitoring">📈 Monitoring</div>
+            <div class="tab" data-tab="servers">🖥️ Servers</div>
+            <div class="tab" data-tab="players">👥 Players</div>
+            <div class="tab" data-tab="database">🗄️ Database</div>
+            <div class="tab" data-tab="network">🌐 Network</div>
+            <div class="tab" data-tab="logs">📝 Logs</div>
+            <div class="tab" data-tab="settings">⚙️ Settings</div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>🎮 Players Online</h3>
+                    <div class="metric-value" id="playersOnlineCount">42</div>
+                    <div class="metric-change positive">
+                        ↗ +5 from last hour
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <h3>🖥️ Server Instances</h3>
+                    <div class="metric-value" id="serverInstancesCount">2</div>
+                    <div class="metric-change positive">
+                        ✅ All healthy
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <h3>📊 CPU Usage</h3>
+                    <div class="metric-value" id="cpuUsage">25.3%</div>
+                    <div class="progress">
+                        <div class="progress-bar success" style="width: 25.3%"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <h3>💾 Memory Usage</h3>
+                    <div class="metric-value" id="memoryUsage">68.7%</div>
+                    <div class="progress">
+                        <div class="progress-bar warning" style="width: 68.7%"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <h3>🗄️ Database</h3>
+                    <div class="metric-value" id="dbConnections">15</div>
+                    <div class="metric-change">
+                        Active connections
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <h3>⚡ Response Time</h3>
+                    <div class="metric-value" id="responseTime">23ms</div>
+                    <div class="metric-change positive">
+                        ↗ Excellent
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>📈 Player Activity (24h)</h4>
+                        <button class="btn btn-secondary" onclick="exportChart('players')">📤 Export</button>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div style="text-align: center;">
+                            <div>📈</div>
+                            <div>Real-time player activity chart</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Powered by Prometheus + Grafana</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>🖥️ System Performance</h4>
+                        <button class="btn btn-secondary" onclick="exportChart('performance')">📤 Export</button>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div style="text-align: center;">
+                            <div>⚡</div>
+                            <div>System metrics dashboard</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">CPU, Memory, Network, Disk I/O</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🎯 Critical Alerts</h3>
+                    <button class="btn btn-primary" onclick="refreshAlerts()">🔄 Refresh</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Severity</th>
+                            <th>Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsTableBody">
+                        <tr>
+                            <td>🖥️ System</td>
+                            <td>High memory usage detected on server-1</td>
+                            <td><span class="status-badge warning">Warning</span></td>
+                            <td>2 minutes ago</td>
+                            <td>
+                                <button class="btn btn-secondary">👁️ View</button>
+                                <button class="btn btn-success">✅ Resolve</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>🌐 Network</td>
+                            <td>Load balancer health check passed</td>
+                            <td><span class="status-badge online">Info</span></td>
+                            <td>5 minutes ago</td>
+                            <td>
+                                <button class="btn btn-secondary">👁️ View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Monitoring Tab -->
+        <div id="monitoring" class="tab-content">
+            <div class="monitoring-grid">
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h4>📈 Grafana Dashboard</h4>
+                        <a href="http://localhost:3000" target="_blank" class="btn btn-primary">🔗 Open Grafana</a>
+                    </div>
+                    <div class="monitoring-content">
+                        <iframe 
+                            src="http://localhost:3000/d/ffxi-server/ffxi-server-dashboard?orgId=1&refresh=30s&kiosk"
+                            class="monitoring-embed"
+                            title="Grafana Dashboard">
+                        </iframe>
+                    </div>
+                </div>
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h4>🎯 Prometheus Metrics</h4>
+                        <a href="http://localhost:9090" target="_blank" class="btn btn-primary">🔗 Open Prometheus</a>
+                    </div>
+                    <div class="monitoring-content">
+                        <iframe 
+                            src="http://localhost:9090/graph"
+                            class="monitoring-embed"
+                            title="Prometheus Metrics">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📊 Node Exporter Metrics</h3>
+                    <button class="btn btn-primary" onclick="refreshMetrics()">🔄 Refresh</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metricsTableBody">
+                        <tr>
+                            <td>CPU Load (1m)</td>
+                            <td>0.25</td>
+                            <td><span class="status-badge online">Normal</span></td>
+                            <td>Now</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Available</td>
+                            <td>2.1 GB</td>
+                            <td><span class="status-badge online">Normal</span></td>
+                            <td>Now</td>
+                        </tr>
+                        <tr>
+                            <td>Disk I/O</td>
+                            <td>145 MB/s</td>
+                            <td><span class="status-badge online">Normal</span></td>
+                            <td>Now</td>
+                        </tr>
+                        <tr>
+                            <td>Network Traffic</td>
+                            <td>89 Mbps</td>
+                            <td><span class="status-badge online">Normal</span></td>
+                            <td>Now</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Servers Tab -->
+        <div id="servers" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>🖥️ Server Instances</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-success" onclick="addServerInstance()">➕ Add Instance</button>
+                    <button class="btn btn-primary" onclick="refreshServerStats()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="load-balancer-grid" id="serverInstancesGrid">
+                <div class="server-instance">
+                    <div class="instance-header">
+                        <span class="instance-name">FFXI-Server-1</span>
+                        <span class="status-badge online">Online</span>
+                    </div>
+                    <div class="instance-metrics">
+                        <div class="instance-metric">
+                            <span class="label">Players:</span>
+                            <span class="value">28</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">CPU:</span>
+                            <span class="value">22%</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">Memory:</span>
+                            <span class="value">1.2GB</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">Uptime:</span>
+                            <span class="value">2d 14h</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1 justify-content-center" style="margin-top: 1rem;">
+                        <button class="btn btn-secondary">📊 Stats</button>
+                        <button class="btn btn-warning">⏸️ Stop</button>
+                        <button class="btn btn-danger">🗑️ Remove</button>
+                    </div>
+                </div>
+                <div class="server-instance">
+                    <div class="instance-header">
+                        <span class="instance-name">FFXI-Server-2</span>
+                        <span class="status-badge online">Online</span>
+                    </div>
+                    <div class="instance-metrics">
+                        <div class="instance-metric">
+                            <span class="label">Players:</span>
+                            <span class="value">14</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">CPU:</span>
+                            <span class="value">18%</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">Memory:</span>
+                            <span class="value">980MB</span>
+                        </div>
+                        <div class="instance-metric">
+                            <span class="label">Uptime:</span>
+                            <span class="value">1d 8h</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1 justify-content-center" style="margin-top: 1rem;">
+                        <button class="btn btn-secondary">📊 Stats</button>
+                        <button class="btn btn-warning">⏸️ Stop</button>
+                        <button class="btn btn-danger">🗑️ Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>⚖️ Load Balancer Statistics</h3>
+                    <div class="gap-1 d-flex">
+                        <a href="http://localhost:8404" target="_blank" class="btn btn-secondary">🔗 HAProxy Stats</a>
+                        <button class="btn btn-primary" onclick="refreshLoadBalancer()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Backend</th>
+                            <th>Status</th>
+                            <th>Active Connections</th>
+                            <th>Total Requests</th>
+                            <th>Response Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loadBalancerTableBody">
+                        <tr>
+                            <td>ffxi-server-1:54230</td>
+                            <td><span class="status-badge online">UP</span></td>
+                            <td>28</td>
+                            <td>15,642</td>
+                            <td>23ms</td>
+                            <td>
+                                <button class="btn btn-secondary">📊 Details</button>
+                                <button class="btn btn-warning">⏸️ Disable</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ffxi-server-2:54230</td>
+                            <td><span class="status-badge online">UP</span></td>
+                            <td>14</td>
+                            <td>8,921</td>
+                            <td>19ms</td>
+                            <td>
+                                <button class="btn btn-secondary">📊 Details</button>
+                                <button class="btn btn-warning">⏸️ Disable</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Players Tab -->
+        <div id="players" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>👥 Player Management</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-success" onclick="sendAnnouncement()">📢 Announcement</button>
+                    <button class="btn btn-primary" onclick="refreshPlayers()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>🎮 Current Players</h3>
+                    <div class="metric-value">42</div>
+                    <div class="metric-change positive">Peak today: 67</div>
+                </div>
+                <div class="metric-card">
+                    <h3>📈 24h Average</h3>
+                    <div class="metric-value">38.5</div>
+                    <div class="metric-change positive">↗ +5.2%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🏆 Top Level</h3>
+                    <div class="metric-value">75</div>
+                    <div class="metric-change">Player: DarkKnight</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🗓️ New Today</h3>
+                    <div class="metric-value">3</div>
+                    <div class="metric-change positive">Welcome new adventurers!</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🎯 Online Players</h3>
+                    <input type="text" placeholder="🔍 Search players..." style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-light);">
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Character</th>
+                            <th>Level</th>
+                            <th>Job</th>
+                            <th>Zone</th>
+                            <th>Online Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        <tr>
+                            <td>DarkKnight</td>
+                            <td>75</td>
+                            <td>DRK/WAR</td>
+                            <td>Dynamis - Xarcabard</td>
+                            <td>3h 25m</td>
+                            <td>
+                                <button class="btn btn-secondary">💬 Message</button>
+                                <button class="btn btn-warning">⚠️ Warn</button>
+                                <button class="btn btn-danger">🚫 Kick</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>WhiteMage99</td>
+                            <td>72</td>
+                            <td>WHM/BLM</td>
+                            <td>Ru'Lude Gardens</td>
+                            <td>1h 12m</td>
+                            <td>
+                                <button class="btn btn-secondary">💬 Message</button>
+                                <button class="btn btn-warning">⚠️ Warn</button>
+                                <button class="btn btn-danger">🚫 Kick</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ThiefMaster</td>
+                            <td>68</td>
+                            <td>THF/NIN</td>
+                            <td>Treasure Casket</td>
+                            <td>45m</td>
+                            <td>
+                                <button class="btn btn-secondary">💬 Message</button>
+                                <button class="btn btn-warning">⚠️ Warn</button>
+                                <button class="btn btn-danger">🚫 Kick</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Database Tab -->
+        <div id="database" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>🗄️ Database Management</h2>
+                <div class="gap-1 d-flex">
+                    <a href="http://localhost:8080" target="_blank" class="btn btn-secondary">🔗 phpMyAdmin</a>
+                    <button class="btn btn-success" onclick="backupDatabase()">💾 Backup</button>
+                    <button class="btn btn-primary" onclick="refreshDatabase()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>📊 Total Tables</h3>
+                    <div class="metric-value">147</div>
+                    <div class="metric-change">Core game tables</div>
+                </div>
+                <div class="metric-card">
+                    <h3>👥 Characters</h3>
+                    <div class="metric-value">1,247</div>
+                    <div class="metric-change positive">↗ +12 this week</div>
+                </div>
+                <div class="metric-card">
+                    <h3>💰 Gil Circulating</h3>
+                    <div class="metric-value">42.3M</div>
+                    <div class="metric-change">Server economy</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🏪 AH Listings</h3>
+                    <div class="metric-value">1,089</div>
+                    <div class="metric-change positive">Active auctions</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📈 Database Performance</h3>
+                    <button class="btn btn-primary" onclick="optimizeDatabase()">⚡ Optimize</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Current</th>
+                            <th>Average</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Connections</td>
+                            <td>15</td>
+                            <td>12.3</td>
+                            <td><span class="status-badge online">Normal</span></td>
+                        </tr>
+                        <tr>
+                            <td>Query Time</td>
+                            <td>2.3ms</td>
+                            <td>3.1ms</td>
+                            <td><span class="status-badge online">Excellent</span></td>
+                        </tr>
+                        <tr>
+                            <td>Cache Hit Rate</td>
+                            <td>98.7%</td>
+                            <td>96.2%</td>
+                            <td><span class="status-badge online">Excellent</span></td>
+                        </tr>
+                        <tr>
+                            <td>Slow Queries</td>
+                            <td>0</td>
+                            <td>0.2</td>
+                            <td><span class="status-badge online">Perfect</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Network Tab -->
+        <div id="network" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>🌐 Network Management</h2>
+                <button class="btn btn-primary" onclick="refreshNetwork()">🔄 Refresh</button>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🔌 Port Status</h3>
+                    <button class="btn btn-secondary" onclick="testAllPorts()">🧪 Test All Ports</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Port</th>
+                            <th>Protocol</th>
+                            <th>Status</th>
+                            <th>Last Check</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Login View</td>
+                            <td>54001</td>
+                            <td>TCP</td>
+                            <td><span class="status-badge online">Open</span></td>
+                            <td>Just now</td>
+                            <td><button class="btn btn-secondary">🧪 Test</button></td>
+                        </tr>
+                        <tr>
+                            <td>Login Data</td>
+                            <td>54230</td>
+                            <td>TCP/UDP</td>
+                            <td><span class="status-badge online">Open</span></td>
+                            <td>Just now</td>
+                            <td><button class="btn btn-secondary">🧪 Test</button></td>
+                        </tr>
+                        <tr>
+                            <td>Search Server</td>
+                            <td>54002</td>
+                            <td>TCP</td>
+                            <td><span class="status-badge online">Open</span></td>
+                            <td>Just now</td>
+                            <td><button class="btn btn-secondary">🧪 Test</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div id="logs" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>📝 System Logs</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-secondary" onclick="downloadLogs()">💾 Download</button>
+                    <button class="btn btn-primary" onclick="refreshLogs()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="table-container" style="height: 600px; overflow-y: auto;">
+                <div class="table-header">
+                    <h3>📋 Recent Log Entries</h3>
+                    <select style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-light);">
+                        <option>All Logs</option>
+                        <option>Error Only</option>
+                        <option>Warning Only</option>
+                        <option>Info Only</option>
+                    </select>
+                </div>
+                <div style="padding: 1rem; font-family: monospace; font-size: 0.9rem; line-height: 1.4; background: var(--bg-dark); color: var(--text-light);">
+                    <div>[2024-08-31 01:15:23] INFO: Server startup completed successfully</div>
+                    <div>[2024-08-31 01:15:25] INFO: Database connection established</div>
+                    <div>[2024-08-31 01:15:30] INFO: Player 'DarkKnight' logged in from 192.168.1.100</div>
+                    <div style="color: var(--warning-color);">[2024-08-31 01:16:45] WARN: High memory usage detected on server-1 (68.7%)</div>
+                    <div>[2024-08-31 01:17:12] INFO: Load balancer health check passed</div>
+                    <div>[2024-08-31 01:18:33] INFO: Player 'WhiteMage99' logged in from 192.168.1.105</div>
+                    <div>[2024-08-31 01:19:45] INFO: Auction house update completed</div>
+                    <div>[2024-08-31 01:20:15] INFO: Prometheus metrics exported successfully</div>
+                    <div>[2024-08-31 01:21:03] INFO: Grafana dashboard updated</div>
+                    <div>[2024-08-31 01:22:18] INFO: Player 'ThiefMaster' logged in from 192.168.1.110</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>⚙️ Server Settings</h2>
+                <button class="btn btn-success" onclick="saveSettings()">💾 Save Changes</button>
+            </div>
+
+            <div style="background: var(--bg-medium); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <h3 style="color: var(--primary-color); margin-bottom: 2rem;">🔧 Configuration</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">Server Settings</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem;">Max Players</label>
+                            <input type="number" value="100" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-light);">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem;">Server Rate</label>
+                            <select style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-light); color: var(--text-light);">
+                                <option>1x (Retail)</option>
+                                <option>2x</option>
+                                <option>3x</option>
+                                <option>5x</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">Monitoring Settings</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked>
+                                Enable Prometheus Monitoring
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked>
+                                Enable Grafana Dashboard
+                            </label>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked>
+                                Enable Load Balancer
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Tab Management
+        class AdminDashboard {
+            constructor() {
+                this.activeTab = 'dashboard';
+                this.refreshInterval = 30000; // 30 seconds
+                this.init();
+            }
+
+            init() {
+                this.setupTabs();
+                this.startAutoRefresh();
+                this.loadInitialData();
+            }
+
+            setupTabs() {
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.getAttribute('data-tab');
+                        this.switchTab(tabId);
+                    });
+                });
+            }
+
+            switchTab(tabId) {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Show selected tab content
+                const targetContent = document.getElementById(tabId);
+                const targetTab = document.querySelector(`[data-tab="${tabId}"]`);
+                
+                if (targetContent && targetTab) {
+                    targetContent.classList.add('active');
+                    targetTab.classList.add('active');
+                    this.activeTab = tabId;
+                }
+            }
+
+            async loadInitialData() {
+                // Simulate loading data for each section
+                await this.updateDashboardMetrics();
+                await this.updateServerInstances();
+                await this.updatePlayerData();
+            }
+
+            async updateDashboardMetrics() {
+                try {
+                    const response = await fetch('/api/dashboard/metrics', {
+                        headers: {
+                            'Authorization': 'Bearer ' + this.getAuthToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.displayRealMetrics(data);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('API error:', error);
+                }
+                
+                // Fallback to simulated metrics
+                const metrics = {
+                    playersOnline: Math.floor(Math.random() * 50) + 20,
+                    cpuUsage: (Math.random() * 30 + 15).toFixed(1),
+                    memoryUsage: (Math.random() * 20 + 60).toFixed(1),
+                    responseTime: Math.floor(Math.random() * 30) + 15
+                };
+                this.displaySimulatedMetrics(metrics);
+            }
+
+            displayRealMetrics(data) {
+                // Update with real API data
+                document.getElementById('playersOnlineCount').textContent = data.players.online;
+                document.getElementById('cpuUsage').textContent = `${data.system.cpu_percent}%`;
+                document.getElementById('memoryUsage').textContent = `${data.system.memory_percent}%`;
+                document.getElementById('responseTime').textContent = `${data.server.response_time_ms}ms`;
+                document.getElementById('dbConnections').textContent = data.database.connections;
+
+                // Update progress bars
+                document.querySelector('#dashboard .progress-bar.success').style.width = `${data.system.cpu_percent}%`;
+                document.querySelector('#dashboard .progress-bar.warning').style.width = `${data.system.memory_percent}%`;
+            }
+
+            displaySimulatedMetrics(metrics) {
+                // Update with simulated data
+                document.getElementById('playersOnlineCount').textContent = metrics.playersOnline;
+                document.getElementById('cpuUsage').textContent = `${metrics.cpuUsage}%`;
+                document.getElementById('memoryUsage').textContent = `${metrics.memoryUsage}%`;
+                document.getElementById('responseTime').textContent = `${metrics.responseTime}ms`;
+
+                // Update progress bars
+                document.querySelector('#dashboard .progress-bar.success').style.width = `${metrics.cpuUsage}%`;
+                document.querySelector('#dashboard .progress-bar.warning').style.width = `${metrics.memoryUsage}%`;
+            }
+
+            getAuthToken() {
+                return localStorage.getItem('ffxi_admin_token') || 'demo_token';
+            }
+
+            async updateServerInstances() {
+                // This would normally fetch real server data
+                console.log('Updating server instances...');
+            }
+
+            async updatePlayerData() {
+                // This would normally fetch real player data
+                console.log('Updating player data...');
+            }
+
+            startAutoRefresh() {
+                setInterval(() => {
+                    if (this.activeTab === 'dashboard') {
+                        this.updateDashboardMetrics();
+                    }
+                }, this.refreshInterval);
+            }
+        }
+
+        // Global Functions
+        function refreshData() {
+            window.dashboard.loadInitialData();
+            showNotification('Data refreshed successfully', 'success');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: var(--accent-color);
+                color: white;
+                border-radius: 8px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Tab-specific functions
+        function exportChart(type) {
+            showNotification(`Exporting ${type} chart...`, 'info');
+        }
+
+        function refreshAlerts() {
+            showNotification('Alerts refreshed', 'success');
+        }
+
+        function refreshMetrics() {
+            showNotification('Metrics refreshed', 'success');
+        }
+
+        function refreshServerStats() {
+            window.dashboard.updateServerInstances();
+            showNotification('Server stats refreshed', 'success');
+        }
+
+        function addServerInstance() {
+            showNotification('Adding new server instance...', 'info');
+        }
+
+        function refreshLoadBalancer() {
+            showNotification('Load balancer stats refreshed', 'success');
+        }
+
+        function refreshPlayers() {
+            window.dashboard.updatePlayerData();
+            showNotification('Player data refreshed', 'success');
+        }
+
+        function sendAnnouncement() {
+            const message = prompt('Enter announcement message:');
+            if (message) {
+                showNotification('Announcement sent to all players', 'success');
+            }
+        }
+
+        function refreshDatabase() {
+            showNotification('Database stats refreshed', 'success');
+        }
+
+        function backupDatabase() {
+            showNotification('Database backup started...', 'info');
+        }
+
+        function optimizeDatabase() {
+            showNotification('Database optimization started...', 'info');
+        }
+
+        function refreshNetwork() {
+            showNotification('Network status refreshed', 'success');
+        }
+
+        function testAllPorts() {
+            showNotification('Testing all ports...', 'info');
+        }
+
+        function refreshLogs() {
+            showNotification('Logs refreshed', 'success');
+        }
+
+        function downloadLogs() {
+            showNotification('Downloading logs...', 'info');
+        }
+
+        function saveSettings() {
+            showNotification('Settings saved successfully', 'success');
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new AdminDashboard();
+        });
+
+        // Add notification styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

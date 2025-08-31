@@ -1,0 +1,191 @@
+# FFXI Server Recording Rules for Prometheus
+groups:
+  - name: ffxi_server_recording_rules
+    interval: 30s
+    rules:
+      # System Performance Rules
+      - record: ffxi:cpu_usage_percent
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:memory_usage_percent
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:disk_usage_percent
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:network_throughput_mbps
+        expr: (rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m])) / 1048576
+        labels:
+          service: ffxi-server
+
+      # FFXI Game Metrics
+      - record: ffxi:players_online_avg_1h
+        expr: avg_over_time(ffxi_players_online[1h])
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:players_online_max_24h
+        expr: max_over_time(ffxi_players_online[24h])
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:response_time_avg_5m
+        expr: avg_over_time(ffxi_response_time_ms[5m])
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:uptime_hours
+        expr: (time() - process_start_time_seconds{job="ffxi-server"}) / 3600
+        labels:
+          service: ffxi-server
+
+      # Database Performance Rules
+      - record: ffxi:db_connections_active
+        expr: mysql_global_status_threads_connected
+        labels:
+          service: database
+
+      - record: ffxi:db_queries_per_second
+        expr: rate(mysql_global_status_queries[5m])
+        labels:
+          service: database
+
+      - record: ffxi:db_slow_queries_rate
+        expr: rate(mysql_global_status_slow_queries[5m])
+        labels:
+          service: database
+
+      - record: ffxi:db_buffer_pool_hit_rate
+        expr: 1 - (mysql_global_status_innodb_buffer_pool_reads / mysql_global_status_innodb_buffer_pool_read_requests)
+        labels:
+          service: database
+
+      # Load Balancer Rules
+      - record: ffxi:lb_total_requests_rate
+        expr: sum(rate(haproxy_frontend_http_requests_total[5m]))
+        labels:
+          service: load-balancer
+
+      - record: ffxi:lb_backend_response_time_avg
+        expr: avg(haproxy_backend_response_time_average_seconds)
+        labels:
+          service: load-balancer
+
+      - record: ffxi:lb_active_servers
+        expr: sum(haproxy_backend_status)
+        labels:
+          service: load-balancer
+
+      # Player Activity Rules
+      - record: ffxi:players_by_level_range
+        expr: |
+          (
+            sum(ffxi_players_level{level=~"1[0-9]"}) or vector(0)
+          ) by (job)
+        labels:
+          level_range: "10-19"
+
+      - record: ffxi:players_by_level_range
+        expr: |
+          (
+            sum(ffxi_players_level{level=~"[2-4][0-9]"}) or vector(0)
+          ) by (job)
+        labels:
+          level_range: "20-49"
+
+      - record: ffxi:players_by_level_range
+        expr: |
+          (
+            sum(ffxi_players_level{level=~"[5-6][0-9]"}) or vector(0)
+          ) by (job)
+        labels:
+          level_range: "50-69"
+
+      - record: ffxi:players_by_level_range
+        expr: |
+          (
+            sum(ffxi_players_level{level=~"7[0-5]"}) or vector(0)
+          ) by (job)
+        labels:
+          level_range: "70-75"
+
+      # Zone Activity Rules
+      - record: ffxi:zone_population_top10
+        expr: topk(10, ffxi_players_by_zone)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:zone_activity_rate
+        expr: rate(ffxi_zone_entries_total[5m])
+        labels:
+          service: ffxi-server
+
+      # Economic Metrics
+      - record: ffxi:gil_circulation_total
+        expr: sum(ffxi_player_gil)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:auction_house_activity
+        expr: rate(ffxi_auction_house_transactions_total[5m])
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:item_usage_rate
+        expr: rate(ffxi_item_usage_total[5m])
+        labels:
+          service: ffxi-server
+
+  - name: ffxi_alerting_thresholds
+    interval: 60s
+    rules:
+      # Dynamic threshold calculations
+      - record: ffxi:cpu_usage_threshold_warning
+        expr: quantile(0.95, ffxi:cpu_usage_percent[7d]) + 10
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:memory_usage_threshold_warning
+        expr: quantile(0.95, ffxi:memory_usage_percent[7d]) + 5
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:players_online_threshold_low
+        expr: quantile(0.05, ffxi_players_online[7d])
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:response_time_threshold_high
+        expr: quantile(0.95, ffxi_response_time_ms[7d]) * 2
+        labels:
+          service: ffxi-server
+
+  - name: ffxi_capacity_planning
+    interval: 300s
+    rules:
+      # Capacity planning metrics
+      - record: ffxi:cpu_trend_7d
+        expr: predict_linear(ffxi:cpu_usage_percent[7d], 7*24*3600)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:memory_trend_7d
+        expr: predict_linear(ffxi:memory_usage_percent[7d], 7*24*3600)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:player_growth_7d
+        expr: predict_linear(ffxi:players_online_avg_1h[7d], 7*24*3600)
+        labels:
+          service: ffxi-server
+
+      - record: ffxi:disk_usage_trend_30d
+        expr: predict_linear(ffxi:disk_usage_percent[30d], 30*24*3600)
+        labels:
+          service: ffxi-server

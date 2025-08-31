@@ -365,7 +365,7 @@ jobs:
 
   Windows_64bit_Debug:
     needs: Sanity_Checks
-    runs-on: windows-2025
+    runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
         with:
@@ -402,7 +402,7 @@ jobs:
 
   Windows_64bit_Release_Tracy_Modules:
     needs: Sanity_Checks
-    runs-on: windows-2025
+    runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
         with:
@@ -771,7 +771,7 @@ jobs:
           fi
 
   Full_Startup_Checks_Windows:
-    runs-on: windows-2025
+    runs-on: windows-2022
     needs: Windows_64bit_Debug
     steps:
       - uses: actions/checkout@v4
@@ -804,7 +804,7 @@ jobs:
           python3 ./tools/ci/startup_checks.py
 
   Full_Startup_Checks_Windows_Tracy_Modules:
-    runs-on: windows-2025
+    runs-on: windows-2022
     needs: Windows_64bit_Release_Tracy_Modules
     steps:
       - uses: actions/checkout@v4

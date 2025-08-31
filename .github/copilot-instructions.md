@@ -108,7 +108,7 @@ When working on this repository, follow this enhanced 11-step process for optima
 - **Systematic Debugging**: Use structured debugging approaches with validation tools
 
 #### Minimal Change Principle
-- **Surgical Modifications**: Make the smallest possible changes to achieve the desired outcome
+- **Surgical Modifications**: Make the best and correct possible changes to achieve the best possible outcome
 - **Preserve Working Code**: Never modify or remove functional code unless absolutely necessary
 - **Incremental Validation**: Test each change immediately after implementation
 

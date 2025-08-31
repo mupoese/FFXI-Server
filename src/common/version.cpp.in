@@ -74,8 +74,14 @@ constexpr version::VersionInfo version::GetVersionInfo() noexcept {
 std::string version::GetRuntimeInfo() {
   std::ostringstream oss;
   auto now = std::time(nullptr);
+  std::tm tm_now{};
+  #if defined(_WIN32)
+  localtime_s(&tm_now, &now);
+  #else
+  tm_now = *std::localtime(&now);
+  #endif
   oss << "Process started: "
-      << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "\n"
+      << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S") << "\n"
       << "Executable: @CMAKE_PROJECT_NAME@\n"
       << "Working directory: " << std::filesystem::current_path().string();
   return oss.str();

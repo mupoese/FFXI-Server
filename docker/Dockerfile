@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     curl \
     ca-certificates \
+    binutils-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create build directory and copy source

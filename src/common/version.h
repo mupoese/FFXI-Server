@@ -29,10 +29,10 @@
 namespace version
 {
     // Git information (inline constexpr definitions)
-    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept { return "bffe7228-dirty"; }
+    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept { return "748cb661-dirty"; }
     [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept { return "copilot/fix-bb947640-5a4e-4ab3-a31a-e26b94a289f5"; }
-    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept { return "Mon Sep 1 14:17:00 2025"; }
-    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept { return "Fix version function compilation errors - main CI/CD issue resolved"; }
+    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept { return "Mon Sep 1 14:19:56 2025"; }
+    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept { return "Complete robust template-based version system - CI/CD ready"; }
 
     // Enhanced version information
     [[nodiscard]] std::string GetVersionString();

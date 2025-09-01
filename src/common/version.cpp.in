@@ -10,21 +10,6 @@
 #define STRINGIFY_IMPL(x) #x
 #define STRINGIFY(x) STRINGIFY_IMPL(x)
 
-// Git information (populated by CMake)
-std::string_view version::GetGitSha() noexcept { return "@GIT_SHA1@"; }
-
-std::string_view version::GetGitBranch() noexcept {
-  return "@GIT_BRANCH@";
-}
-
-std::string_view version::GetGitDate() noexcept {
-  return "@GIT_DATE@";
-}
-
-std::string_view version::GetGitCommitSubject() noexcept {
-  return "@GIT_COMMIT_SUBJECT@";
-}
-
 // Enhanced version information
 std::string version::GetVersionString() {
   std::ostringstream oss;

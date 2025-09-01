@@ -11,17 +11,17 @@
 #define STRINGIFY(x) STRINGIFY_IMPL(x)
 
 // Git information (populated by CMake)
-constexpr std::string_view version::GetGitSha() noexcept { return "@GIT_SHA1@"; }
+std::string_view version::GetGitSha() noexcept { return "@GIT_SHA1@"; }
 
-constexpr std::string_view version::GetGitBranch() noexcept {
+std::string_view version::GetGitBranch() noexcept {
   return "@GIT_BRANCH@";
 }
 
-constexpr std::string_view version::GetGitDate() noexcept {
+std::string_view version::GetGitDate() noexcept {
   return "@GIT_DATE@";
 }
 
-constexpr std::string_view version::GetGitCommitSubject() noexcept {
+std::string_view version::GetGitCommitSubject() noexcept {
   return "@GIT_COMMIT_SUBJECT@";
 }
 

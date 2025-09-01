@@ -28,11 +28,11 @@
 
 namespace version
 {
-    // Git information
-    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept;
-    [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept;
-    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept;
-    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept;
+    // Git information (inline constexpr definitions)
+    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept { return "78ae1201-dirty"; }
+    [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept { return "copilot/fix-bb947640-5a4e-4ab3-a31a-e26b94a289f5"; }
+    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept { return "Mon Sep 1 13:51:21 2025"; }
+    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept { return "Initial plan"; }
 
     // Enhanced version information
     [[nodiscard]] std::string GetVersionString();

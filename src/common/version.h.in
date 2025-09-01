@@ -29,10 +29,22 @@
 namespace version
 {
     // Git information (inline constexpr definitions)
-    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept { return "@GIT_SHA1@"; }
-    [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept { return "@GIT_BRANCH@"; }
-    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept { return "@GIT_DATE@"; }
-    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept { return "@GIT_COMMIT_SUBJECT@"; }
+    [[nodiscard]] constexpr std::string_view GetGitSha() noexcept
+    {
+        return "@GIT_SHA1@";
+    }
+    [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept
+    {
+        return "@GIT_BRANCH@";
+    }
+    [[nodiscard]] constexpr std::string_view GetGitDate() noexcept
+    {
+        return "@GIT_DATE@";
+    }
+    [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept
+    {
+        return "@GIT_COMMIT_SUBJECT@";
+    }
 
     // Enhanced version information
     [[nodiscard]] std::string GetVersionString();

@@ -8,152 +8,180 @@
 
 // Macro to convert number to string
 #define STRINGIFY_IMPL(x) #x
-#define STRINGIFY(x) STRINGIFY_IMPL(x)
+#define STRINGIFY(x)      STRINGIFY_IMPL(x)
 
 // Enhanced version information
-std::string version::GetVersionString() {
-  std::ostringstream oss;
-  oss << GetGitBranch() << " (" << GetGitSha().substr(0, 8) << ")";
-  return oss.str();
+std::string version::GetVersionString()
+{
+    std::ostringstream oss;
+    oss << GetGitBranch() << " (" << GetGitSha().substr(0, 8) << ")";
+    return oss.str();
 }
 
-std::string version::GetFullVersionString() {
-  const auto info = GetVersionInfo();
-  std::ostringstream oss;
-  oss << "LandSandBoat v" << info.major << "." << info.minor << "."
-      << info.patch << " (" << info.git_branch << "@"
-      << info.git_sha.substr(0, 8) << ")" << " built on " << info.build_date;
-  return oss.str();
+std::string version::GetFullVersionString()
+{
+    const auto         info = GetVersionInfo();
+    std::ostringstream oss;
+    oss << "LandSandBoat v" << info.major << "." << info.minor << "."
+        << info.patch << " (" << info.git_branch << "@"
+        << info.git_sha.substr(0, 8) << ")" << " built on " << info.build_date;
+    return oss.str();
 }
 
-std::string version::GetBuildInfo() {
-  const auto info = GetVersionInfo();
-  std::ostringstream oss;
-  oss << "Compiler: " << info.compiler_version << "\n"
-      << "CMake: " << info.cmake_version << "\n"
-      << "Build Date: " << info.build_date << "\n"
-      << "Features: " << GetEnabledFeatures();
-  return oss.str();
+std::string version::GetBuildInfo()
+{
+    const auto         info = GetVersionInfo();
+    std::ostringstream oss;
+    oss << "Compiler: " << info.compiler_version << "\n"
+        << "CMake: " << info.cmake_version << "\n"
+        << "Build Date: " << info.build_date << "\n"
+        << "Features: " << GetEnabledFeatures();
+    return oss.str();
 }
 
-constexpr version::VersionInfo version::GetVersionInfo() noexcept {
-  return VersionInfo{.major = @PROJECT_VERSION_MAJOR@,
-                     .minor = @PROJECT_VERSION_MINOR@,
-                     .patch = @PROJECT_VERSION_PATCH@,
-                     .git_sha = GetGitSha(),
-                     .git_branch = GetGitBranch(),
-                     .build_date = __DATE__ " " __TIME__,
-                     .compiler_version =
+constexpr version::VersionInfo version::GetVersionInfo() noexcept
+{
+    return VersionInfo
+    {
+        .major      = @PROJECT_VERSION_MAJOR @,
+        .minor      = @PROJECT_VERSION_MINOR @,
+        .patch      = @PROJECT_VERSION_PATCH @,
+        .git_sha    = GetGitSha(),
+        .git_branch = GetGitBranch(),
+        .build_date = __DATE__ " " __TIME__,
+        .compiler_version =
 #ifdef __clang__
-                         "Clang " __clang_version__,
+            "Clang " __clang_version__,
 #elif defined(__GNUC__)
-                         "GCC " __VERSION__,
+            "GCC " __VERSION__,
 #elif defined(_MSC_VER)
-                         "MSVC " STRINGIFY(_MSC_VER),
+            "MSVC " STRINGIFY(_MSC_VER),
 #else
-                         "Unknown compiler",
+            "Unknown compiler",
 #endif
-                     .cmake_version = "@CMAKE_VERSION@"};
+        .cmake_version = "@CMAKE_VERSION@"
+    };
 }
 
-std::string version::GetRuntimeInfo() {
-  std::ostringstream oss;
-  auto now = std::time(nullptr);
-  std::tm tm_now{};
-  #if defined(_WIN32)
-  localtime_s(&tm_now, &now);
-  #else
-  tm_now = *std::localtime(&now);
-  #endif
-  oss << "Process started: "
-      << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S") << "\n"
-      << "Executable: @CMAKE_PROJECT_NAME@\n"
-      << "Working directory: " << std::filesystem::current_path().string();
-  return oss.str();
+std::string version::GetRuntimeInfo()
+{
+    std::ostringstream oss;
+    auto               now = std::time(nullptr);
+    std::tm            tm_now{};
+#if defined(_WIN32)
+    localtime_s(&tm_now, &now);
+#else
+    tm_now = *std::localtime(&now);
+#endif
+    oss << "Process started: "
+        << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S") << "\n"
+        << "Executable: @CMAKE_PROJECT_NAME@\n"
+        << "Working directory: " << std::filesystem::current_path().string();
+    return oss.str();
 }
 
-std::chrono::system_clock::time_point version::GetBuildTimestamp() {
-  // Parse build date/time into chrono time_point
-  std::tm tm = {};
-  std::istringstream ss(__DATE__ " " __TIME__);
-  ss >> std::get_time(&tm, "%b %d %Y %H:%M:%S");
-  return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+std::chrono::system_clock::time_point version::GetBuildTimestamp()
+{
+    // Parse build date/time into chrono time_point
+    std::tm            tm = {};
+    std::istringstream ss(__DATE__ " " __TIME__);
+    ss >> std::get_time(&tm, "%b %d %Y %H:%M:%S");
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }
 
-constexpr bool version::HasFeature(std::string_view feature) noexcept {
-  // Check for enabled features
-  if (feature == "database_pooling") {
-    return false; // @ENABLE_DATABASE_POOLING@ - not implemented yet
-  }
-  if (feature == "network_bonding") {
-    return false; // @ENABLE_NETWORK_BONDING@ - not implemented yet
-  }
-  if (feature == "tracy_profiling") {
+constexpr bool version::HasFeature(std::string_view feature) noexcept
+{
+    // Check for enabled features
+    if (feature == "database_pooling")
+    {
+        return false; // @ENABLE_DATABASE_POOLING@ - not implemented yet
+    }
+    if (feature == "network_bonding")
+    {
+        return false; // @ENABLE_NETWORK_BONDING@ - not implemented yet
+    }
+    if (feature == "tracy_profiling")
+    {
 #ifdef TRACY_ENABLE
-    return true;
+        return true;
 #else
-    return false;
+        return false;
 #endif
-  }
-  if (feature == "static_analysis") {
-    return false; // @ENABLE_STATIC_ANALYSIS@ - not implemented yet
-  }
-  if (feature == "testing") {
-    return false; // @ENABLE_TESTING@ - not implemented yet
-  }
-  if (feature == "asan") {
+    }
+    if (feature == "static_analysis")
+    {
+        return false; // @ENABLE_STATIC_ANALYSIS@ - not implemented yet
+    }
+    if (feature == "testing")
+    {
+        return false; // @ENABLE_TESTING@ - not implemented yet
+    }
+    if (feature == "asan")
+    {
 #ifdef __has_feature
-    #if __has_feature(address_sanitizer)
-      return true;
-    #endif
+#if __has_feature(address_sanitizer)
+        return true;
+#endif
 #endif
 #ifdef __SANITIZE_ADDRESS__
-    return true;
+        return true;
 #endif
+        return false;
+    }
+    if (feature == "lto")
+    {
+        return false; // @ENABLE_LTO@ - not implemented yet
+    }
     return false;
-  }
-  if (feature == "lto") {
-    return false; // @ENABLE_LTO@ - not implemented yet
-  }
-  return false;
 }
 
-std::string version::GetEnabledFeatures() {
-  std::vector<std::string_view> features;
+std::string version::GetEnabledFeatures()
+{
+    std::vector<std::string_view> features;
 
-  if (HasFeature("database_pooling")) {
-    features.emplace_back("Database Pooling");
-  }
-  if (HasFeature("network_bonding")) {
-    features.emplace_back("Network Bonding");
-  }
-  if (HasFeature("tracy_profiling")) {
-    features.emplace_back("Tracy Profiling");
-  }
-  if (HasFeature("static_analysis")) {
-    features.emplace_back("Static Analysis");
-  }
-  if (HasFeature("testing")) {
-    features.emplace_back("Testing");
-  }
-  if (HasFeature("asan")) {
-    features.emplace_back("AddressSanitizer");
-  }
-  if (HasFeature("lto")) {
-    features.emplace_back("Link-Time Optimization");
-  }
-
-  if (features.empty()) {
-    return "None";
-  }
-
-  std::ostringstream oss;
-  for (size_t i = 0; i < features.size(); ++i) {
-    if (i > 0) {
-      oss << ", ";
+    if (HasFeature("database_pooling"))
+    {
+        features.emplace_back("Database Pooling");
     }
-    oss << features[i];
-  }
+    if (HasFeature("network_bonding"))
+    {
+        features.emplace_back("Network Bonding");
+    }
+    if (HasFeature("tracy_profiling"))
+    {
+        features.emplace_back("Tracy Profiling");
+    }
+    if (HasFeature("static_analysis"))
+    {
+        features.emplace_back("Static Analysis");
+    }
+    if (HasFeature("testing"))
+    {
+        features.emplace_back("Testing");
+    }
+    if (HasFeature("asan"))
+    {
+        features.emplace_back("AddressSanitizer");
+    }
+    if (HasFeature("lto"))
+    {
+        features.emplace_back("Link-Time Optimization");
+    }
 
-  return oss.str();
+    if (features.empty())
+    {
+        return "None";
+    }
+
+    std::ostringstream oss;
+    for (size_t i = 0; i < features.size(); ++i)
+    {
+        if (i > 0)
+        {
+            oss << ", ";
+        }
+        oss << features[i];
+    }
+
+    return oss.str();
 }

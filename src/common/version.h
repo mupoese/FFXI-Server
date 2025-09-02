@@ -31,7 +31,7 @@ namespace version
     // Git information (inline constexpr definitions)
     [[nodiscard]] constexpr std::string_view GetGitSha() noexcept
     {
-        return "748cb661-dirty";
+        return "81aa673a-dirty";
     }
     [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept
     {
@@ -39,11 +39,11 @@ namespace version
     }
     [[nodiscard]] constexpr std::string_view GetGitDate() noexcept
     {
-        return "Mon Sep 1 14:19:56 2025";
+        return "Mon Sep 1 22:59:00 2025";
     }
     [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept
     {
-        return "Complete robust template-based version system - CI/CD ready";
+        return "Fix C++ formatting violations in version system files";
     }
 
     // Enhanced version information
@@ -64,7 +64,7 @@ namespace version
         std::string_view cmake_version;
     };
 
-    [[nodiscard]] constexpr VersionInfo GetVersionInfo() noexcept;
+    [[nodiscard]] VersionInfo GetVersionInfo() noexcept;
 
     // Runtime information
     [[nodiscard]] std::string                           GetRuntimeInfo();

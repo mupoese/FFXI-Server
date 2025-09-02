@@ -64,7 +64,7 @@ namespace version
         std::string_view cmake_version;
     };
 
-    [[nodiscard]] constexpr VersionInfo GetVersionInfo() noexcept;
+    [[nodiscard]] VersionInfo GetVersionInfo() noexcept;
 
     // Runtime information
     [[nodiscard]] std::string                           GetRuntimeInfo();

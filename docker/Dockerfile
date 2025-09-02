@@ -131,8 +131,10 @@ COPY --chown=$FFXI_USER:$FFXI_USER docker/supervisord.conf /etc/supervisor/conf.
 
 # Set proper permissions
 RUN chmod +x $FFXI_HOME/entrypoint.sh \
-    && chmod +x $FFXI_HOME/bin/* \
     && mkdir -p $FFXI_HOME/logs \
+    && if [ -d "$FFXI_HOME/bin" ] && [ -n "$(ls -A $FFXI_HOME/bin 2>/dev/null)" ]; then \
+        chmod +x $FFXI_HOME/bin/*; \
+       fi \
     && chown -R $FFXI_USER:$FFXI_USER $FFXI_HOME
 
 # Expose standard FFXI ports

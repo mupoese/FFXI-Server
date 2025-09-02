@@ -59,9 +59,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,7 +76,21 @@ jobs:
           python3 -m pip install -r tools/requirements.txt
       - name: Setup Database
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify connection
           mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
+          
+          # Setup database using dbtool
           python3 ./tools/dbtool.py setup
       - name: Run Database Unit Tests
         run: |
@@ -96,9 +112,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -111,6 +129,18 @@ jobs:
           python3 -m pip install -r tools/requirements.txt
       - name: Setup Database
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Setup database using dbtool
           python3 ./tools/dbtool.py setup
       - name: Download Baseline Performance Data
         uses: actions/download-artifact@v4
@@ -211,9 +241,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -237,6 +269,18 @@ jobs:
           make -j2 || echo "Build completed with warnings"
       - name: Setup Database
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Setup database using dbtool
           python3 ./tools/dbtool.py setup
       - name: Integration Test
         run: |

@@ -856,6 +856,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
+      - name: Verify MySQL connection
         run: |
           # Wait for MySQL to be ready
           echo "Waiting for MySQL to be ready..."

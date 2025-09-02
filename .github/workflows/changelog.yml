@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3
+        sudo apt-get install -y python3 libmariadb-dev
         python3 -m pip install -r tools/requirements-py312.txt
     - name: Generate changelog
       run: |

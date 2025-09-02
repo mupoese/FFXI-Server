@@ -1,0 +1,19 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting mariadb
+  Downloading mariadb-1.1.13.tar.gz (111 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.1/111.1 kB 6.6 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: packaging in /usr/lib/python3/dist-packages (from mariadb) (24.0)
+Building wheels for collected packages: mariadb
+  Building wheel for mariadb (pyproject.toml): started
+  Building wheel for mariadb (pyproject.toml): finished with status 'done'
+  Created wheel for mariadb: filename=mariadb-1.1.13-cp312-cp312-linux_x86_64.whl size=201174 sha256=0be897e0f25536bf7625b9a92dc4ce430fe32fb468be2a85b1c6dc89349b8b33
+  Stored in directory: /tmp/pip-ephem-wheel-cache-4h31ef0v/wheels/c4/5f/6a/0902caa01c889fa886cceb4a076513dabea839df6ecb5e24e2
+Successfully built mariadb
+Installing collected packages: mariadb
+Successfully installed mariadb-1.1.13

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 def migration_name():
     return "Adding eminence column for chars"
 

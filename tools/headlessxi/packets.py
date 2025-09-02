@@ -1,3 +1,6 @@
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from .util import util, PACKET_HEAD
 
 PD_CODE = 1

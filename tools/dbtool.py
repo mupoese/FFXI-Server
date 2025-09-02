@@ -263,7 +263,7 @@ def fetch_errors(query, result):
         if "Using a password on the command line interface can be insecure" in line:
             continue
 
-        # If the output line begins with ERROR, print it in red and exit
+        # If the output line begins with ERROR, print(it in red and exit)
         if line.startswith("ERROR"):
             print_red("Encountered error while executing SQL query:")
             print_red(query)
@@ -1155,7 +1155,7 @@ def update_sql_from_db(table_name):
                             else:
                                 hex_value = value.hex().upper()
                                 updated_values.append(f"0x{hex_value}")
-                        # Otherwise print binary in 0x hex form
+                        # Otherwise print(binary in 0x hex form)
                         else:
                             hex_value = value.hex().upper()
                             updated_values.append(f"0x{hex_value}")

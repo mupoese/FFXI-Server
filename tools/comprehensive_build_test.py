@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
 """
 Comprehensive Build Test Suite for FFXI Server with Python 3.12
 Tests all build configurations, dependency compatibility, and Python tools

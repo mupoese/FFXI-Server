@@ -97,12 +97,30 @@ CPMAddPackage(
     GIT_TAG v3.2
 ) # defines: argparse
 
-# Ensure argparse include directories are available for Docker builds
+# Ensure argparse is configured properly
+message(STATUS "Checking argparse configuration...")
 if(argparse_ADDED)
-    # Explicitly make argparse headers available to all targets
-    target_include_directories(argparse INTERFACE
+    message(STATUS "argparse was successfully downloaded")
+    message(STATUS "argparse_SOURCE_DIR: ${argparse_SOURCE_DIR}")
+    
+    # Verify the header file exists
+    if(EXISTS "${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+        message(STATUS "argparse header file found: ${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+    else()
+        message(FATAL_ERROR "argparse header file not found at expected location: ${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+    endif()
+    
+    # Set proper include directories for the interface target
+    target_include_directories(argparse INTERFACE 
         $<BUILD_INTERFACE:${argparse_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
     )
+    
+    message(STATUS "argparse configured with include directory: ${argparse_SOURCE_DIR}/include")
+elseif(TARGET argparse)
+    message(STATUS "argparse target already exists (from previous build or system package)")
+else()
+    message(FATAL_ERROR "argparse was not downloaded and no existing target found")
 endif()
 
 CPMAddPackage(

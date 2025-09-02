@@ -123,9 +123,8 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/ext)
 endif()
 
 # Ensure argparse dependency is properly configured for Docker builds
-# This addresses timing issues where CPM dependencies might not be ready
 if(TARGET argparse)
-    # Ensure argparse headers are available with proper include directories
+    message(STATUS "argparse target found and configured")
     get_target_property(ARGPARSE_INCLUDE_DIRS argparse INTERFACE_INCLUDE_DIRECTORIES)
     if(ARGPARSE_INCLUDE_DIRS)
         message(STATUS "argparse include directories: ${ARGPARSE_INCLUDE_DIRS}")

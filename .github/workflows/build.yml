@@ -457,6 +457,11 @@ jobs:
           fetch-depth: 1
       - name: Install Dependencies (Brew)
         run: |
+          # Handle cmake installation conflicts between taps
+          if brew list cmake >/dev/null 2>&1; then
+            echo "cmake is already installed, uninstalling first..."
+            brew uninstall cmake
+          fi
           brew install mariadb zeromq zmq luajit cmake ninja
       - name: Cache 'build' folder
         uses: actions/cache@v4
@@ -497,7 +502,16 @@ jobs:
           path: .
       - name: Install Dependencies
         run: |
-          brew install mariadb zeromq zmq luajit python3
+          # Handle potential package installation conflicts
+          for pkg in mariadb zeromq zmq luajit python3; do
+            if brew list "$pkg" >/dev/null 2>&1; then
+              echo "$pkg is already installed, checking if reinstall is needed..."
+              # Only force reinstall if there are conflicts
+              brew install "$pkg" || (brew uninstall "$pkg" && brew install "$pkg")
+            else
+              brew install "$pkg"
+            fi
+          done
           # Start MariaDB service
           brew services start mariadb
           sleep 10

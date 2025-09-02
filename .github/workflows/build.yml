@@ -555,9 +555,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -570,6 +572,18 @@ jobs:
           python3 -m pip install -r tools/requirements.txt
       - name: Verify MySQL connection
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify connection
           mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
       - name: Import SQL files
         shell: bash
@@ -606,9 +620,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -627,6 +643,18 @@ jobs:
           python3 -m pip install -r tools/requirements.txt
       - name: Verify MySQL connection from container
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify connection
           mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
       - name: Import SQL files
         shell: bash
@@ -770,9 +798,11 @@ jobs:
         env:
           MYSQL_DATABASE: xidb
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+          MYSQL_ROOT_HOST: "%"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+        options: --health-cmd="mysqladmin ping -h localhost -u root -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -790,6 +820,18 @@ jobs:
           python3 -m pip install -r tools/requirements.txt
       - name: Verify MySQL connection from container
         run: |
+          # Wait for MySQL to be ready
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES;" >/dev/null 2>&1; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify connection
           mysql -h 127.0.0.1 -uroot -proot -e "SHOW DATABASES"
       - name: Import SQL files
         shell: bash

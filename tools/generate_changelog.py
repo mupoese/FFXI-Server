@@ -1,15 +1,19 @@
-# py -m pip install requests
+# Python 3.12+ compatible installation:
+# python3 -m pip install requests
 #
 # Usage:
-# .\tools\generate_changelog.py <days to generate, or "ci"> <repo owner name/repo name> <optional changelog title>
+# python3 tools/generate_changelog.py <days to generate, or "ci"> \
+#                                     <repo owner name/repo name> \
+#                                     <optional changelog title>
 #
-# NOTE: If you don't populate the optional changelog title, the repo owner name will be used
+# NOTE: If you don't populate the optional changelog title, the repo owner
+#       name will be used
 #
 # Examples:
-# .\tools\generate_changelog.py ci LandSandBoat/server
+# python3 tools/generate_changelog.py ci LandSandBoat/server
 # => ## LandSandBoat Changelog
 #
-# .\tools\generate_changelog.py 7 LandSandBoat/server YourServerName
+# python3 tools/generate_changelog.py 7 LandSandBoat/server YourServerName
 # => ## YourServerName Changelog
 
 import sys
@@ -19,10 +23,12 @@ import requests as reqs
 import json
 import urllib.parse
 
+
 # At 12:00 on day-of-month 1 and 15.
 # Cron: '0 12 1,15 * *'
 def days_since_last_run():
-    # Count back from today's date, until you encounter either the 1st or the 15th
+    """Calculate days since last scheduled changelog run (1st or 15th)."""
+    # Count back from today's date, until you encounter either the 1st or 15th
     today = date.today()
     days = 1
     last_date_day = (today - timedelta(days=days)).day
@@ -31,7 +37,9 @@ def days_since_last_run():
         last_date_day = (today - timedelta(days=days)).day
     return days
 
+
 def is_real_name(str):
+    """Check if a string appears to be a real name (multiple words)."""
     parts = str.split(" ")
 
     parts_are_capitalized = True
@@ -41,7 +49,9 @@ def is_real_name(str):
 
     return len(parts) > 1 and parts_are_capitalized
 
+
 def remove_real_names(authors):
+    """Remove real names from authors list for privacy protection."""
     to_remove = set()
     for name in authors:
         if is_real_name(name):
@@ -50,12 +60,17 @@ def remove_real_names(authors):
     for name in to_remove:
         try:
             authors.remove(name)
-        except:
+        except ValueError:
+            # Handle case where name is not in list
             pass
 
 
 if len(sys.argv) < 3:
-    print("Usage:\ngenerate_changelog.py <days to generate, or 'ci'> <repo owner name/repo name> <optional changelog title>")
+    print("Usage:")
+    print(
+        "generate_changelog.py <days to generate, or 'ci'> "
+        "<repo owner name/repo name> <optional changelog title>"
+    )
     sys.exit(-1)
 
 length_days = days_since_last_run()
@@ -76,10 +91,14 @@ today = date.today()
 last_week = today - timedelta(days=length_days)
 
 params = {
-    "q": f"user:{user} repo:{repo} state:closed is:pr merged:>={str(last_week)}"
+    "q": (
+        f"user:{user} repo:{repo} state:closed is:pr "
+        f"merged:>={str(last_week)}"
+    )
 }
 query_string = urllib.parse.urlencode(params)
-request = f"https://api.github.com/search/issues?page=1&per_page=100&{query_string}"
+api_url = "https://api.github.com/search/issues"
+request = f"{api_url}?page=1&per_page=100&{query_string}"
 response = reqs.get(request)
 data = json.loads(response.text)
 
@@ -103,24 +122,30 @@ with open(f"changelog-{today}.md", "w") as file:
                 authors.add(line.replace("From: ", "").split("<")[0].strip())
 
             if line.lower().startswith("co-authored-by: "):
-                authors.add(line.split(":")[1].split("<")[0].strip())
+                author_part = line.split(":")[1].split("<")[0].strip()
+                authors.add(author_part)
 
-        # Try and remove "real names"; even though these are already visible to the public, we
-        # don't want to advertise them in our patch notes.
+        # Try and remove "real names"; even though these are already
+        # visible to the public, we don't want to advertise them in our
+        # patch notes.
         remove_real_names(authors)
 
-        # We want the submitting user to be first in the list, if relevant (and if the names match)
+        # We want the submitting user to be first in the list, if relevant
+        # (and if the names match)
         authors_string = username
         if len(authors) > 1:
-            # Since the authors_string starts with the submitting user, we can remove it from the set
+            # Since the authors_string starts with the submitting user, we
+            # can remove it from the set
             try:
                 authors.remove(username)
-            except:
+            except ValueError:
+                # Handle case where username is not in authors set
                 pass
 
             authors_string += ", "
             authors_string += ", ".join(authors)
 
         file.write(
-            f"- {title.capitalize()} [[#{number}]({html_url}), [patch]({patch_url})] ({authors_string})\n"
+            f"- {title.capitalize()} [[#{number}]({html_url}), "
+            f"[patch]({patch_url})] ({authors_string})\n"
         )

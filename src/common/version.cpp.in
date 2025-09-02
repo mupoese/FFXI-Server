@@ -43,9 +43,9 @@ version::VersionInfo version::GetVersionInfo() noexcept
 {
     return VersionInfo
     {
-        .major      = @PROJECT_VERSION_MAJOR @,
-        .minor      = @PROJECT_VERSION_MINOR @,
-        .patch      = @PROJECT_VERSION_PATCH @,
+        .major      = @PROJECT_VERSION_MAJOR@,
+        .minor      = @PROJECT_VERSION_MINOR@,
+        .patch      = @PROJECT_VERSION_PATCH@,
         .git_sha    = GetGitSha(),
         .git_branch = GetGitBranch(),
         .build_date = __DATE__ " " __TIME__,

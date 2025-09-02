@@ -97,6 +97,14 @@ CPMAddPackage(
     GIT_TAG v3.2
 ) # defines: argparse
 
+# Ensure argparse include directories are available for Docker builds
+if(argparse_ADDED)
+    # Explicitly make argparse headers available to all targets
+    target_include_directories(argparse INTERFACE
+        $<BUILD_INTERFACE:${argparse_SOURCE_DIR}/include>
+    )
+endif()
+
 CPMAddPackage(
     NAME efsw
     GITHUB_REPOSITORY SpartanJ/efsw

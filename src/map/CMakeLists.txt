@@ -258,6 +258,11 @@ endif()
 set_target_output_directory(xi_map)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT xi_map)
 
+# Install the executable
+install(TARGETS xi_map 
+    DESTINATION bin
+    COMPONENT Runtime)
+
 if(TRACY_ENABLE)
     target_link_libraries(xi_map_lib PUBLIC TracyClient)
     set_target_properties(xi_map PROPERTIES OUTPUT_NAME xi_map_tracy)

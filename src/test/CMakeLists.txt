@@ -55,3 +55,8 @@ target_link_libraries(xi_test
         xi_test_lib)
 
 set_target_output_directory(xi_test)
+
+# Install the executable
+install(TARGETS xi_test 
+    DESTINATION bin
+    COMPONENT Runtime)

@@ -63,3 +63,8 @@ target_link_libraries(xi_search
         xi_search_lib)
 
 set_target_output_directory(xi_search)
+
+# Install the executable
+install(TARGETS xi_search 
+    DESTINATION bin
+    COMPONENT Runtime)

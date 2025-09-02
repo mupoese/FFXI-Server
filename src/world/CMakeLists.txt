@@ -72,3 +72,8 @@ target_link_libraries(xi_world
         xi_world_lib)
 
 set_target_output_directory(xi_world)
+
+# Install the executable
+install(TARGETS xi_world 
+    DESTINATION bin
+    COMPONENT Runtime)

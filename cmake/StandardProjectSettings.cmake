@@ -34,6 +34,13 @@ message(STATUS "CMAKE_INTERPROCEDURAL_OPTIMIZATION: ${CMAKE_INTERPROCEDURAL_OPTI
 # Snippet from GLM: https://github.com/g-truc/glm (MIT)
 # NOTE: fast-math was on by default before the CMake build refactoring!
 option(ENABLE_FAST_MATH "Enable fast math optimizations" ON)
+
+# Disable fast math on macOS with Clang to avoid fmt library infinity issues
+if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(ENABLE_FAST_MATH OFF CACHE BOOL "Disabled on macOS Clang due to fmt library compatibility" FORCE)
+    message(STATUS "ENABLE_FAST_MATH disabled on macOS with Clang to avoid fmt library issues")
+endif()
+
 if(ENABLE_FAST_MATH)
     message(STATUS "ENABLE_FAST_MATH: ON")
     if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))

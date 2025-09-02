@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from typing import Any, Dict, List, Optional, Union
 #
 # blowfish.py
 # Copyright (C) 2002 Michael Gilfix <mgilfix@eecs.tufts.edu>
@@ -89,8 +93,7 @@ class Blowfish:
 
         if not key or len(key) < 8 or len(key) > 56:
             raise RuntimeError(
-                "Attempted to initialize Blowfish cipher with key of invalid length: %s"
-                % len(key)
+                f"Attempted to initialize Blowfish cipher with key of invalid length: {len}"(key)
             )
 
         # fmt: off
@@ -439,7 +442,7 @@ class Blowfish:
 
         if not len(data) == 8:
             raise RuntimeError(
-                "Attempted to encrypt data of invalid block length: %s" % len(data)
+                f"Attempted to encrypt data of invalid block length: {len}"(data)
             )
 
         # Use big endianess since that's what everyone else uses
@@ -475,7 +478,7 @@ class Blowfish:
 
         if not len(data) == 8:
             raise RuntimeError(
-                "Attempted to encrypt data of invalid block length: %s" % len(data)
+                f"Attempted to encrypt data of invalid block length: {len}"(data)
             )
 
         # Use big endianess since that's what everyone else uses
@@ -525,8 +528,8 @@ if __name__ == "__main__":
 
     print("Testing buffer encrypt:")
     text = "testtest"
-    print("\tText: %s" % text)
+    print(f"\tText: {text}")
     crypted = cipher.encrypt(text)
-    print("\tEncrypted: %s" % crypted)
+    print(f"\tEncrypted: {crypted}")
     decrypted = cipher.decrypt(crypted)
-    print("\tDecrypted: %s" % decrypted)
+    print(f"\tDecrypted: {decrypted}")

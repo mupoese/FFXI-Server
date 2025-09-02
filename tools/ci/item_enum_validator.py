@@ -100,7 +100,7 @@ def main():
     parser.add_argument(
         '--item-enum',
         default='scripts/enum/item.lua',
-        help='Path to item enum file (default: scripts/enum/item.lua)'
+        help='Path to item enum open(default: scripts/enum/item.lua)'
     )
     parser.add_argument(
         '--check-files',

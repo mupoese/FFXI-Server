@@ -1,3 +1,6 @@
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import socket
 import ssl
 import re
@@ -111,14 +114,14 @@ class HXIClient:
 
     def login_connect(self, ssl_context):
         server_address = (self.server, 54231)
-        print("Starting up login connection over TLS on %s port %s" % server_address)
+        print(f"Starting up login connection over TLS on {server_address} port %s")
         self.login_sock = ssl_context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM), server_hostname=self.server)
         self.login_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.login_sock.connect(server_address)
 
     def lobby_data_connect(self):
         server_address = (self.server, 54230)
-        print("Starting up lobby data connection on %s port %s" % server_address)
+        print(f"Starting up lobby data connection on {server_address} port %s")
         self.lobbydata_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.lobbydata_sock.connect(server_address)
         print("Sending session hash back through lobbydata")
@@ -135,7 +138,7 @@ class HXIClient:
 
     def lobby_view_connect(self):
         server_address = (self.server, 54001)
-        print("Starting up lobby view connection on %s port %s" % server_address)
+        print(f"Starting up lobby view connection on {server_address} port %s")
         self.lobbyview_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.lobbyview_sock.connect(server_address)
 

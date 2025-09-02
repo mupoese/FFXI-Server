@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from typing import Any, Dict, List, Optional, Union
 #
 # During CMake configuration/build this script is automatically run, generating build/generated/ipc_stubs.h
 #

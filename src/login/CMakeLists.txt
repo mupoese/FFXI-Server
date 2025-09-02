@@ -69,3 +69,8 @@ target_link_libraries(xi_connect
         xi_connect_lib)
 
 set_target_output_directory(xi_connect)
+
+# Install the executable
+install(TARGETS xi_connect 
+    DESTINATION bin
+    COMPONENT Runtime)

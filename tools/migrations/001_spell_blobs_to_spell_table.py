@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from migrations import utils
 import mariadb
 
@@ -44,7 +46,7 @@ def migrate(cur, db):
             spells = row[1]
 
             if spells != None and spells != "":
-                print("Migrating charid: %d" % charId)
+                print(f"Migrating charid: {charId}")
 
                 spellId = 0
 
@@ -62,14 +64,14 @@ def migrate(cur, db):
                                 "INSERT IGNORE INTO char_spells VALUES (%s, %s);",
                                 (charId, spellId),
                             )
-                            # print("Added spell %d" % spellId)
+                            # print(f"Added spell {spellId}")
 
                     spellId = spellId + 1
 
                 print(" [OK]")
 
             else:
-                print("Charid %d has no spells, skipping" % charId)
+                print(f"Charid {charId} has no spells, skipping")
 
         db.commit()
     except mariadb.Error as err:

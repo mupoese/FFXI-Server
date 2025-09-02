@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
 """
 Test Suite for LandSandBoat Administrative Tools
 Validates functionality of admin dashboard, web panel, and analytics

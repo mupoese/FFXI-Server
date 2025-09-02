@@ -1,3 +1,6 @@
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import os
 import requests
 import zipfile
@@ -7,7 +10,7 @@ import json
 import subprocess
 import re
 import argparse
-from collections import defaultdict
+from collections.abc import defaultdict
 
 parser = argparse.ArgumentParser(
     description="Run Lua Language Server and parse results."
@@ -252,7 +255,7 @@ for error in error_list:
 
 sorted_committers = sorted(committer_errors.items(), key=lambda x: x[1], reverse=True)
 
-# Write ranked table and detailed error information to a file and print to console
+# Write ranked table and detailed error information to a file and print(to console)
 print("\nWriting error information to lua_lang_errors.txt\n")
 with open("lua_lang_errors.txt", "w") as error_file:
     if args.blame:

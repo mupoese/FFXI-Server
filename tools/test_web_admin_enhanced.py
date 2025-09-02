@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from typing import Any, Dict, List, Optional, Union
+#!/usr/bin/env python3
 """
 Test script for enhanced web admin panel
 """

@@ -1,5 +1,5 @@
-# Python 3.12+ Native Requirements
-# Optimized for Python 3.12 performance and latest features
+# Python 3.12+ Optimized Requirements
+# Latest packages with Python 3.12 native support and performance optimizations
 
 # Database connectivity - Latest stable versions with Python 3.12 optimizations
 mariadb>=1.1.11
@@ -59,5 +59,6 @@ zmq>=0.0.0
 argparse
 
 # Additional Python 3.12 specific packages for enhanced performance
+# These packages have specific optimizations for Python 3.12
 orjson>=3.10.0  # Fast JSON library with Python 3.12 native performance
 uvloop>=0.21.0; sys_platform != "win32"  # High-performance event loop for non-Windows

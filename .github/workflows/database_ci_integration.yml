@@ -73,7 +73,7 @@ jobs:
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Setup Database
         run: |
           # Wait for MySQL to be ready
@@ -126,7 +126,7 @@ jobs:
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y mariadb-client
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Setup Database
         run: |
           # Wait for MySQL to be ready
@@ -255,7 +255,7 @@ jobs:
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Build Database Components
         run: |
           # Test if database components build correctly

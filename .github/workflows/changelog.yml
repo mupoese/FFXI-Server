@@ -16,7 +16,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y python3
-        pip3 install requests
+        python3 -m pip install -r tools/requirements-py312.txt
     - name: Generate changelog
       run: |
           # Generate changelog using the LandSandBoat format for MupoEse Server

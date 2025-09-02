@@ -19,6 +19,30 @@ concurrency:
 # https://github.com/actions/runner-images/tree/main
 
 jobs:
+  Comprehensive_Python312_Build_Test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Dependencies
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
+          python3 -m pip install -r tools/requirements-py312.txt
+      - name: Run Comprehensive Python 3.12 Build Tests
+        run: |
+          echo "Running comprehensive Python 3.12 build test suite..."
+          python3 tools/comprehensive_build_test.py --ci
+      - name: Upload Comprehensive Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: comprehensive_build_test_results
+          path: |
+            comprehensive_build_test_report.json
+        if: always()
+
   Sanity_Checks:
     runs-on: ubuntu-24.04
     steps:
@@ -26,12 +50,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Dependencies
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cppcheck luajit-5.1-dev luarocks mariadb-server mariadb-client libmariadb-dev-compat binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
           luarocks install luacheck --local
           npm install -g diff-so-fancy
       - id: changed-files
@@ -207,7 +231,7 @@ jobs:
           python3 tools/ci/detect_license_headers.py
 
   Linux_LuaLanguageServer:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: ubuntu-24.04
     steps:
       - name: Download Changed Files
@@ -239,12 +263,12 @@ jobs:
           fetch-depth: 0 # Or else we don't get full blame information
       - name: Install Dependencies
         if: steps.check-changes.outputs.LUA_CHANGES == 'true'
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Lua Language Server
         if: steps.check-changes.outputs.LUA_CHANGES == 'true'
         run: |
@@ -264,7 +288,7 @@ jobs:
           fi
 
   Linux_Clang18_64bit:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -302,7 +326,7 @@ jobs:
             xi_test
 
   Linux_ClangTidy18_64bit:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -335,7 +359,7 @@ jobs:
           fi
 
   Linux_GCC14_64bit:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -364,7 +388,7 @@ jobs:
           cmake --build build -j4
 
   Windows_64bit_Debug:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
@@ -401,7 +425,7 @@ jobs:
             xi_test.exe
 
   Windows_64bit_Release_Tracy_Modules:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     runs-on: windows-2022
     steps:
       - uses: microsoft/setup-msbuild@v2
@@ -448,7 +472,7 @@ jobs:
             xi_test.exe
 
   MacOS_64bit:
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
     runs-on: macos-15
     steps:
@@ -522,7 +546,7 @@ jobs:
           mysql -u root -e "FLUSH PRIVILEGES;"
       - name: Install Python Dependencies
         run: |
-          python3 -m pip install --break-system-packages -r tools/requirements.txt
+          python3 -m pip install --break-system-packages -r tools/requirements-py312.txt
       - name: Import SQL files
         run: |
           python3 ./tools/dbtool.py setup
@@ -562,7 +586,7 @@ jobs:
 
   Database_Performance_Tests:
     runs-on: ubuntu-24.04
-    needs: Sanity_Checks
+    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
     services:
       mysql:
         image: mariadb:10.6
@@ -583,7 +607,7 @@ jobs:
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Verify MySQL connection
         run: |
           # Wait for MySQL to be ready
@@ -649,12 +673,12 @@ jobs:
           name: linux_executables
           path: .
       - name: Install Dependencies
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Verify MySQL connection from container
         run: |
           # Wait for MySQL to be ready
@@ -826,13 +850,12 @@ jobs:
           name: linux_executables
           path: .
       - name: Install Dependencies
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
           sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
-          python3 -m pip install -r tools/requirements.txt
-      - name: Verify MySQL connection from container
+          python3 -m pip install -r tools/requirements-py312.txt
         run: |
           # Wait for MySQL to be ready
           echo "Waiting for MySQL to be ready..."
@@ -924,10 +947,10 @@ jobs:
           cp settings/default/* settings/
       - name: Install Python Dependencies
         shell: bash
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Import SQL files
         shell: bash
         run: |
@@ -971,10 +994,10 @@ jobs:
           EOF
       - name: Install Python Dependencies
         shell: bash
-        # TODO: Properly use python venv
+        # Python 3.12 with optimized requirements
         run: |
           python3 -m pip config set global.break-system-packages true
-          python3 -m pip install -r tools/requirements.txt
+          python3 -m pip install -r tools/requirements-py312.txt
       - name: Import SQL files
         shell: bash
         run: |

@@ -8,8 +8,11 @@ build*/
 *.exe
 *.bin
 
-# External dependency directories (use system packages instead)
-ext/
+# External dependency directories - exclude only build artifacts, not source
+ext/*/build/
+ext/*/build*/
+ext/*/.git/
+# Note: Allow ext/ CPM configuration files for header-only libraries
 
 # Git directory
 .git/

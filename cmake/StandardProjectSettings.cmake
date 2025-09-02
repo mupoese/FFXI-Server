@@ -38,6 +38,10 @@ if(ENABLE_FAST_MATH)
     message(STATUS "ENABLE_FAST_MATH: ON")
     if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
         add_compile_options(-ffast-math)
+        # Additional floating point optimizations for non-MSVC compilers
+        if(XI_TARGET_ARCH STREQUAL "x86_64")
+            add_compile_options(-mfpmath=sse -msse2)
+        endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         add_compile_options(/fp:fast)
     endif()
@@ -46,6 +50,21 @@ else()
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         add_compile_options(/fp:precise)
     endif()
+endif()
+
+# Cross-platform optimization settings
+option(ENABLE_NATIVE_OPTIMIZATIONS "Enable native CPU optimizations" OFF)
+if(ENABLE_NATIVE_OPTIMIZATIONS)
+    message(STATUS "ENABLE_NATIVE_OPTIMIZATIONS: ON")
+    if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
+        if(XI_TARGET_ARCH STREQUAL "x86_64")
+            add_compile_options(-march=native -mtune=native)
+        elseif(XI_TARGET_ARCH STREQUAL "arm64")
+            add_compile_options(-mcpu=native)
+        endif()
+    endif()
+else()
+    message(STATUS "ENABLE_NATIVE_OPTIMIZATIONS: OFF")
 endif()
 
 if(MSVC)
@@ -63,6 +82,11 @@ if(MSVC)
         /utf-8 # Treat source files as UTF-8. This is needed because of certain symbols inside fmtlib's code. u-second, etc.
     )
 
+    # Platform-specific MSVC optimizations
+    if(XI_TARGET_ARCH STREQUAL "x86_64")
+        list(APPEND FLAGS_AND_DEFINES /favor:INTEL64)
+    endif()
+
     if(CMAKE_BUILD_TYPE STREQUAL Debug)
         # /EDITANDCONTINUE isn't supported, it messes with Tracy
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL /SAFESEH:NO")
@@ -78,19 +102,70 @@ if(MSVC)
             /Gy # Enable Function Level Linking
             /TP # C++ Source Files
         )
+        
+        # Additional release optimizations for x86_64
+        if(XI_TARGET_ARCH STREQUAL "x86_64")
+            list(APPEND FLAGS_AND_DEFINES /arch:AVX2)
+        endif()
     endif()
 
     link_libraries(WS2_32 dbghelp Shlwapi)
 endif()
 
+# Unix/Linux specific optimizations
 if(UNIX)
     link_libraries(dl)
+    
+    # Linux-specific optimizations
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        # Enable position independent code for better security
+        set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+        
+        # Link-time optimizations for release builds
+        if(CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+            add_link_options(-flto)
+        endif()
+    endif()
+    
+    # macOS-specific optimizations
+    if(APPLE)
+        # macOS deployment target should be set in Platform.cmake
+        if(XI_TARGET_ARCH STREQUAL "arm64")
+            # Apple Silicon optimizations
+            add_compile_options(-mcpu=apple-m1)
+        endif()
+        
+        # Universal binary support (if needed)
+        option(BUILD_UNIVERSAL_BINARY "Build universal binary for macOS" OFF)
+        if(BUILD_UNIVERSAL_BINARY)
+            set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+            message(STATUS "Building universal binary for macOS")
+        endif()
+    endif()
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
         message(FATAL_ERROR
                 "GCC version must be at least 9.0! Detected: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+    
+    # GCC-specific optimizations
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options(-O3)
+        if(XI_TARGET_ARCH STREQUAL "x86_64")
+            add_compile_options(-msse4.2 -mpopcnt)
+        endif()
+    endif()
+endif()
+
+# Clang-specific optimizations
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options(-O3)
+        if(XI_TARGET_ARCH STREQUAL "x86_64")
+            add_compile_options(-msse4.2 -mpopcnt)
+        endif()
     endif()
 endif()
 

@@ -46,6 +46,11 @@ target_link_libraries(xi_search_lib
         project_warnings
 )
 
+# Ensure argparse is available before building xi_search_lib (Docker build fix)
+if(TARGET argparse)
+    add_dependencies(xi_search_lib argparse)
+endif()
+
 target_include_directories(xi_search_lib
     PUBLIC
         ${CMAKE_SOURCE_DIR}

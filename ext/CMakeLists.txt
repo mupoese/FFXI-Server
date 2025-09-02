@@ -9,7 +9,7 @@ add_subdirectory(sol)
 # CPM Modules
 if(TRACY_ENABLE)
     # Tracy version tag, without the leading 'v'
-    set(TRACY_VERSION 0.11.1)
+    set(TRACY_VERSION 0.12.2)
 
     # Download client library
     CPMAddPackage(
@@ -73,7 +73,7 @@ CPMAddPackage(
 CPMAddPackage(
     NAME recastnavigation
     GITHUB_REPOSITORY recastnavigation/recastnavigation
-    GIT_TAG bd98d84c274ee06842bf51a4088ca82ac71f8c2d
+    GIT_TAG v1.6.0
     OPTIONS
         # TODO: Remove this once recast is updated to use CMake 3.5+, it's currently set to what we use in the root CMakeLists.txt
         "CMAKE_POLICY_VERSION_MINIMUM 3.20"
@@ -94,13 +94,39 @@ CPMAddPackage(
 CPMAddPackage(
     NAME argparse
     GITHUB_REPOSITORY p-ranav/argparse
-    GIT_TAG d924b84eba1f0f0adf38b20b7b4829f6f65b6570
+    GIT_TAG v3.2
 ) # defines: argparse
+
+# Ensure argparse is configured properly
+message(STATUS "Checking argparse configuration...")
+if(argparse_ADDED)
+    message(STATUS "argparse was successfully downloaded")
+    message(STATUS "argparse_SOURCE_DIR: ${argparse_SOURCE_DIR}")
+    
+    # Verify the header file exists
+    if(EXISTS "${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+        message(STATUS "argparse header file found: ${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+    else()
+        message(FATAL_ERROR "argparse header file not found at expected location: ${argparse_SOURCE_DIR}/include/argparse/argparse.hpp")
+    endif()
+    
+    # Set proper include directories for the interface target
+    target_include_directories(argparse INTERFACE 
+        $<BUILD_INTERFACE:${argparse_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    )
+    
+    message(STATUS "argparse configured with include directory: ${argparse_SOURCE_DIR}/include")
+elseif(TARGET argparse)
+    message(STATUS "argparse target already exists (from previous build or system package)")
+else()
+    message(FATAL_ERROR "argparse was not downloaded and no existing target found")
+endif()
 
 CPMAddPackage(
     NAME efsw
     GITHUB_REPOSITORY SpartanJ/efsw
-    GIT_TAG 62f785c56b7a34f035193d4cb831921347b586b8 # 1.4.1
+    GIT_TAG 1.5.0
     OPTIONS
         "VERBOSE OFF"
         "NO_ATOMICS OFF"
@@ -135,7 +161,7 @@ CPMAddPackage(
 CPMAddPackage(
     NAME json
     GITHUB_REPOSITORY nlohmann/json
-    GIT_TAG 9f60e855576bb1e95f39ab23b3821982cccb0bab
+    GIT_TAG v3.12.0
 ) # defines: nlohmann_json::nlohmann_json
 
 CPMAddPackage(
@@ -150,9 +176,9 @@ endif()
 
 CPMAddPackage(
     NAME asio
-    VERSION 1.32.0
+    VERSION 1.36.0
     GITHUB_REPOSITORY chriskohlhoff/asio
-    GIT_TAG asio-1-32-0 # asio uses non-standard version tag, we must specify GIT_TAG
+    GIT_TAG asio-1-36-0 # asio uses non-standard version tag, we must specify GIT_TAG
 ) #defines asio
 
 # ASIO doesn't use CMake, we have to configure it manually. Extra notes for using on Windows:

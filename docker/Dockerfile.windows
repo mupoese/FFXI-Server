@@ -1,0 +1,67 @@
+# Windows Container Dockerfile for FFXI LandSandBoat Server
+# Uses Windows Server Core with Visual Studio Build Tools
+
+# Build stage
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS build-stage
+
+LABEL maintainer="FFXI LandSandBoat Development Team"
+LABEL description="FFXI Server for Windows Containers"
+
+# Install prerequisites
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Install Chocolatey
+RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install build tools and dependencies
+RUN choco install -y visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"; \
+    choco install -y cmake git python3 7zip; \
+    refreshenv
+
+# Set environment variables
+ENV CMAKE_BUILD_TYPE=Release
+ENV CMAKE_GENERATOR="Visual Studio 17 2022"
+ENV CMAKE_GENERATOR_PLATFORM=x64
+
+# Create build directory
+WORKDIR C:\\build
+COPY . .
+
+# Configure and build
+RUN cmake -B build -S . -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release; \
+    cmake --build build --config Release --parallel
+
+# Runtime stage - Use Windows Server Core for runtime
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS runtime-stage
+
+LABEL maintainer="FFXI LandSandBoat Development Team"
+LABEL description="FFXI Server Windows Runtime"
+
+# Install runtime dependencies
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+RUN choco install -y vcredist2022 python3; \
+    refreshenv
+
+# Create application directory
+WORKDIR C:\\ffxi
+RUN New-Item -ItemType Directory -Path logs, settings, sql, scripts, tools, res -Force
+
+# Copy built binaries from build stage
+COPY --from=build-stage C:\\build\\build\\Release\\*.exe .\\
+COPY settings\\ .\\settings\\
+COPY scripts\\ .\\scripts\\
+COPY sql\\ .\\sql\\
+COPY tools\\ .\\tools\\
+COPY res\\ .\\res\\
+
+# Copy Windows-specific entrypoint
+COPY docker\\scripts\\entrypoint.ps1 .\\entrypoint.ps1
+
+# Expose standard FFXI ports
+EXPOSE 54001/tcp 54002/tcp 54230/tcp 54230/udp 54231/tcp 51220/tcp 54003/tcp 8088/tcp
+
+# Set entrypoint
+ENTRYPOINT ["powershell", ".\\entrypoint.ps1"]
+CMD ["all"]

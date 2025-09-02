@@ -122,8 +122,21 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/ext)
     add_subdirectory(ext)
 endif()
 
+# Ensure argparse dependency is properly configured for Docker builds
+if(TARGET argparse)
+    message(STATUS "argparse target found and configured")
+    get_target_property(ARGPARSE_INCLUDE_DIRS argparse INTERFACE_INCLUDE_DIRECTORIES)
+    if(ARGPARSE_INCLUDE_DIRS)
+        message(STATUS "argparse include directories: ${ARGPARSE_INCLUDE_DIRS}")
+    endif()
+endif()
+
 include(ClangTidy)
 include(Fuzzing)
+
+message(STATUS "Configuring src/common/version.h")
+configure_file(${CMAKE_SOURCE_DIR}/src/common/version.h.in
+               ${CMAKE_SOURCE_DIR}/src/common/version.h)
 
 message(STATUS "Configuring src/common/version.cpp")
 configure_file(${CMAKE_SOURCE_DIR}/src/common/version.cpp.in

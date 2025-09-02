@@ -1,5 +1,5 @@
 # Multi-stage Docker build for FFXI LandSandBoat Server
-# Production-optimized with C++20 support and security hardening
+# Production-optimized with C++20 support and cross-platform architecture support
 
 # Build stage - Use Ubuntu 24.04 with modern toolchain
 FROM ubuntu:24.04 AS build-stage
@@ -8,14 +8,22 @@ LABEL maintainer="FFXI LandSandBoat Development Team"
 LABEL description="Production-ready FFXI Server with C++20 optimizations"
 LABEL version="1.0.0"
 
+# Build arguments for cross-platform support
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETOS
+
 # Set environment variables for build
 ENV DEBIAN_FRONTEND=noninteractive
-ENV CC=gcc-13
-ENV CXX=g++-13
 ENV CMAKE_BUILD_TYPE=Release
 ENV CMAKE_CXX_STANDARD=20
 
-# Install build dependencies
+# Print build information
+RUN echo "Building for platform: ${TARGETPLATFORM}" && \
+    echo "Target architecture: ${TARGETARCH}" && \
+    echo "Target OS: ${TARGETOS}"
+
+# Install build dependencies with architecture-specific optimizations
 RUN apt-get update && apt-get install -y \
     build-essential \
     gcc-13 \
@@ -39,12 +47,25 @@ RUN apt-get update && apt-get install -y \
     binutils-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Set compiler for cross-compilation
+ENV CC=gcc-13
+ENV CXX=g++-13
+
 # Create build directory and copy source
 WORKDIR /build
 COPY . .
 
-# Configure and build with optimizations
-RUN rm -rf build && cmake -B build -S . \
+# Configure and build with architecture-specific optimizations
+RUN rm -rf build && \
+    # Set architecture-specific flags
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        export CMAKE_ARGS="-DCMAKE_C_FLAGS='-mcpu=generic' -DCMAKE_CXX_FLAGS='-mcpu=generic'"; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+        export CMAKE_ARGS="-DCMAKE_C_FLAGS='-march=x86-64-v2' -DCMAKE_CXX_FLAGS='-march=x86-64-v2'"; \
+    else \
+        export CMAKE_ARGS=""; \
+    fi && \
+    cmake -B build -S . \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=20 \
@@ -53,6 +74,7 @@ RUN rm -rf build && cmake -B build -S . \
     -DCMAKE_INSTALL_PREFIX=/opt/ffxi \
     -DBUILD_SHARED_LIBS=OFF \
     -DENABLE_STATIC_LINKING=ON \
+    ${CMAKE_ARGS} \
     && cmake --build build --config Release --parallel $(nproc) \
     && cmake --install build
 

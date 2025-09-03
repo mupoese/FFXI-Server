@@ -146,7 +146,7 @@ class ComprehensiveBuildTest:
                 )
                 self.results["tests"][test_name] = result
                 
-                if result["success"] or "usage:" in result["stdout"].lower():
+                if result["success"] or "usage:" in result["stdout"].lower() or "Usage:" in result["stdout"]:
                     print(f"✅ {tool_name}")
                 else:
                     print(f"❌ {tool_name}: {result['stderr'][:100]}")
@@ -169,7 +169,7 @@ class ComprehensiveBuildTest:
         # Test CMake configuration
         test_name = "cmake_configure"
         result = self.run_command(
-            ["cmake", "-S", ".", "-B", "build"],
+            ["cmake", "-S", ".", "-B", "build", "-DCMAKE_BUILD_TYPE=Release"],
             "CMake configuration",
             timeout=300
         )
@@ -196,12 +196,12 @@ class ComprehensiveBuildTest:
             print("❌ No Makefile found, skipping build test")
             return
         
-        # Test build with limited parallelism for CI stability
+        # Test build with optimized parallelism for CI stability
         test_name = "build_process"
         result = self.run_command(
-            ["cmake", "--build", "build", "-j2"],
+            ["cmake", "--build", "build", "-j4"],
             "Build process",
-            timeout=600
+            timeout=900
         )
         self.results["tests"][test_name] = result
         

@@ -6753,6 +6753,7 @@ namespace sol {
 
 			*this = nullopt;
 			this->construct(std::forward<Args>(args)...);
+			return value();
 		}
 
 		/// Swaps this optional with the other.

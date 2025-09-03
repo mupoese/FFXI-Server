@@ -33,7 +33,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Comprehensive Python 3.12 Build Tests
         env:
@@ -64,7 +64,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cppcheck luajit-5.1-dev luarocks mariadb-server mariadb-client libmariadb-dev-compat binutils-dev
+          sudo apt-get install -y software-properties-common cppcheck libluajit-5.1-2 libluajit-5.1-dev luarocks mariadb-server mariadb-client libmariadb-dev-compat binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
           luarocks install luacheck --local
           npm install -g diff-so-fancy
@@ -282,7 +282,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Lua Language Server
         if: steps.check-changes.outputs.LUA_CHANGES == 'true'
@@ -312,7 +312,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
       - name: Cache 'build' folder
         uses: actions/cache@v4
         with:
@@ -350,7 +350,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
       - name: Cache 'build' folder
         uses: actions/cache@v4
         with:
@@ -383,7 +383,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev gcc-14 g++-14
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev gcc-14 g++-14
 
       - name: Cache 'build' folder
         uses: actions/cache@v4
@@ -641,7 +641,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Verify MySQL connection
         run: |
@@ -716,7 +716,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Verify MySQL connection from container
         run: |
@@ -897,7 +897,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-2 liblibluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev luarocks binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Verify MySQL connection
         run: |

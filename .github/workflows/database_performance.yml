@@ -52,7 +52,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev-compat libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+          sudo apt-get install -y software-properties-common cmake mariadb-client libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
           python3 -m pip install -r tools/requirements-py312.txt
           python3 -m pip install -r tools/requirements.txt
       - name: Verify MySQL connection

@@ -30,6 +30,7 @@ concurrency:
 jobs:
   Database_Performance_Benchmarks:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     services:
       mysql:
         image: mariadb:10.6

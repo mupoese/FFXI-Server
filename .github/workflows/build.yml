@@ -25,6 +25,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         run: |
           python3 -m pip config set global.break-system-packages true
@@ -51,6 +55,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         # Python 3.12 with optimized requirements
         run: |
@@ -263,6 +271,11 @@ jobs:
         if: steps.check-changes.outputs.LUA_CHANGES == 'true'
         with:
           fetch-depth: 0 # Or else we don't get full blame information
+      - name: Set up Python 3.12
+        if: steps.check-changes.outputs.LUA_CHANGES == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         if: steps.check-changes.outputs.LUA_CHANGES == 'true'
         # Python 3.12 with optimized requirements
@@ -399,6 +412,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Cache 'build' folder
         uses: actions/cache@v4
         with:
@@ -436,6 +453,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Cache 'build' folder
         uses: actions/cache@v4
         with:
@@ -481,6 +502,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies (Brew)
         run: |
           # Handle cmake installation conflicts between taps
@@ -526,10 +551,14 @@ jobs:
         with:
           name: macos_executables
           path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         run: |
           # Handle potential package installation conflicts
-          for pkg in mariadb zeromq zmq luajit python3; do
+          for pkg in mariadb zeromq zmq luajit; do
             if brew list "$pkg" >/dev/null 2>&1; then
               echo "$pkg is already installed, checking if reinstall is needed..."
               # Only force reinstall if there are conflicts
@@ -604,6 +633,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         run: |
           python3 -m pip config set global.break-system-packages true
@@ -674,6 +707,10 @@ jobs:
         with:
           name: linux_executables
           path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         # Python 3.12 with optimized requirements
         run: |
@@ -851,6 +888,10 @@ jobs:
         with:
           name: linux_executables
           path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: Install Dependencies
         # Python 3.12 with optimized requirements
         run: |
@@ -941,6 +982,10 @@ jobs:
         with:
           name: windows_executables
           path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - uses: zach2good/setup-mariadb@v1
         with:
           database: xidb
@@ -975,6 +1020,10 @@ jobs:
         with:
           name: windows_modules_executables
           path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - uses: zach2good/setup-mariadb@v1
         with:
           database: xidb

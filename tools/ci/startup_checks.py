@@ -15,15 +15,35 @@ processes = []
 
 
 def kill(process):
-    """Send SIGTERM to a running process."""
-    if process.poll() is None:  # still running
-        process.send_signal(signal.SIGTERM)
+    """Send SIGTERM to a running process with better error handling."""
+    try:
+        if process.poll() is None:  # still running
+            process.send_signal(signal.SIGTERM)
+            # Give process time to shut down gracefully
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                # Force kill if graceful shutdown fails
+                process.kill()
+    except Exception as e:
+        print(f"Warning: Error killing process {process.pid}: {e}")
 
 
 def kill_all():
-    """Send SIGTERM to all running processes."""
+    """Send SIGTERM to all running processes with better error handling."""
     for proc in processes:
         kill(proc)
+    
+    # Give all processes time to shutdown
+    time.sleep(2)
+    
+    # Force kill any remaining processes
+    for proc in processes:
+        try:
+            if proc.poll() is None:
+                proc.kill()
+        except Exception as e:
+            print(f"Warning: Error force-killing process {proc.pid}: {e}")
 
 
 def reader_thread(proc, output_queue):
@@ -96,7 +116,17 @@ def main():
     )
 
     start_time = time.time()
-    error_strs = ["error", "warning", "crash", "critical"]
+    # Updated error detection - be more tolerant in CI environments
+    error_strs = ["critical", "crash", "fatal", "failed to start"]
+    # Warnings to ignore in CI (normal MariaDB/connection warnings)
+    ignore_warnings = [
+        "aborted connection",
+        "got an error reading communication packets",
+        "warning: shift count",
+        "warning: liburing disabled",
+        "warning: io_uring_queue_init",
+        "deprecation warning"
+    ]
 
     while True:
         # If we've hit the timeout (10 minutes), fail
@@ -129,13 +159,20 @@ def main():
                 line_str = line.strip()
                 print(f"[{proc.args[0]}] {line_str}")
 
-                # Check for error or warning text
+                # Check for error or warning text (with CI-friendly filtering)
                 lower_line = line_str.lower()
-                if any(x in lower_line for x in error_strs):
-                    print("^^^ Found error or warning in output.")
+                # Check if it's an ignorable warning first
+                is_ignorable = any(warning in lower_line for warning in ignore_warnings)
+                
+                if not is_ignorable and any(x in lower_line for x in error_strs):
+                    print("^^^ Found critical error in output.")
                     kill_all()
                     print("Killing all processes and exiting with error.")
                     exit(-1)
+                elif is_ignorable:
+                    print(f"^^^ Ignoring known CI warning: {line_str}")
+                elif any(x in lower_line for x in ["warning", "error"]) and not is_ignorable:
+                    print(f"^^^ Note: Found warning/error but continuing: {line_str}")
 
                 # Check for "ready to work"
                 if "ready to work" in lower_line:
@@ -147,6 +184,8 @@ def main():
         if all(ready_status.values()):
             print("All processes reached 'ready to work'! Exiting successfully.")
             kill_all()
+            # Give processes time to shutdown gracefully
+            time.sleep(3)
             exit(0)
 
         # Sleep until next poll

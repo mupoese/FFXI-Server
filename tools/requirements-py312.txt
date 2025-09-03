@@ -1,64 +1,64 @@
-# Python 3.12+ Optimized Requirements
-# Latest packages with Python 3.12 native support and performance optimizations
+# Python 3.9+ Compatible Requirements
+# Optimized packages with broad Python version support for CI stability
 
-# Database connectivity - Latest stable versions with Python 3.12 optimizations
+# Database connectivity - Stable versions with broad Python compatibility
 mariadb>=1.1.11
-mysql-connector-python>=9.2.0
+mysql-connector-python>=8.0.0  # Compatible with Python 3.9+
 
-# Version control and project management with Python 3.12 features
-gitpython>=3.1.45
-pyyaml>=6.0.2
+# Version control and project management with broad Python compatibility
+gitpython>=3.1.30  # Compatible with Python 3.9+
+pyyaml>=6.0
 
-# Modern code quality and linting tools optimized for Python 3.12
-pylint>=3.3.0
-black>=24.0.0,<25.0.0
-ruff>=0.8.2,<0.9.0  # Latest with Python 3.12+ performance optimizations
+# Modern code quality and linting tools with broader Python compatibility
+pylint>=3.0.0,<3.4.0  # Compatible with Python 3.9+
+black>=23.0.0,<25.0.0  # Compatible with Python 3.9+
+ruff>=0.6.0,<0.9.0  # Stable version with Python 3.9+ support
 isort>=5.13.0,<6.0.0
-mypy>=1.13.0,<1.14.0  # Latest with full Python 3.12+ support
-flake8>=7.0.0,<8.0.0
-bandit>=1.8.0,<1.9.0  # Latest security scanning with Python 3.12 support
+mypy>=1.0.0,<1.14.0  # Stable version with Python 3.9+ support
+flake8>=6.0.0,<8.0.0  # Compatible with Python 3.9+
+bandit>=1.7.0,<1.9.0  # Compatible with Python 3.9+
 
-# Latest pre-commit with Python 3.12 native support
-pre-commit>=4.0.0,<4.1.0
+# Modern pre-commit with broader Python compatibility
+pre-commit>=3.0.0,<4.1.0  # Compatible with Python 3.9+
 
-# Enhanced testing framework with Python 3.12 optimizations
-pytest>=8.3.0,<9.0.0  # Latest stable with Python 3.12+ features
-pytest-cov>=6.0.0,<7.0.0  # Updated for Python 3.12
+# Enhanced testing framework with Python 3.9+ compatibility
+pytest>=7.0.0,<9.0.0  # Stable with Python 3.9+ support
+pytest-cov>=4.0.0,<7.0.0  # Compatible with Python 3.9+
 
-# Latest documentation generation with Python 3.12+ features
-Sphinx>=8.1.0,<9.0.0  # Latest stable with Python 3.12 support
-sphinx-rtd-theme>=3.0.2,<4.0.0
+# Documentation generation with broader Python version compatibility
+Sphinx>=7.3.0,<8.1.0  # Compatible with Python 3.9+ for CI stability
+sphinx-rtd-theme>=2.0.0,<4.0.0
 
-# Enhanced security scanning with Python 3.12 compatibility
-pip-audit>=2.7.3
-safety>=3.6.0
+# Enhanced security scanning with Python 3.9+ compatibility
+pip-audit>=2.6.0  # Compatible with Python 3.9+
+safety>=2.3.0  # Compatible with Python 3.9+
 
-# Modern web framework with Python 3.12 support
-flask>=3.1.2
-werkzeug>=3.1.3
+# Modern web framework with Python 3.9+ compatibility
+flask>=2.0.0  # Compatible with Python 3.9+
+werkzeug>=2.0.0  # Compatible with Python 3.9+
 
-# Enhanced utility libraries with Python 3.12+ native features
-click>=8.2.0,<9.0.0  # Latest stable with Python 3.12+ optimizations
-rich>=14.0.0,<15.0.0  # Latest with enhanced Python 3.12+ features
+# Enhanced utility libraries with broader Python compatibility
+click>=8.0.0,<9.0.0  # Compatible with Python 3.9+
+rich>=12.0.0,<15.0.0  # Compatible with Python 3.9+
 tabulate>=0.9.0,<1.0.0
-requests>=2.32.3
-bcrypt>=4.2.1
+requests>=2.28.0  # Compatible with Python 3.9+
+bcrypt>=4.0.0  # Compatible with Python 3.9+
 colorama>=0.4.6
 
-# Performance monitoring with Python 3.12 optimizations
-psutil>=7.0.0
-memory-profiler>=0.61.0
+# Performance monitoring with Python 3.9+ compatibility
+psutil>=5.8.0  # Compatible with Python 3.9+
+memory-profiler>=0.60.0
 
-# Latest regex with Python 3.12+ performance improvements
-regex>=2024.11.0,<2025.12.0
+# Regex with Python 3.9+ compatibility
+regex>=2023.10.0,<2025.12.0  # Compatible with Python 3.9+
 
-# ZeroMQ messaging
-pyzmq>=26.0.0
+# ZeroMQ messaging with Python 3.9+ compatibility
+pyzmq>=24.0.0  # Compatible with Python 3.9+
 
 # Built-in argument parsing (included in Python 3.12)
 argparse
 
-# Additional Python 3.12 specific packages for enhanced performance
-# These packages have specific optimizations for Python 3.12
-orjson>=3.10.0  # Fast JSON library with Python 3.12 native performance
-uvloop>=0.21.0; sys_platform != "win32"  # High-performance event loop for non-Windows
+# Additional packages for enhanced compatibility
+# These packages have specific optimizations where available
+orjson>=3.8.0  # Fast JSON library with Python 3.9+ support
+uvloop>=0.17.0; sys_platform != "win32"  # High-performance event loop for non-Windows

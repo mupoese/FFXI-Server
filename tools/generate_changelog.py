@@ -65,13 +65,22 @@ def remove_real_names(authors):
             pass
 
 
+# Handle help command properly
+if len(sys.argv) > 1 and sys.argv[1] in ["--help", "-h", "help"]:
+    print("Usage:")
+    print(
+        "generate_changelog.py <days to generate, or 'ci'> "
+        "<repo owner name/repo name> <optional changelog title>"
+    )
+    sys.exit(0)
+
 if len(sys.argv) < 3:
     print("Usage:")
     print(
         "generate_changelog.py <days to generate, or 'ci'> "
         "<repo owner name/repo name> <optional changelog title>"
     )
-    sys.exit(-1)
+    sys.exit(1)
 
 length_days = days_since_last_run()
 if "ci" not in sys.argv[1]:

@@ -32,6 +32,8 @@ jobs:
           sudo apt-get install -y software-properties-common cmake libmariadb-dev-compat libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Comprehensive Python 3.12 Build Tests
+        env:
+          CI_BUILD_FAST: "true"  # Enable faster CI builds
         run: |
           echo "Running comprehensive Python 3.12 build test suite..."
           python3 tools/comprehensive_build_test.py --ci

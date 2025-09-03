@@ -31,7 +31,7 @@ namespace version
     // Git information (inline constexpr definitions)
     [[nodiscard]] constexpr std::string_view GetGitSha() noexcept
     {
-        return "5a6c88f6-dirty";
+        return "eb71fb42";
     }
     [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept
     {
@@ -39,11 +39,11 @@ namespace version
     }
     [[nodiscard]] constexpr std::string_view GetGitDate() noexcept
     {
-        return "Tue Sep 2 22:47:28 2025";
+        return "Wed Sep 3 12:33:43 2025";
     }
     [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept
     {
-        return "Initial plan";
+        return "Enforce Python 3.12+ across all build platforms and workflows";
     }
 
     // Enhanced version information

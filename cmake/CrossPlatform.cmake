@@ -80,11 +80,10 @@ function(apply_platform_optimizations target)
             )
         endif()
         
-        # Apple Silicon optimizations
+        # Apple Silicon optimizations (reduced for compatibility)
         if(XI_TARGET_ARCH STREQUAL "arm64")
             target_compile_options(${target} PRIVATE
-                -mcpu=apple-m1
-                -mtune=apple-m1
+                -mcpu=native
             )
         endif()
         

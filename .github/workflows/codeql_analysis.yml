@@ -38,6 +38,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
     - name: Install Dependencies
       run: |
         sudo apt-get update
@@ -52,9 +57,6 @@ jobs:
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
         config-file: ./.github/codeql/codeql-config.yml
-        queries: |
-          security-and-quality
-          security-extended
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)

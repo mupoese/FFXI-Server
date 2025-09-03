@@ -108,6 +108,14 @@ add_definitions(
     -DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG
 )
 
+# Additional sol workarounds for macOS compilation issues
+if(APPLE)
+    add_definitions(
+        -DSOL_USING_CXX_LUA=1
+        -DSOL_USING_CXX_LUAJIT=1
+    )
+endif()
+
 # For external libs
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 

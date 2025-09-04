@@ -750,9 +750,41 @@ jobs:
 
           printf "\nStart server processes\n"
           screen -d -m -S xi_connect ./xi_connect --log login-server.log
-          screen -d -m -S xi_search ./xi_search --log search-server.log
+          sleep 2
+          screen -d -m -S xi_search ./xi_search --log search-server.log  
+          sleep 2
           screen -d -m -S xi_map ./xi_map --log map-server.log
+          sleep 2
           screen -d -m -S xi_world ./xi_world --log world-server.log
+          sleep 10
+
+          printf "\nChecking if servers are still running...\n"
+          screen -list
+          
+          # Check if any processes died early
+          if ! screen -list | grep -q "xi_connect"; then
+              echo "ERROR: xi_connect died early"
+              cat login-server.log 2>/dev/null || echo "No login-server.log found"
+              exit 1
+          fi
+          
+          if ! screen -list | grep -q "xi_search"; then
+              echo "ERROR: xi_search died early"
+              cat search-server.log 2>/dev/null || echo "No search-server.log found"
+              exit 1
+          fi
+          
+          if ! screen -list | grep -q "xi_map"; then
+              echo "ERROR: xi_map died early"
+              cat map-server.log 2>/dev/null || echo "No map-server.log found"
+              exit 1
+          fi
+          
+          if ! screen -list | grep -q "xi_world"; then
+              echo "ERROR: xi_world died early"
+              cat world-server.log 2>/dev/null || echo "No world-server.log found"
+              exit 1
+          fi
 
           printf "\nWaiting 5m for servers to fully start up\n"
           sleep 300s
@@ -933,15 +965,9 @@ jobs:
           chmod +x xi_search
           chmod +x xi_world
           ls -l
-
-          printf "\nStart server processes\n"
-          screen -d -m -S xi_connect ./xi_connect --log login-server.log
-          screen -d -m -S xi_search ./xi_search --log search-server.log
-          screen -d -m -S xi_map ./xi_map --log map-server-0.log --ip 127.0.0.1 --port 54230
-          screen -d -m -S xi_map ./xi_map --log map-server-1.log --ip 127.0.0.1 --port 54231
-          screen -d -m -S xi_world ./xi_world --log world-server.log
-          sleep 300s
-          killall screen
+          
+          printf "\nRunning CI startup checks with Python script\n"
+          python3 ./tools/ci/startup_checks.py
       - name: Check for errors and warnings
         if: ${{ success() || failure() }}
         run: |

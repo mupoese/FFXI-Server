@@ -68,13 +68,13 @@ def main():
     # Start the processes
     processes = [
         subprocess.Popen(
-            ["xi_connect", "--log", "connect-server.log"],
+            ["xi_connect", "--ci", "--log", "connect-server.log"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
         ),
         subprocess.Popen(
-            ["xi_search", "--log", "search-server.log"],
+            ["xi_search", "--ci", "--log", "search-server.log"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -86,7 +86,7 @@ def main():
             text=True,
         ),
         subprocess.Popen(
-            ["xi_world", "--log", "world-server.log"],
+            ["xi_world", "--ci", "--log", "world-server.log"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,

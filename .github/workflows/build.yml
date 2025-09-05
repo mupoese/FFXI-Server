@@ -513,7 +513,7 @@ jobs:
             echo "cmake is already installed, uninstalling first..."
             brew uninstall cmake
           fi
-          brew install mariadb zeromq zmq luajit cmake ninja
+          brew install mariadb zeromq cppzmq luajit cmake ninja
       - name: Cache 'build' folder
         uses: actions/cache@v4
         with:
@@ -883,19 +883,19 @@ jobs:
           cat world-server*.log
 
           if grep -qi "warning\|error\|crash" login-server*.log; then
-              exit -1
+              exit 1
           fi
 
           if grep -qi "warning\|error\|crash" map-server*.log; then
-              exit -1
+              exit 1
           fi
 
           if grep -qi "warning\|error\|crash" search-server*.log; then
-              exit -1
+              exit 1
           fi
 
           if grep -qi "warning\|error\|crash" world-server*.log; then
-              exit -1
+              exit 1
           fi
 
   MultiInstance_Startup_Checks_Linux:
@@ -971,30 +971,25 @@ jobs:
       - name: Check for errors and warnings
         if: ${{ success() || failure() }}
         run: |
-          cat login-server*.log
+          cat connect-server*.log
           cat search-server*.log
-          cat map-server-0*.log
-          cat map-server-1*.log
+          cat map-server*.log
           cat world-server*.log
 
-          if grep -qi "warning\|error\|crash" login-server*.log; then
-              exit -1
+          if grep -qi "warning\|error\|crash" connect-server*.log; then
+              exit 1
           fi
 
           if grep -qi "warning\|error\|crash" search-server*.log; then
-              exit -1
+              exit 1
           fi
 
-          if grep -qi "warning\|error\|crash" map-server-0*.log; then
-              exit -1
-          fi
-
-          if grep -qi "warning\|error\|crash" map-server-1*.log; then
-            exit -1
+          if grep -qi "warning\|error\|crash" map-server*.log; then
+              exit 1
           fi
 
           if grep -qi "warning\|error\|crash" world-server*.log; then
-            exit -1
+            exit 1
           fi
 
   Full_Startup_Checks_Windows:

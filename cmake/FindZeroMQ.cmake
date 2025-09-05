@@ -61,6 +61,11 @@ find_path(ZeroMQ_INCLUDE_DIR
         /usr/local/include/
         /opt/include/)
 
+# If we found zmq.h in a zmq/ subdirectory, we need the parent for #include <zmq.hpp>
+if(ZeroMQ_INCLUDE_DIR MATCHES "zmq$")
+    get_filename_component(ZeroMQ_INCLUDE_DIR "${ZeroMQ_INCLUDE_DIR}/.." ABSOLUTE)
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ZeroMQ DEFAULT_MSG ZeroMQ_LIBRARY ZeroMQ_INCLUDE_DIR)
 
@@ -71,5 +76,6 @@ message(STATUS "ZeroMQ_INCLUDE_DIR: ${ZeroMQ_INCLUDE_DIR}")
 if (${ZeroMQ_FOUND})
     link_libraries(${ZeroMQ_LIBRARY})
     include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR})
-    include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR}/../)
+    # Also include the zmq subdirectory for direct access to zmq/* headers
+    include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR}/zmq)
 endif()

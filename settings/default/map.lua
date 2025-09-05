@@ -190,10 +190,11 @@ xi.settings.map =
 
     -- Modify ratio of subjob-to-mainjob
     -- 0            = no subjobs
-    -- 1            = 1/2   (default, 75/37, 99/49)
+    -- 1            = 1/2   (75/37, 99/49)
     -- 2            = 2/3   (75/50, 99/66)
     -- 3            = equal (75/75, 99/99)
-    SUBJOB_RATIO = 1,
+    -- 4            = progressive (50% until level 50, then scales to 75% at level 99: 50/25, 99/75)
+    SUBJOB_RATIO = 4,
 
     -- Also adjust monsters subjob in ratio adjustments? 1 = true / 0 = false
     INCLUDE_MOB_SJ = false,

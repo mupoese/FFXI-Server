@@ -1276,6 +1276,25 @@ void CBattleEntity::SetSLevel(uint8 slvl)
             case 3: // equal (75/75, 99/99)
                 m_slvl = (slvl > m_mlvl ? (m_mlvl == 1 ? 1 : m_mlvl) : slvl);
                 break;
+            case 4: // progressive: 50% until level 50, then scales to 75% at level 99 (50/25, 99/75)
+            {
+                uint8 maxSubLevel;
+                if (m_mlvl < 50)
+                {
+                    // Normal 50% ratio for levels 1-49
+                    maxSubLevel = (m_mlvl == 1 ? 1 : (m_mlvl >> 1));
+                }
+                else
+                {
+                    // Progressive scaling from level 50 onwards
+                    // Formula: 25 + ((mainlevel - 50) * 50) / 49
+                    // This gives us: level 50 = subjob 25, level 99 = subjob 75
+                    maxSubLevel = 25 + ((m_mlvl - 50) * 50) / 49;
+                    if (maxSubLevel > 75) maxSubLevel = 75; // Cap at 75
+                }
+                m_slvl = (slvl > maxSubLevel ? maxSubLevel : slvl);
+                break;
+            }
             default: // Error
                 ShowError("Error setting subjob level: Invalid ratio '%s' check your settings file!", ratio);
                 break;

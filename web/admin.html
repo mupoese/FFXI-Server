@@ -526,6 +526,7 @@
             <div class="tab" data-tab="gm-management">👑 GM Management</div>
             <div class="tab" data-tab="database">🗄️ Database</div>
             <div class="tab" data-tab="network">🌐 Network</div>
+            <div class="tab" data-tab="streaming">🎥 Streaming</div>
             <div class="tab" data-tab="logs">📝 Logs</div>
             <div class="tab" data-tab="settings">⚙️ Settings</div>
         </div>
@@ -1222,6 +1223,152 @@
             </div>
         </div>
 
+        <!-- Streaming Tab -->
+        <div id="streaming" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>🎥 Real-time Streaming Management</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-success" onclick="startEventStream()">🚀 Start Event Stream</button>
+                    <button class="btn btn-primary" onclick="refreshStreamingStatus()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>🎬 Active Streams</h3>
+                    <div class="metric-value" id="activeStreamsCount">0</div>
+                    <div class="metric-change" id="activeStreamsStatus">No active streams</div>
+                </div>
+                <div class="metric-card">
+                    <h3>👀 Total Viewers</h3>
+                    <div class="metric-value" id="totalViewers">0</div>
+                    <div class="metric-change" id="viewersChange">Across all platforms</div>
+                </div>
+                <div class="metric-card">
+                    <h3>📡 Renderer Status</h3>
+                    <div class="metric-value" id="rendererFPS">0 FPS</div>
+                    <div class="metric-change" id="rendererStatus">Initializing...</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🎮 Tracked Objects</h3>
+                    <div class="metric-value" id="trackedObjects">0</div>
+                    <div class="metric-change" id="trackedBreakdown">Players and mobs</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🌐 Streaming Platforms</h3>
+                    <button class="btn btn-success" onclick="showPlatformConfigModal()">➕ Add Platform</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Quality</th>
+                            <th>Viewers</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="streamingPlatformsTableBody">
+                        <tr>
+                            <td>YouTube Live</td>
+                            <td><span class="status-badge" style="background: var(--danger-color);">YouTube</span></td>
+                            <td><span class="status-badge offline">Offline</span></td>
+                            <td>1080p @ 6000kbps</td>
+                            <td>0</td>
+                            <td>
+                                <button class="btn btn-success" onclick="startStream('youtube')">▶️ Start</button>
+                                <button class="btn btn-secondary" onclick="configureStream('youtube')">⚙️ Config</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Twitch</td>
+                            <td><span class="status-badge" style="background: var(--info-color);">Twitch</span></td>
+                            <td><span class="status-badge offline">Offline</span></td>
+                            <td>1080p @ 6000kbps</td>
+                            <td>0</td>
+                            <td>
+                                <button class="btn btn-success" onclick="startStream('twitch')">▶️ Start</button>
+                                <button class="btn btn-secondary" onclick="configureStream('twitch')">⚙️ Config</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Facebook Gaming</td>
+                            <td><span class="status-badge" style="background: var(--primary-color);">Facebook</span></td>
+                            <td><span class="status-badge offline">Offline</span></td>
+                            <td>1080p @ 6000kbps</td>
+                            <td>0</td>
+                            <td>
+                                <button class="btn btn-success" onclick="startStream('facebook')">▶️ Start</button>
+                                <button class="btn btn-secondary" onclick="configureStream('facebook')">⚙️ Config</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🎪 Active Events & Demonstrations</h3>
+                    <button class="btn btn-primary" onclick="refreshActiveEvents()">🔄 Refresh</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Type</th>
+                            <th>GM</th>
+                            <th>Zone</th>
+                            <th>Started</th>
+                            <th>Platforms</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeEventsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted);">No active streaming events</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="monitoring-grid">
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h4>📊 Streaming Analytics</h4>
+                        <button class="btn btn-secondary" onclick="exportStreamingAnalytics()">📤 Export</button>
+                    </div>
+                    <div class="monitoring-content">
+                        <div style="height: 300px; background: var(--bg-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">📈</div>
+                                <div>Real-time streaming analytics</div>
+                                <div style="font-size: 0.8rem; margin-top: 5px;">Viewer count, engagement metrics</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h4>🎮 3D Renderer Preview</h4>
+                        <button class="btn btn-secondary" onclick="toggleRendererPreview()">👁️ Toggle</button>
+                    </div>
+                    <div class="monitoring-content">
+                        <div style="height: 300px; background: var(--bg-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">🎬</div>
+                                <div>Real-time 3D scene preview</div>
+                                <div style="font-size: 0.8rem; margin-top: 5px;">Live render output for streaming</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1710,6 +1857,293 @@
             window.dashboard.switchTab('gm-management');
             refreshGMAudit();
             showNotification('Viewing GM audit log', 'info');
+        }
+
+        // Streaming Management Functions
+        function refreshStreamingStatus() {
+            fetch('/api/streaming/status', {
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateStreamingDashboard(data);
+                showNotification('Streaming status refreshed', 'success');
+            })
+            .catch(error => {
+                console.error('Error fetching streaming status:', error);
+                showNotification('Failed to refresh streaming status', 'error');
+            });
+        }
+
+        function updateStreamingDashboard(status) {
+            // Update metrics
+            document.getElementById('activeStreamsCount').textContent = status.active_sessions || 0;
+            document.getElementById('totalViewers').textContent = status.total_viewers || 0;
+            document.getElementById('rendererFPS').textContent = `${status.renderer_fps || 0} FPS`;
+            document.getElementById('trackedObjects').textContent = (status.tracked_players || 0) + (status.tracked_mobs || 0);
+            
+            // Update status indicators
+            document.getElementById('activeStreamsStatus').textContent = 
+                status.active_sessions > 0 ? `${status.active_sessions} platforms streaming` : 'No active streams';
+            document.getElementById('rendererStatus').textContent = 
+                status.renderer_active ? 'Rendering active' : 'Renderer offline';
+            document.getElementById('trackedBreakdown').textContent = 
+                `${status.tracked_players || 0} players, ${status.tracked_mobs || 0} mobs`;
+            
+            // Update platforms table
+            updateStreamingPlatformsTable(status.platforms || {});
+        }
+
+        function updateStreamingPlatformsTable(platforms) {
+            const tbody = document.getElementById('streamingPlatformsTableBody');
+            tbody.innerHTML = '';
+            
+            Object.entries(platforms).forEach(([platformName, platform]) => {
+                const row = document.createElement('tr');
+                const isStreaming = platform.streaming || false;
+                const statusClass = isStreaming ? 'online' : 'offline';
+                const statusText = isStreaming ? 'Streaming' : 'Offline';
+                
+                row.innerHTML = `
+                    <td>${platform.name || platformName}</td>
+                    <td><span class="status-badge" style="background: ${getPlatformColor(platformName)};">${platform.platform_type || platformName}</span></td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${platform.quality || '1080p'} @ ${platform.bitrate || 6000}kbps</td>
+                    <td>${platform.viewers || 0}</td>
+                    <td>
+                        ${isStreaming ? 
+                            `<button class="btn btn-danger" onclick="stopStream('${platformName}')">⏹️ Stop</button>` :
+                            `<button class="btn btn-success" onclick="startStream('${platformName}')">▶️ Start</button>`
+                        }
+                        <button class="btn btn-secondary" onclick="configureStream('${platformName}')">⚙️ Config</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getPlatformColor(platformName) {
+            const colors = {
+                'youtube': '#FF0000',
+                'twitch': '#9146FF',
+                'facebook': '#1877F2',
+                'twitter': '#1DA1F2',
+                'tiktok': '#000000'
+            };
+            return colors[platformName.toLowerCase()] || 'var(--primary-color)';
+        }
+
+        function startStream(platformName) {
+            const title = prompt(`Enter stream title for ${platformName}:`, 'FFXI Server - Live GM Demonstration');
+            if (!title) return;
+            
+            const description = prompt('Enter stream description (optional):', 'Live demonstration and gameplay from FFXI server');
+            
+            fetch('/api/streaming/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                },
+                body: JSON.stringify({
+                    platform: platformName,
+                    title: title,
+                    description: description || '',
+                    auto_announce: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Stream started on ${platformName}`, 'success');
+                    refreshStreamingStatus();
+                } else {
+                    showNotification(data.error || `Failed to start stream on ${platformName}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting stream:', error);
+                showNotification(`Failed to start stream on ${platformName}`, 'error');
+            });
+        }
+
+        function stopStream(platformName) {
+            if (!confirm(`Are you sure you want to stop streaming to ${platformName}?`)) {
+                return;
+            }
+            
+            fetch(`/api/streaming/stop/${platformName}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Stream stopped on ${platformName}`, 'success');
+                    refreshStreamingStatus();
+                } else {
+                    showNotification(data.error || `Failed to stop stream on ${platformName}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error stopping stream:', error);
+                showNotification(`Failed to stop stream on ${platformName}`, 'error');
+            });
+        }
+
+        function configureStream(platformName) {
+            // Show platform configuration modal
+            const streamKey = prompt(`Enter stream key for ${platformName}:`, '');
+            if (!streamKey) return;
+            
+            const apiKey = prompt(`Enter API key for ${platformName} (optional):`, '');
+            
+            fetch(`/api/streaming/platforms/${platformName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                },
+                body: JSON.stringify({
+                    name: platformName,
+                    platform_type: platformName,
+                    enabled: true,
+                    stream_key: streamKey,
+                    api_key: apiKey || '',
+                    quality: '1080p',
+                    bitrate: 6000
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`${platformName} configuration updated`, 'success');
+                    refreshStreamingStatus();
+                } else {
+                    showNotification(data.error || `Failed to update ${platformName} configuration`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating platform config:', error);
+                showNotification(`Failed to update ${platformName} configuration`, 'error');
+            });
+        }
+
+        function startEventStream() {
+            const eventType = prompt('Enter event type:', 'gm_demonstration');
+            if (!eventType) return;
+            
+            const title = prompt('Enter event title:', 'GM Battle Demonstration');
+            if (!title) return;
+            
+            const description = prompt('Enter event description:', 'Live GM demonstration of combat mechanics');
+            const zoneId = parseInt(prompt('Enter zone ID:', '230')) || 230;
+            const gmName = prompt('Enter GM name:', 'GameMaster');
+            
+            fetch('/api/streaming/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                },
+                body: JSON.stringify({
+                    event_type: eventType,
+                    title: title,
+                    description: description || '',
+                    zone_id: zoneId,
+                    gm_name: gmName || '',
+                    platforms: ['youtube', 'twitch']
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Event stream started: ${title}`, 'success');
+                    refreshActiveEvents();
+                    refreshStreamingStatus();
+                } else {
+                    showNotification(data.error || 'Failed to start event stream', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting event stream:', error);
+                showNotification('Failed to start event stream', 'error');
+            });
+        }
+
+        function refreshActiveEvents() {
+            // This would fetch active events from the streaming API
+            showNotification('Active events refreshed', 'success');
+        }
+
+        function showPlatformConfigModal() {
+            const platformName = prompt('Enter platform name:', 'custom_platform');
+            if (!platformName) return;
+            
+            const platformType = prompt('Enter platform type (youtube/twitch/facebook/custom):', 'custom');
+            const rtmpUrl = prompt('Enter RTMP URL:', 'rtmp://live.example.com/live/');
+            
+            if (rtmpUrl) {
+                fetch(`/api/streaming/platforms/${platformName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                    },
+                    body: JSON.stringify({
+                        name: platformName,
+                        platform_type: platformType,
+                        enabled: true,
+                        rtmp_url: rtmpUrl,
+                        quality: '1080p',
+                        bitrate: 6000
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(`Platform ${platformName} added`, 'success');
+                        refreshStreamingStatus();
+                    } else {
+                        showNotification(data.error || `Failed to add platform ${platformName}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding platform:', error);
+                    showNotification(`Failed to add platform ${platformName}`, 'error');
+                });
+            }
+        }
+
+        function exportStreamingAnalytics() {
+            fetch('/api/streaming/analytics', {
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `streaming_analytics_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('Streaming analytics exported', 'success');
+            })
+            .catch(error => {
+                console.error('Error exporting analytics:', error);
+                showNotification('Failed to export analytics', 'error');
+            });
+        }
+
+        function toggleRendererPreview() {
+            showNotification('Renderer preview toggled', 'info');
         }
 
         // Initialize dashboard

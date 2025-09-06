@@ -33,7 +33,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck python3-tk luajit
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Comprehensive Python 3.12 Build Tests
         env:
@@ -41,12 +41,19 @@ jobs:
         run: |
           echo "Running comprehensive Python 3.12 build test suite..."
           python3 tools/comprehensive_build_test.py --ci
+      - name: Test Launcher Compilation with Fictive .env
+        env:
+          CI_BUILD_FAST: "true"
+        run: |
+          echo "Testing launcher compilation with fictive .env file..."
+          python3 tools/workflow_build_validator.py
       - name: Upload Comprehensive Test Results
         uses: actions/upload-artifact@v4
         with:
           name: comprehensive_build_test_results
           path: |
             comprehensive_build_test_report.json
+            workflow_build_validation_report.json
         if: always()
 
   Sanity_Checks:

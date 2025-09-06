@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "build_date": "/home/runner/work/FFXI-Server/FFXI-Server",
   "package_file": "TestWorkflowServer_Launcher.zip",
-  "size_mb": 0.0,
+  "size_mb": 10.5,
   "features": [
     "Server Authentication",
     "Real-time Status Monitoring",

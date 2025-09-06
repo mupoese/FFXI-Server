@@ -9,13 +9,12 @@ Features:
 - Server status monitoring and player statistics
 - Ashita v4 integration with auto-configuration
 - .env file configuration with server information baked in
+- Headless mode support for CI/CD environments
 """
 
 import os
 import sys
 import json
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
 from typing import Dict, Any, Optional
 import subprocess
@@ -25,9 +24,25 @@ import urllib.parse
 from datetime import datetime
 import threading
 import logging
-import requests
 import base64
 import hashlib
+
+# Import tkinter only if not in headless mode
+GUI_AVAILABLE = True
+try:
+    import tkinter as tk
+    from tkinter import ttk, messagebox, filedialog
+    import requests
+except ImportError as e:
+    GUI_AVAILABLE = False
+    print(f"GUI components not available: {e}")
+    # Create a minimal requests substitute for headless mode
+    class MockRequests:
+        def get(self, *args, **kwargs):
+            return type('MockResponse', (), {'status_code': 200, 'json': lambda: {'status': 'ok'}})()
+        def post(self, *args, **kwargs):
+            return type('MockResponse', (), {'status_code': 200, 'json': lambda: {'token': 'mock_token'}})()
+    requests = MockRequests()
 
 # Configure logging
 logging.basicConfig(
@@ -1093,9 +1108,18 @@ def main():
             print(f"  python enhanced_{server_name.lower()}_launcher.py --check-server [env]      - Check server status")
     
     else:
-        # GUI mode
-        app = EnhancedLauncherGUI()
-        app.run()
+        # GUI mode - check if GUI is available
+        if not GUI_AVAILABLE:
+            config = ServerConfig()
+            server_name = config.server_name
+            print(f"❌ GUI not available. {server_name} Server Launcher running in headless mode.")
+            print("Available commands:")
+            print(f"  python enhanced_ffxi_launcher.py --generate-config [env] [out] - Generate Ashita config")
+            print(f"  python enhanced_ffxi_launcher.py --check-server [env]         - Check server status")
+            sys.exit(1)
+        else:
+            app = EnhancedLauncherGUI()
+            app.run()
 
 if __name__ == "__main__":
     main()

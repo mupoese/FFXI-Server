@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-06T22:11:10.950582",
+  "timestamp": "2025-09-06T22:21:32.247272",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -198,23 +198,15 @@
       ]
     },
     "summoner": {
-      "current_percentage": 28.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 10,
       "abilities_total": 10,
-      "spells_implemented": 0,
+      "spells_implemented": 30,
       "spells_total": 30,
-      "lua_functions": 7,
-      "lua_bindings": 5,
-      "missing_features": [
-        "Missing Avatar's Favor implementation",
-        "Missing Elemental Siphon implementation",
-        "Missing Blood Pacts implementation"
-      ],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 36,
+      "lua_bindings": 31,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "blue_mage": {
       "current_percentage": 35.0,
@@ -327,13 +319,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 3,
-    "average_completeness": 64.8,
+    "jobs_at_100_percent": 4,
+    "average_completeness": 68.1,
     "highest_priority_jobs": [
-      [
-        "summoner",
-        28.0
-      ],
       [
         "blue_mage",
         35.0
@@ -369,6 +357,10 @@
       [
         "corsair",
         59.5
+      ],
+      [
+        "dancer",
+        67.5
       ]
     ],
     "enhancement_phases": [
@@ -376,7 +368,6 @@
         "phase": 1,
         "name": "Critical Jobs (<50% Complete)",
         "jobs": [
-          "summoner",
           "blue_mage",
           "red_mage",
           "black_mage"

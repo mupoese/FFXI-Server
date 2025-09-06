@@ -353,7 +353,24 @@ auto LoadTrust(CCharEntity* PMaster, uint32 TrustID) -> CTrustEntity*
 
     // assume level matches master
     PTrust->SetMLevel(PMaster->GetMLevel());
-    PTrust->SetSLevel(std::floor(PMaster->GetMLevel() / 2));
+    
+    // Use progressive subjob level calculation to match the new system
+    uint8 masterLevel = PMaster->GetMLevel();
+    uint8 trustSubLevel;
+    if (masterLevel < 50)
+    {
+        // Normal 50% ratio for levels 1-49
+        trustSubLevel = (masterLevel == 1 ? 1 : (masterLevel / 2));
+    }
+    else
+    {
+        // Progressive scaling from level 50 onwards
+        // Formula: 25 + ((mainlevel - 50) * 50) / 49
+        // This gives us: level 50 = subjob 25, level 99 = subjob 75
+        trustSubLevel = 25 + ((masterLevel - 50) * 50) / 49;
+        if (trustSubLevel > 75) trustSubLevel = 75; // Cap at 75
+    }
+    PTrust->SetSLevel(trustSubLevel);
 
     LoadTrustStatsAndSkills(PTrust);
 

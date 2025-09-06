@@ -51,7 +51,7 @@ namespace loginHelpers
         SCARS_OF_ABYSSEA        = 0x0200,
         HEROES_OF_ABYSSEA       = 0x0400,
         SEEKERS_OF_ADOULIN      = 0x0800,
-        UNUSED_EXPANSION_1      = 0x1000,
+        RHAPSODIES_OF_VANADIEL  = 0x1000,
         UNUSED_EXPANSION_2      = 0x2000,
         UNUSED_EXPANSION_3      = 0x4000,
         UNUSED_EXPANSION_4      = 0x8000,

@@ -819,6 +819,220 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
+# GM Management Endpoints
+@app.route('/api/gm/accounts', methods=['GET'])
+@require_auth
+def get_gm_accounts():
+    """Get list of GM accounts"""
+    try:
+        query = """
+        SELECT 
+            a.id,
+            a.login,
+            a.priv as account_priv,
+            c.charname,
+            c.gmlevel,
+            c.charid,
+            CASE 
+                WHEN a.login = %s THEN 1 
+                ELSE 0 
+            END as is_owner
+        FROM accounts a
+        LEFT JOIN chars c ON a.id = c.accid
+        WHERE a.priv > 1 OR c.gmlevel > 0
+        ORDER BY a.priv DESC, c.gmlevel DESC, a.login
+        """
+        
+        # Get server owner from environment or default
+        server_owner = os.environ.get('FFXI_SERVER_OWNER', 'admin')
+        
+        accounts = execute_query(query, (server_owner,))
+        
+        return jsonify({
+            'gm_accounts': accounts,
+            'server_owner': server_owner,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get GM accounts: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gm/promote', methods=['POST'])
+@require_auth
+def promote_gm():
+    """Promote user to GM level - Admin Dashboard Exclusive"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request data required'}), 400
+        
+        target_login = data.get('login')
+        target_level = data.get('gmlevel', 0)
+        promoter_id = g.user_id
+        
+        if not target_login:
+            return jsonify({'error': 'Target login required'}), 400
+        
+        if target_level < 0 or target_level > 5:
+            return jsonify({'error': 'GM level must be between 0 and 5'}), 400
+        
+        # Check if promoter is server owner
+        server_owner = os.environ.get('FFXI_SERVER_OWNER', 'admin')
+        if promoter_id != server_owner:
+            return jsonify({'error': 'Only the server owner can promote GMs'}), 403
+        
+        # Prevent demoting the server owner
+        if target_login == server_owner and target_level < 5:
+            return jsonify({'error': 'Server owner cannot be demoted below level 5'}), 403
+        
+        # Get target account information
+        account_query = "SELECT id, login, priv FROM accounts WHERE login = %s"
+        account_result = execute_query(account_query, (target_login,))
+        
+        if not account_result:
+            return jsonify({'error': 'Account not found'}), 404
+        
+        target_account = account_result[0]
+        account_id = target_account['id']
+        
+        # Update account privilege level (for web access)
+        account_priv = max(2, target_level) if target_level > 0 else 1
+        update_account_query = "UPDATE accounts SET priv = %s WHERE id = %s"
+        execute_query(update_account_query, (account_priv, account_id))
+        
+        # Update character GM level
+        char_query = "SELECT charid, charname FROM chars WHERE accid = %s LIMIT 1"
+        char_result = execute_query(char_query, (account_id,))
+        
+        if char_result:
+            char_id = char_result[0]['charid']
+            char_name = char_result[0]['charname']
+            
+            update_char_query = "UPDATE chars SET gmlevel = %s WHERE charid = %s"
+            execute_query(update_char_query, (target_level, char_id))
+        else:
+            char_name = target_login
+        
+        # Log the promotion in audit table
+        audit_query = """
+        INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+        VALUES (NOW(), %s, 'ADMIN_PROMOTE', %s)
+        """
+        audit_message = f"Admin promotion: {target_login} to level {target_level} by {promoter_id}"
+        execute_query(audit_query, (promoter_id, audit_message))
+        
+        logger.info(f"GM promotion: {target_login} promoted to level {target_level} by {promoter_id}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully promoted {target_login} to GM level {target_level}',
+            'target': {
+                'login': target_login,
+                'character': char_name,
+                'gmlevel': target_level,
+                'account_priv': account_priv
+            },
+            'promoter': promoter_id,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to promote GM: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gm/revoke', methods=['POST'])
+@require_auth
+def revoke_gm():
+    """Revoke GM privileges - Admin Dashboard Exclusive"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request data required'}), 400
+        
+        target_login = data.get('login')
+        promoter_id = g.user_id
+        
+        if not target_login:
+            return jsonify({'error': 'Target login required'}), 400
+        
+        # Check if promoter is server owner
+        server_owner = os.environ.get('FFXI_SERVER_OWNER', 'admin')
+        if promoter_id != server_owner:
+            return jsonify({'error': 'Only the server owner can revoke GM privileges'}), 403
+        
+        # Prevent revoking the server owner
+        if target_login == server_owner:
+            return jsonify({'error': 'Server owner privileges cannot be revoked'}), 403
+        
+        # Get target account
+        account_query = "SELECT id FROM accounts WHERE login = %s"
+        account_result = execute_query(account_query, (target_login,))
+        
+        if not account_result:
+            return jsonify({'error': 'Account not found'}), 404
+        
+        account_id = account_result[0]['id']
+        
+        # Revoke privileges
+        execute_query("UPDATE accounts SET priv = 1 WHERE id = %s", (account_id,))
+        execute_query("UPDATE chars SET gmlevel = 0 WHERE accid = %s", (account_id,))
+        
+        # Log the revocation
+        audit_query = """
+        INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+        VALUES (NOW(), %s, 'ADMIN_REVOKE', %s)
+        """
+        audit_message = f"Admin revocation: {target_login} GM privileges revoked by {promoter_id}"
+        execute_query(audit_query, (promoter_id, audit_message))
+        
+        logger.info(f"GM revocation: {target_login} privileges revoked by {promoter_id}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully revoked GM privileges for {target_login}',
+            'target': target_login,
+            'promoter': promoter_id,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to revoke GM: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gm/audit', methods=['GET'])
+@require_auth
+def get_gm_audit_log():
+    """Get GM command audit log"""
+    try:
+        # Check if user is server owner
+        server_owner = os.environ.get('FFXI_SERVER_OWNER', 'admin')
+        if g.user_id != server_owner:
+            return jsonify({'error': 'Only the server owner can view audit logs'}), 403
+        
+        limit = min(int(request.args.get('limit', 50)), 100)
+        
+        query = """
+        SELECT date_time, gm_name, command, full_string
+        FROM audit_gm
+        ORDER BY date_time DESC
+        LIMIT %s
+        """
+        
+        audit_logs = execute_query(query, (limit,))
+        
+        return jsonify({
+            'audit_logs': audit_logs,
+            'count': len(audit_logs),
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get audit log: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # Main application
 if __name__ == '__main__':
     logger.info("Starting FFXI Server Management API")

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-FFXI Client Update Manager
-Enhanced with PlayOnline manifest integration for comprehensive client file management
+Dynamic Server Client Update Manager
+Enhanced with content manifest integration for comprehensive client file management
 
 This tool provides server administrators with complete control over client updates,
-file validation, and content delivery using the original PlayOnline architecture.
+file validation, and content delivery with configurable server branding.
 """
 
 import os
@@ -16,6 +16,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
+
+# Get configurable server name
+SERVER_NAME = os.environ.get('SERVERNAME', 'FFXI')
 
 try:
     import mysql.connector
@@ -38,24 +41,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class ClientUpdateManager:
-    """Manages FFXI client updates using PlayOnline manifest data"""
+    """Manages client updates with configurable server branding"""
     
     def __init__(self, config_file: Optional[str] = None):
+        self.server_name = SERVER_NAME
         self.config = self.load_config(config_file)
         self.db_pool = self.init_database()
         self.squareenix_path = self.config.get('squareenix_path', 'SquareEnix')
         self.parser = None
         
     def load_config(self, config_file: Optional[str]) -> Dict:
-        """Load configuration from file or environment"""
+        """Load configuration from file or environment with configurable server name"""
         config = {
-            'db_host': os.environ.get('FFXI_SQL_HOST', 'localhost'),
-            'db_port': int(os.environ.get('FFXI_SQL_PORT', 3306)),
-            'db_user': os.environ.get('FFXI_SQL_LOGIN', 'xiuser'),
-            'db_password': os.environ.get('FFXI_SQL_PASSWORD', 'xiserver_2024'),
-            'db_database': os.environ.get('FFXI_SQL_DATABASE', 'xidb'),
+            'db_host': os.environ.get(f'{SERVER_NAME}_SQL_HOST', 'localhost'),
+            'db_port': int(os.environ.get(f'{SERVER_NAME}_SQL_PORT', 3306)),
+            'db_user': os.environ.get(f'{SERVER_NAME}_SQL_LOGIN', 'xiuser'),
+            'db_password': os.environ.get(f'{SERVER_NAME}_SQL_PASSWORD', 'xiserver_2024'),
+            'db_database': os.environ.get(f'{SERVER_NAME}_SQL_DATABASE', 'xidb'),
+            'server_name': SERVER_NAME,
             'squareenix_path': 'SquareEnix',
-            'content_path': '/opt/ffxi/client_content',
+            'content_path': f'/opt/{SERVER_NAME.lower()}/client_content',
             'enable_downloads': True,
             'max_concurrent_downloads': 10,
             'bandwidth_limit_mbps': 100

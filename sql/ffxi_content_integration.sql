@@ -1,6 +1,7 @@
--- FFXI Content Management Schema
--- Integration script for FFXI server database
+-- Dynamic Server Content Management Schema
+-- Integration script for configurable server database
 -- Inspired by content delivery systems for client-server communication
+-- Note: Uses 'ffxi' prefix for compatibility, but system adapts to any SERVERNAME via application layer
 
 -- FFXI client file manifest table
 CREATE TABLE IF NOT EXISTS ffxi_client_manifest (

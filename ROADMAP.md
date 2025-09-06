@@ -173,8 +173,8 @@ This roadmap outlines the comprehensive development journey of the FFXI-Server (
 
 ---
 
-## 🔄 **CURRENT ITERATION 7: Job System Excellence**
-*Timeline: Q3 2026 - Q1 2027* | **Status: 67% Complete**
+## ✅ **ITERATION 7: Job System Excellence** ✅ **COMPLETED**
+*Timeline: Q3 2026 - Q1 2027* | **Status: 100% Complete**
 
 ### ✅ Completed Components
 - [x] **Critical Job System Foundation** (Phase 9 - Q1 2026)
@@ -185,23 +185,42 @@ This roadmap outlines the comprehensive development journey of the FFXI-Server (
   - 200+ spells audited and validated (98% retail accuracy)
   - Advanced Trust AI coordination (92% party efficiency)
   - Complete elemental resistance and affinity system
-
-### 🔄 In Progress
-- [ ] **Job-Specific System Implementation** (Phase 11 - Q3 2026)
-  - [ ] Blue Mage system completion (Clear Mind, Azure Lore, spell learning)
-  - [ ] Red Mage abilities (Composure accuracy, enspell mechanics)
-  - [ ] Dancer flourish system (Striking Flourish, step mechanics)
-
-### 📋 Planned Next
-- [ ] **Combat System Foundation** (Phase 12 - Q4 2026)
-  - [ ] Weaponskill system overhaul and damage calculations
-  - [ ] Auto-attack system migration to Lua
-  - [ ] Combat mechanics and enmity system corrections
+- [x] **Job-Specific System Implementation** (Phase 11 - Q3 2026)
+  - [x] Blue Mage system completion (Clear Mind, Azure Lore, spell learning)
+  - [x] Red Mage abilities (Composure accuracy, enspell mechanics)
+  - [x] Dancer flourish system (Striking Flourish, step mechanics)
 
 ---
 
-## 📋 **ITERATION 8: Advanced Systems & Polish**
-*Timeline: Q1-Q2 2027* | **Status: Planned**
+## 🔄 **CURRENT ITERATION 8: Combat System Foundation**
+*Timeline: Q4 2026 - Q2 2027* | **Status: 15% Complete**
+
+### ✅ Completed Components
+- [x] **System Architecture Analysis** (Phase 12.1 - Q4 2026)
+  - Complete combat system audit and documentation
+  - Weaponskill damage calculation validation
+  - Auto-attack system architecture review
+
+### 🔄 In Progress  
+- [ ] **Weaponskill System Overhaul** (Phase 12.2 - Q1 2027)
+  - [ ] Enhanced weaponskill damage calculation accuracy
+  - [ ] Retail-accurate fTP and WSC implementation
+  - [ ] Cross-job weaponskill balance validation
+
+### 📋 Planned Next
+- [ ] **Auto-Attack Migration to Lua** (Phase 12.3 - Q1 2027)
+  - [ ] Auto-attack timing and damage logic migration
+  - [ ] Multi-attack system enhancement (DA/TA/QA)
+  - [ ] Hand-to-hand combat system improvements
+- [ ] **Combat Mechanics Refinement** (Phase 12.4 - Q2 2027)
+  - [ ] Enmity system accuracy improvements
+  - [ ] Combat status effect interactions
+  - [ ] Level correction and accuracy formulas
+
+---
+
+## 📋 **ITERATION 9: Advanced Systems & Polish**
+*Timeline: Q3-Q4 2027* | **Status: Planned**
 
 ### 📋 Advanced Systems
 - [ ] **Pet System Enhancements**
@@ -225,8 +244,8 @@ This roadmap outlines the comprehensive development journey of the FFXI-Server (
 
 ---
 
-## 🚀 **ITERATION 9: Ecosystem & Innovation**
-*Timeline: Q3 2027+* | **Status: Strategic Planning**
+## 🚀 **ITERATION 10: Ecosystem & Innovation**
+*Timeline: Q1 2028+* | **Status: Strategic Planning**
 
 ### 🎯 Cross-Server Communication
 - [ ] Inter-server messaging infrastructure

@@ -45,4 +45,12 @@ namespace jailutils
 
     void Add(CCharEntity* PChar);
     void Del(CCharEntity* PChar);
+    
+    // AI-GM Enhanced Functions
+    void JailPlayer(CCharEntity* PChar, uint8 cellId = 1, const std::string& reason = "Automated moderation");
+    void PardonPlayer(CCharEntity* PChar);
+    bool IsPlayerJailed(uint32 playerId);
+    void SetJailDuration(CCharEntity* PChar, uint32 minutes);
+    uint32 GetJailTimeRemaining(const CCharEntity* PChar);
+    void NotifyGMsOfJailing(const std::string& playerName, const std::string& reason);
 }; // namespace jailutils

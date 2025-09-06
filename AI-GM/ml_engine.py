@@ -497,6 +497,230 @@ class AIGMMLEngine:
         except Exception as e:
             self.logger.error(f"Error learning from interaction: {e}")
     
+    def start_learning_session(self, session_data: Dict):
+        """Start a new GM learning session"""
+        try:
+            self.gm_learning_session = {
+                'session_id': f"gm_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                'start_time': datetime.now(),
+                'session_data': session_data,
+                'actions_learned': 0,
+                'patterns_identified': []
+            }
+            
+            self.logger.info(f"Started GM learning session: {self.gm_learning_session['session_id']}")
+            
+        except Exception as e:
+            self.logger.error(f"Error starting GM learning session: {e}")
+    
+    def learn_from_gm_interaction(self, action_data: Dict, context_data: Dict, learning_data: Dict):
+        """Learn from a specific GM action"""
+        try:
+            if not hasattr(self, 'gm_learning_session'):
+                return
+            
+            # Process the GM action for learning
+            learning_example = {
+                'gm_name': action_data.get('gm_name'),
+                'action_type': learning_data.get('action_type'),
+                'severity_handling': learning_data.get('severity_handling'),
+                'context': context_data,
+                'timestamp': action_data.get('timestamp'),
+                'escalation_pattern': learning_data.get('escalation_pattern'),
+                'server_state': context_data.get('server_load', {}),
+                'outcome_type': 'human_gm_decision'
+            }
+            
+            # Add to learning cache
+            self.data_cache.append(learning_example)
+            self.gm_learning_session['actions_learned'] += 1
+            
+            # Identify patterns
+            pattern = self._identify_gm_action_pattern(learning_example)
+            if pattern:
+                self.gm_learning_session['patterns_identified'].append(pattern)
+            
+            # Update models incrementally if possible
+            if self.gm_learning_session['actions_learned'] % 10 == 0:
+                self._update_models_incrementally()
+            
+            self.logger.debug(f"Learned from GM action: {action_data.get('command')} (session: {self.gm_learning_session['actions_learned']} actions)")
+            
+        except Exception as e:
+            self.logger.error(f"Error learning from GM interaction: {e}")
+    
+    def predict_action(self, incident, warning_count: int, autonomous_mode: bool = True):
+        """Predict the best action based on learned patterns from GMs"""
+        try:
+            if not self.models:
+                return None
+            
+            # Create feature vector for action prediction
+            features = {
+                'severity': self._severity_to_numeric(incident.severity),
+                'warning_count': warning_count,
+                'incident_type': self._incident_type_to_numeric(incident.incident_type),
+                'autonomous_mode': 1 if autonomous_mode else 0,
+                'time_of_day': datetime.now().hour,
+                'day_of_week': datetime.now().weekday()
+            }
+            
+            # Use learned patterns to predict action
+            if hasattr(self, 'gm_learning_session') and self.gm_learning_session.get('patterns_identified'):
+                action = self._predict_action_from_patterns(features, incident)
+                if action:
+                    return action
+            
+            # Fallback to default ML prediction
+            return self._predict_action_ml(features, autonomous_mode)
+            
+        except Exception as e:
+            self.logger.error(f"Error predicting action: {e}")
+            return None
+    
+    def _identify_gm_action_pattern(self, learning_example: Dict) -> Optional[Dict]:
+        """Identify patterns from GM actions"""
+        try:
+            pattern = {
+                'action_type': learning_example.get('action_type'),
+                'severity': learning_example.get('severity_handling'),
+                'context_server_load': learning_example.get('context', {}).get('server_load', {}),
+                'escalation_immediate': learning_example.get('escalation_pattern', {}).get('immediate_action', False),
+                'time_pattern': {
+                    'hour': learning_example.get('timestamp', datetime.now()).hour,
+                    'day_of_week': learning_example.get('timestamp', datetime.now()).weekday()
+                }
+            }
+            
+            return pattern
+            
+        except Exception as e:
+            self.logger.error(f"Error identifying GM action pattern: {e}")
+            return None
+    
+    def _predict_action_from_patterns(self, features: Dict, incident) -> Optional[str]:
+        """Predict action based on learned GM patterns"""
+        try:
+            if not hasattr(self, 'gm_learning_session'):
+                return None
+            
+            patterns = self.gm_learning_session.get('patterns_identified', [])
+            if not patterns:
+                return None
+            
+            # Find matching patterns
+            matching_patterns = []
+            for pattern in patterns:
+                if (pattern.get('severity') == features.get('severity') or 
+                    pattern.get('action_type') == self._incident_type_to_action_type(incident.incident_type)):
+                    matching_patterns.append(pattern)
+            
+            if matching_patterns:
+                # Return the most common action from matching patterns
+                most_common_pattern = max(matching_patterns, key=lambda p: patterns.count(p))
+                return self._pattern_to_action(most_common_pattern, features.get('autonomous_mode', 1))
+            
+            return None
+            
+        except Exception as e:
+            self.logger.error(f"Error predicting action from patterns: {e}")
+            return None
+    
+    def _predict_action_ml(self, features: Dict, autonomous_mode: bool):
+        """Use ML models to predict action"""
+        # This is a simplified implementation - in practice you'd use trained models
+        severity = features.get('severity', 0)
+        warning_count = features.get('warning_count', 0)
+        
+        from ai_gm_service import AIGMAction  # Import here to avoid circular import
+        
+        if autonomous_mode:
+            # More aggressive in autonomous mode
+            if severity >= 4:
+                return AIGMAction.JAIL
+            elif severity >= 3:
+                return AIGMAction.TEMP_JAIL
+            elif warning_count >= 1:
+                return AIGMAction.TEMP_JAIL
+            else:
+                return AIGMAction.WARN
+        else:
+            # Conservative in learning mode
+            if severity >= 4:
+                return AIGMAction.ESCALATE_GM3
+            elif severity >= 3:
+                return AIGMAction.ESCALATE_GM2
+            else:
+                return AIGMAction.WARN
+    
+    def _severity_to_numeric(self, severity) -> int:
+        """Convert severity to numeric value"""
+        severity_map = {
+            'info': 1,
+            'warning': 2,
+            'moderate': 3,
+            'severe': 4,
+            'critical': 5
+        }
+        return severity_map.get(str(severity).lower(), 1)
+    
+    def _incident_type_to_numeric(self, incident_type: str) -> int:
+        """Convert incident type to numeric value"""
+        incident_map = {
+            'stuck_player': 1,
+            'suspicious_login': 2,
+            'long_jail_time': 3,
+            'extended_death': 4,
+            'ml_anomaly_detected': 5,
+            'ml_behavior_classification': 6
+        }
+        return incident_map.get(incident_type, 0)
+    
+    def _incident_type_to_action_type(self, incident_type: str) -> str:
+        """Map incident type to action type"""
+        mapping = {
+            'stuck_player': 'assistance',
+            'suspicious_login': 'disciplinary',
+            'long_jail_time': 'administrative',
+            'extended_death': 'assistance',
+            'ml_anomaly_detected': 'disciplinary',
+            'ml_behavior_classification': 'disciplinary'
+        }
+        return mapping.get(incident_type, 'other')
+    
+    def _pattern_to_action(self, pattern: Dict, autonomous_mode: int):
+        """Convert a learned pattern to an action"""
+        from ai_gm_service import AIGMAction  # Import here to avoid circular import
+        
+        action_type = pattern.get('action_type', 'other')
+        escalation_immediate = pattern.get('escalation_immediate', False)
+        
+        if action_type == 'disciplinary':
+            if escalation_immediate:
+                return AIGMAction.TEMP_JAIL if autonomous_mode else AIGMAction.ESCALATE_GM2
+            else:
+                return AIGMAction.WARN
+        elif action_type == 'assistance':
+            return AIGMAction.WARN
+        elif action_type == 'administrative':
+            return AIGMAction.ESCALATE_GM2 if not autonomous_mode else AIGMAction.TEMP_JAIL
+        else:
+            return AIGMAction.WARN
+    
+    def _update_models_incrementally(self):
+        """Update models incrementally with new data"""
+        try:
+            if len(self.data_cache) < 5:  # Need minimum data for updates
+                return
+            
+            self.logger.debug(f"Incrementally updating models with {len(self.data_cache)} new examples")
+            
+            # This is a simplified implementation - in practice you'd do incremental learning
+            # For now, we just validate the new data and prepare it for next full retraining
+            
+        except Exception as e:
+            self.logger.error(f"Error in incremental model update: {e}")
+    
     def _retrain_models(self):
         """Retrain models with new data"""
         try:

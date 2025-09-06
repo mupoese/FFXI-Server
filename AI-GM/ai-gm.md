@@ -6,12 +6,23 @@ The AI-GM (Artificial Intelligence Game Master) system is an experimental automa
 
 ## Key Features
 
-### 🧠 **NEW: Machine Learning Engine**
+### 🧠 **ENHANCED: Machine Learning Engine with Adaptive Operation**
 - **Cross-Platform GPU/NPU Support**: NVIDIA CUDA, AMD ROCm, Intel OpenVINO, Apple Metal
 - **Real-Time Behavior Analysis**: Advanced anomaly detection and behavior classification
 - **Continuous Learning**: AI learns from server interactions and GM decisions
 - **Hardware Auto-Detection**: Automatically selects best available acceleration
 - **Predictive Moderation**: Proactive identification of potential issues
+- **Adaptive Operation**: Intelligent switching between autonomous and learning modes
+- **GM Pattern Recognition**: Learning from human GM actions and decision patterns
+- **Context-Aware Decisions**: Server load and state consideration in all decisions
+
+### 🤖 **ENHANCED: Autonomous & Learning Operation**
+- **Autonomous Mode**: When no human GMs are available, AI-GM operates independently with enhanced decision-making authority
+- **Learning Mode**: When human GMs are online, AI-GM observes their actions and learns from their expertise
+- **Adaptive Thresholds**: Decision-making thresholds adjust based on GM availability and learned patterns
+- **Smart Escalation**: Intelligent escalation that considers current GM availability and server context
+- **Pattern Application**: Applies learned GM patterns during autonomous operation for consistency
+- **Real-Time GM Detection**: Continuous monitoring of online GM availability to switch modes appropriately
 
 ### ⚔️ **NEW: Battle Test System**
 - **GM Battle Testing**: Spawn mobs and test combat mechanics in controlled environments
@@ -20,11 +31,14 @@ The AI-GM (Artificial Intelligence Game Master) system is an experimental automa
 - **Demo Mode**: GMs can show combat mechanics to players in need
 - **Multi-Config Support**: Quick, standard, advanced, and endgame test configurations
 
-### 🤖 Enhanced Automated Moderation
+### 🤖 **ENHANCED: Smart Automated Moderation**
+- **Adaptive Behavior**: Decision-making adapts based on whether human GMs are available
+- **Autonomous Operations**: Enhanced authority when no GMs online - immediate problem resolution
+- **Learning Integration**: Observes and learns from human GM actions when they are available  
 - **Behavior Analysis**: ML-powered continuous monitoring of player activities and behavior patterns
 - **Problem Detection**: Advanced automatic identification of stuck players, suspicious activities, and rule violations
 - **Disciplinary Actions**: Intelligent automated warnings, temporary jailing, and escalation procedures
-- **Smart Resolution**: Context-aware decision making with ML-enhanced accuracy
+- **Smart Resolution**: Context-aware decision making with ML-enhanced accuracy and learned GM patterns
 
 ### 💬 Advanced Player Communication
 - **Direct Messaging**: AI-GM can communicate directly with players through in-game messages
@@ -94,6 +108,59 @@ Expanded administrative control system featuring:
 - Hardware acceleration status and optimization
 - Player assistance request handling
 - Advanced system diagnostics and analytics
+
+## **NEW: Adaptive Operation Modes**
+
+### Autonomous Mode (No Human GMs Available)
+When the system detects no human GMs are online, it switches to **Autonomous Mode**:
+
+- **Enhanced Authority**: AI-GM takes direct action on violations without waiting for escalation
+- **Aggressive Thresholds**: Lower warning thresholds and faster progression to disciplinary actions
+- **Comprehensive Coverage**: Handles all incident types from minor assistance to critical violations
+- **Immediate Resolution**: Focuses on rapid problem containment and server stability
+- **Server Responsibility**: Acts as the primary moderation authority when human oversight unavailable
+
+**Example Autonomous Decisions:**
+```
+WARNING incidents → Immediate temp jail (30 minutes)
+MODERATE incidents → Temp jail or indefinite jail based on history
+SEVERE incidents → Immediate indefinite jail + admin notification
+CRITICAL incidents → Immediate containment + emergency admin alert
+```
+
+### Learning Mode (Human GMs Available)  
+When human GMs are detected online, the system switches to **Learning Mode**:
+
+- **Conservative Actions**: Prefers warnings and escalation over immediate punishment
+- **GM Observation**: Monitors all human GM actions and decisions in real-time
+- **Pattern Recognition**: Analyzes timing, severity assessment, and escalation patterns
+- **Context Learning**: Learns the relationship between server state and GM decisions
+- **Knowledge Building**: Builds decision-making models for future autonomous operation
+
+**Example Learning Mode Decisions:**
+```
+WARNING incidents → Warning message + escalate to GM Level 2
+MODERATE incidents → Warning + escalate to GM Level 2  
+SEVERE incidents → Escalate to GM Level 3
+CRITICAL incidents → Notify admin + escalate to GM Level 3
+```
+
+### Learning from Human GM Actions
+The AI-GM continuously observes and learns from human GM interactions:
+
+- **Action Classification**: Categorizes GM commands (disciplinary, communication, assistance, educational)
+- **Severity Analysis**: Learns how human GMs assess incident severity levels
+- **Escalation Patterns**: Studies when GMs escalate vs. handle situations directly
+- **Context Correlation**: Links GM decisions to server load, time of day, and player history
+- **Decision Modeling**: Builds predictive models of GM decision-making patterns
+
+### Real-Time Mode Switching
+The system continuously monitors GM availability and adjusts behavior:
+
+- **GM Detection**: Queries database every 2 minutes for online GMs (Level 2+)
+- **Seamless Transitions**: Automatically switches modes when GM availability changes
+- **Session Tracking**: Maintains learning sessions with comprehensive action logs
+- **Status Logging**: Regular status updates showing current mode and GM count
 
 ## **NEW: Hardware Requirements and Cross-Platform Support**
 

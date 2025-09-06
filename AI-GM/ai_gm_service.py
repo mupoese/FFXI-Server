@@ -111,6 +111,12 @@ class AIGMConfig:
     battle_test_enabled: bool = True
     auto_assist_enabled: bool = True
     demo_sessions_enabled: bool = True
+    
+    # Autonomous operation settings
+    autonomous_mode_enabled: bool = True
+    gm_learning_enabled: bool = True
+    autonomy_level_adjustment: bool = True
+    min_gm_level_for_learning: int = 2
 
 class AIGMService:
     """Main AI-GM service class"""
@@ -121,6 +127,15 @@ class AIGMService:
         self.db_pool = None
         self.incident_history: List[PlayerIncident] = []
         self.player_warnings: Dict[int, int] = {}
+        
+        # GM availability tracking
+        self.online_gms: List[Dict[str, Any]] = []
+        self.gm_availability_last_check = datetime.now()
+        self.autonomous_mode = True  # Start in autonomous mode until GMs are detected
+        
+        # Learning from GM interactions
+        self.gm_actions_history: List[Dict[str, Any]] = []
+        self.learning_session_active = False
         
         # Initialize ML Engine
         self.ml_engine = None
@@ -191,7 +206,7 @@ class AIGMService:
         """Get a database connection from the pool"""
         return self.db_pool.get_connection()
     
-    def execute_query(self, query: str, params: tuple = None) -> List[Dict]:
+    def execute_query(self, query: str, params: tuple = None, fetch_all: bool = True, fetch_one: bool = False) -> List[Dict]:
         """Execute a database query and return results"""
         try:
             with self.get_db_connection() as conn:
@@ -202,14 +217,18 @@ class AIGMService:
                     cursor.execute(query)
                 
                 if query.strip().upper().startswith('SELECT'):
-                    return cursor.fetchall()
+                    if fetch_one:
+                        result = cursor.fetchone()
+                        return result if result else {}
+                    else:
+                        return cursor.fetchall()
                 else:
                     conn.commit()
                     return []
                     
         except Exception as e:
             self.logger.error(f"Database query failed: {e}")
-            return []
+            return [] if not fetch_one else {}
     
     def monitor_player_behavior(self):
         """Monitor player behavior for problematic activities"""
@@ -304,17 +323,73 @@ class AIGMService:
             self.execute_action(incident, action)
     
     def determine_action(self, incident: PlayerIncident) -> Optional[AIGMAction]:
-        """Determine the appropriate action for an incident"""
+        """Determine the appropriate action for an incident with adaptive behavior based on GM availability"""
         warning_count = self.player_warnings.get(incident.player_id, 0)
         
-        # Simple rule-based decision making
+        # Adjust decision-making based on GM availability
+        if self.autonomous_mode:
+            # More proactive when no human GMs available
+            return self._determine_autonomous_action(incident, warning_count)
+        else:
+            # More conservative when human GMs are available (learning mode)
+            return self._determine_learning_mode_action(incident, warning_count)
+    
+    def _determine_autonomous_action(self, incident: PlayerIncident, warning_count: int) -> Optional[AIGMAction]:
+        """Determine action when operating autonomously (no human GMs available)"""
+        
+        # Use ML engine predictions if available
+        if self.ml_engine and self.config.ml_enabled:
+            ml_action = self.ml_engine.predict_action(incident, warning_count, autonomous_mode=True)
+            if ml_action:
+                return ml_action
+        
+        # Enhanced autonomous decision-making
+        if incident.severity == AIGMSeverity.INFO:
+            if incident.incident_type == "stuck_player":
+                return AIGMAction.WARN  # Auto-resolve with warning
+        
+        elif incident.severity == AIGMSeverity.WARNING:
+            if warning_count >= 1:  # Lower threshold in autonomous mode
+                return AIGMAction.TEMP_JAIL
+            else:
+                return AIGMAction.WARN
+        
+        elif incident.severity == AIGMSeverity.MODERATE:
+            if warning_count >= 1:  # More aggressive in autonomous mode
+                return AIGMAction.TEMP_JAIL
+            else:
+                return AIGMAction.WARN
+        
+        elif incident.severity == AIGMSeverity.SEVERE:
+            # Handle more severe cases autonomously when no GMs available
+            if warning_count >= 2:
+                return AIGMAction.JAIL  # Indefinite jail
+            else:
+                return AIGMAction.TEMP_JAIL
+        
+        elif incident.severity == AIGMSeverity.CRITICAL:
+            # Still escalate critical issues, but also take immediate action
+            return AIGMAction.JAIL  # Immediate containment while notifying admin
+        
+        return None
+    
+    def _determine_learning_mode_action(self, incident: PlayerIncident, warning_count: int) -> Optional[AIGMAction]:
+        """Determine action when human GMs are available (learning mode)"""
+        
+        # Use ML engine predictions if available (but be more conservative)
+        if self.ml_engine and self.config.ml_enabled:
+            ml_action = self.ml_engine.predict_action(incident, warning_count, autonomous_mode=False)
+            if ml_action:
+                return ml_action
+        
+        # Conservative decision-making when GMs are available
         if incident.severity == AIGMSeverity.INFO:
             if incident.incident_type == "stuck_player":
                 return AIGMAction.WARN
         
         elif incident.severity == AIGMSeverity.WARNING:
             if warning_count >= self.config.escalation_threshold:
-                return AIGMAction.TEMP_JAIL
+                return AIGMAction.ESCALATE_GM2  # Escalate instead of auto-jail
             else:
                 return AIGMAction.WARN
         
@@ -322,7 +397,7 @@ class AIGMService:
             if warning_count >= 2:
                 return AIGMAction.ESCALATE_GM2
             else:
-                return AIGMAction.TEMP_JAIL
+                return AIGMAction.WARN
         
         elif incident.severity == AIGMSeverity.SEVERE:
             return AIGMAction.ESCALATE_GM3
@@ -764,7 +839,16 @@ class AIGMService:
         return status
     
     async def run_monitoring_cycle(self):
-        """Run one monitoring cycle with ML enhancement"""
+        """Run one monitoring cycle with adaptive behavior based on GM availability"""
+        
+        # Check GM availability first to adjust behavior mode
+        await self._check_gm_availability()
+        
+        # Monitor GM actions if in learning mode
+        if self.learning_session_active:
+            await self._monitor_gm_actions()
+        
+        # Standard monitoring
         self.monitor_player_behavior()
         self.check_scheduled_releases()
         
@@ -775,6 +859,29 @@ class AIGMService:
         # Check for pending assist requests if battle system is available
         if self.battle_system and self.config.auto_assist_enabled:
             await self._process_pending_assist_requests()
+        
+        # Log current operational mode periodically
+        if hasattr(self, '_last_mode_log'):
+            if (datetime.now() - self._last_mode_log).total_seconds() > 600:  # Every 10 minutes
+                self._log_operational_status()
+        else:
+            self._log_operational_status()
+    
+    def _log_operational_status(self):
+        """Log current operational status"""
+        self._last_mode_log = datetime.now()
+        
+        mode = "AUTONOMOUS" if self.autonomous_mode else "LEARNING"
+        gm_count = len(self.online_gms)
+        recent_incidents = len([i for i in self.incident_history if (datetime.now() - i.timestamp).total_seconds() < 3600])
+        
+        status_msg = f"AI-GM Status: {mode} mode | {gm_count} GMs online | {recent_incidents} incidents last hour"
+        
+        if self.learning_session_active:
+            gm_actions_learned = len(self.gm_actions_history)
+            status_msg += f" | Learning: {gm_actions_learned} GM actions observed"
+        
+        self.logger.info(status_msg)
     
     async def _run_ml_enhanced_monitoring(self):
         """Run ML-enhanced player behavior monitoring"""
@@ -865,6 +972,266 @@ class AIGMService:
         except Exception as e:
             self.logger.error(f"Error processing assist requests: {e}")
     
+    async def _check_gm_availability(self):
+        """Check for online human GMs and adjust AI-GM behavior accordingly"""
+        try:
+            current_time = datetime.now()
+            
+            # Check GM availability every 2 minutes
+            if (current_time - self.gm_availability_last_check).total_seconds() < 120:
+                return
+            
+            self.gm_availability_last_check = current_time
+            
+            # Query for online GMs
+            online_gms = self.execute_query("""
+                SELECT DISTINCT c.charid, c.charname, c.gmlevel, 
+                       c.pos_zone, c.pos_x, c.pos_y, c.pos_z,
+                       TIMESTAMPDIFF(MINUTE, s.last_zoneout_time, NOW()) as minutes_online
+                FROM chars c
+                JOIN accounts_sessions s ON c.charid = s.charid
+                WHERE c.gmlevel >= %s 
+                AND TIMESTAMPDIFF(MINUTE, s.last_zoneout_time, NOW()) <= 5
+                ORDER BY c.gmlevel DESC, minutes_online DESC
+            """, (self.config.min_gm_level_for_learning,), fetch_all=True)
+            
+            previous_gm_count = len(self.online_gms)
+            self.online_gms = online_gms or []
+            current_gm_count = len(self.online_gms)
+            
+            # Determine if we should be in autonomous mode
+            previous_autonomous = self.autonomous_mode
+            self.autonomous_mode = current_gm_count == 0
+            
+            # Log mode changes
+            if previous_autonomous != self.autonomous_mode:
+                if self.autonomous_mode:
+                    self.logger.info(f"Switched to AUTONOMOUS MODE - No human GMs online (was {previous_gm_count} GMs)")
+                    self.learning_session_active = False
+                else:
+                    self.logger.info(f"Switched to LEARNING MODE - {current_gm_count} human GMs online")
+                    if self.config.gm_learning_enabled:
+                        self.learning_session_active = True
+                        self._start_gm_learning_session()
+            
+            # Log current GM status
+            if current_gm_count > 0:
+                gm_names = [f"{gm['charname']} (Level {gm['gmlevel']})" for gm in self.online_gms]
+                self.logger.debug(f"Online GMs: {', '.join(gm_names)}")
+                
+        except Exception as e:
+            self.logger.error(f"Error checking GM availability: {e}")
+    
+    def _start_gm_learning_session(self):
+        """Start a new GM learning session"""
+        try:
+            if not self.ml_engine:
+                return
+            
+            self.logger.info("Starting GM learning session - observing human GM actions")
+            
+            # Clear previous session data
+            self.gm_actions_history = []
+            
+            # Initialize learning session in ML engine
+            self.ml_engine.start_learning_session({
+                'session_start': datetime.now().isoformat(),
+                'online_gms': self.online_gms,
+                'learning_mode': 'human_gm_observation'
+            })
+            
+        except Exception as e:
+            self.logger.error(f"Error starting GM learning session: {e}")
+    
+    async def _monitor_gm_actions(self):
+        """Monitor and learn from human GM actions"""
+        try:
+            if not self.learning_session_active or not self.ml_engine:
+                return
+            
+            # Query recent GM actions from audit table
+            recent_actions = self.execute_query("""
+                SELECT date_time, gm_name, command, full_string
+                FROM audit_gm 
+                WHERE date_time >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+                AND gm_name != %s
+                ORDER BY date_time DESC
+                LIMIT 50
+            """, (self.config.gm_name,), fetch_all=True)
+            
+            if not recent_actions:
+                return
+            
+            # Process each GM action for learning
+            for action in recent_actions:
+                # Check if this action is new (not already processed)
+                action_id = f"{action['date_time']}_{action['gm_name']}_{action['command']}"
+                
+                if not any(existing['action_id'] == action_id for existing in self.gm_actions_history):
+                    gm_action_data = {
+                        'action_id': action_id,
+                        'timestamp': action['date_time'],
+                        'gm_name': action['gm_name'],
+                        'command': action['command'],
+                        'full_string': action['full_string'],
+                        'context': await self._get_action_context(action)
+                    }
+                    
+                    self.gm_actions_history.append(gm_action_data)
+                    
+                    # Learn from this GM action
+                    await self._learn_from_gm_action(gm_action_data)
+            
+        except Exception as e:
+            self.logger.error(f"Error monitoring GM actions: {e}")
+    
+    async def _get_action_context(self, action: Dict[str, Any]) -> Dict[str, Any]:
+        """Get context information for a GM action"""
+        try:
+            context = {
+                'server_load': await self._get_server_load(),
+                'active_incidents': len([i for i in self.incident_history if (datetime.now() - i.timestamp).total_seconds() < 3600]),
+                'time_of_day': action['date_time'].strftime('%H:%M'),
+                'day_of_week': action['date_time'].strftime('%A')
+            }
+            
+            # Extract player information if available in the command
+            command_str = action.get('full_string', '')
+            if 'player' in command_str.lower() or any(char.isalpha() for char in command_str):
+                # Try to extract player name from command
+                words = command_str.split()
+                for word in words:
+                    if len(word) > 2 and word.isalpha():
+                        player_info = self.execute_query("""
+                            SELECT charid, charname, gmlevel, pos_zone, nation
+                            FROM chars 
+                            WHERE charname LIKE %s
+                            LIMIT 1
+                        """, (f"%{word}%",), fetch_one=True)
+                        
+                        if player_info:
+                            context['target_player'] = {
+                                'charid': player_info['charid'],
+                                'charname': player_info['charname'],
+                                'zone': player_info['pos_zone'],
+                                'nation': player_info['nation']
+                            }
+                            break
+            
+            return context
+            
+        except Exception as e:
+            self.logger.error(f"Error getting action context: {e}")
+            return {}
+    
+    async def _get_server_load(self) -> Dict[str, Any]:
+        """Get current server load metrics"""
+        try:
+            # Get player count
+            player_count = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM accounts_sessions s
+                JOIN chars c ON s.charid = c.charid
+                WHERE c.gmlevel = 0
+            """, fetch_one=True)
+            
+            # Get recent incident count
+            recent_incidents = len([i for i in self.incident_history if (datetime.now() - i.timestamp).total_seconds() < 1800])
+            
+            return {
+                'player_count': player_count['count'] if player_count else 0,
+                'recent_incidents': recent_incidents,
+                'ai_gm_actions_last_hour': len([i for i in self.incident_history if i.auto_resolved and (datetime.now() - i.timestamp).total_seconds() < 3600])
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error getting server load: {e}")
+            return {'player_count': 0, 'recent_incidents': 0, 'ai_gm_actions_last_hour': 0}
+    
+    async def _learn_from_gm_action(self, gm_action: Dict[str, Any]):
+        """Learn from a specific GM action"""
+        try:
+            if not self.ml_engine:
+                return
+            
+            command = gm_action.get('command', '').lower()
+            context = gm_action.get('context', {})
+            
+            # Classify the GM action type and extract learning data
+            learning_data = {
+                'action_type': self._classify_gm_action(command),
+                'severity_handling': self._extract_severity_from_action(gm_action),
+                'timing': context.get('time_of_day'),
+                'server_state': context.get('server_load', {}),
+                'escalation_pattern': self._analyze_escalation_pattern(gm_action),
+                'outcome': 'human_gm_action'  # This is a human GM decision
+            }
+            
+            # Feed this data to the ML engine for learning
+            self.ml_engine.learn_from_gm_interaction(
+                action_data=gm_action,
+                context_data=context,
+                learning_data=learning_data
+            )
+            
+            self.logger.debug(f"Learned from GM action: {command} by {gm_action.get('gm_name')}")
+            
+        except Exception as e:
+            self.logger.error(f"Error learning from GM action: {e}")
+    
+    def _classify_gm_action(self, command: str) -> str:
+        """Classify the type of GM action"""
+        if any(word in command for word in ['jail', 'ban', 'kick']):
+            return 'disciplinary'
+        elif any(word in command for word in ['warn', 'message', 'tell']):
+            return 'communication'
+        elif any(word in command for word in ['warp', 'teleport', 'goto']):
+            return 'assistance'
+        elif any(word in command for word in ['spawn', 'item', 'give']):
+            return 'administrative'
+        elif any(word in command for word in ['battle', 'test', 'demo']):
+            return 'educational'
+        else:
+            return 'other'
+    
+    def _extract_severity_from_action(self, gm_action: Dict[str, Any]) -> str:
+        """Extract the severity level implied by the GM action"""
+        command = gm_action.get('command', '').lower()
+        full_string = gm_action.get('full_string', '').lower()
+        
+        if any(word in command for word in ['ban', 'severe']):
+            return 'severe'
+        elif any(word in command for word in ['jail', 'moderate']):
+            return 'moderate'
+        elif any(word in command for word in ['warn', 'caution']):
+            return 'warning'
+        elif any(word in full_string for word in ['emergency', 'urgent', 'critical']):
+            return 'critical'
+        else:
+            return 'info'
+    
+    def _analyze_escalation_pattern(self, gm_action: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze the escalation pattern from the GM action"""
+        return {
+            'immediate_action': 'jail' in gm_action.get('command', '').lower(),
+            'warning_first': 'warn' in gm_action.get('command', '').lower(),
+            'escalation_level': self._determine_escalation_level(gm_action),
+            'human_intervention': True
+        }
+    
+    def _determine_escalation_level(self, gm_action: Dict[str, Any]) -> int:
+        """Determine the escalation level from GM action"""
+        command = gm_action.get('command', '').lower()
+        
+        if any(word in command for word in ['ban', 'severe']):
+            return 4
+        elif any(word in command for word in ['jail', 'kick']):
+            return 3
+        elif any(word in command for word in ['warn', 'message']):
+            return 2
+        else:
+            return 1
+    
     async def start(self):
         """Start the AI-GM service"""
         if not self.initialize():
@@ -887,6 +1254,70 @@ class AIGMService:
         
         self.logger.info("AI-GM Service stopped")
         return True
+    
+    def _fetch_historical_player_data(self) -> List[Dict]:
+        """Fetch historical player data for ML training"""
+        try:
+            # Get recent player behavior data
+            historical_data = self.execute_query("""
+                SELECT c.charid, c.charname, c.pos_zone, c.pos_x, c.pos_y, c.pos_z,
+                       c.hp, c.maxhp, c.mp, c.maxmp, c.mjob, c.mlvl,
+                       COALESCE(cv_jail.value, 0) as jail_history,
+                       COALESCE(cv_death.value, 0) as death_count,
+                       UNIX_TIMESTAMP(c.last_update) as last_update_ts
+                FROM chars c
+                LEFT JOIN char_vars cv_jail ON c.charid = cv_jail.charid AND cv_jail.varname = 'jailHistory'
+                LEFT JOIN char_vars cv_death ON c.charid = cv_death.charid AND cv_death.varname = 'deathCount'
+                WHERE c.last_update >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                LIMIT 1000
+            """, fetch_all=True)
+            
+            return historical_data
+            
+        except Exception as e:
+            self.logger.error(f"Error fetching historical data: {e}")
+            return []
+    
+    def _train_ml_models_with_data(self, historical_data: List[Dict]):
+        """Train ML models with historical data"""
+        try:
+            if not self.ml_engine or not historical_data:
+                return
+            
+            # Convert to format suitable for ML training
+            training_data = []
+            for player_data in historical_data:
+                # Create synthetic outcomes based on historical patterns
+                outcome = 'normal'
+                if player_data.get('jail_history', 0) > 0:
+                    outcome = 'violation'
+                elif player_data.get('death_count', 0) > 10:
+                    outcome = 'concerning'
+                
+                training_example = {
+                    **player_data,
+                    'outcome': outcome
+                }
+                training_data.append(training_example)
+            
+            # Train models
+            self.ml_engine.train_models(training_data)
+            self.logger.info(f"Trained ML models with {len(training_data)} historical examples")
+            
+        except Exception as e:
+            self.logger.error(f"Error training ML models: {e}")
+    
+    def _analyze_player_with_ml(self, player_data: Dict) -> Optional[Dict]:
+        """Analyze a player using ML models"""
+        try:
+            if not self.ml_engine:
+                return None
+            
+            return self.ml_engine.predict_player_behavior(player_data)
+            
+        except Exception as e:
+            self.logger.error(f"Error analyzing player with ML: {e}")
+            return None
     
     def stop(self):
         """Stop the AI-GM service"""

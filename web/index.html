@@ -206,6 +206,232 @@
             display: block;
         }
 
+        /* Launcher Section */
+        .launcher-section {
+            background: var(--bg-medium);
+            padding: 4rem 0;
+            margin: 4rem 0;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        .launcher-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .launcher-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launcher-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .launcher-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .launcher-card h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .launcher-card p {
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .launcher-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding: 0.3rem 0;
+        }
+
+        .launcher-stats {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .launcher-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .download-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .download-btn.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .download-btn.primary:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+
+        .download-btn.secondary {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .download-btn.secondary:hover {
+            background: var(--border-color);
+        }
+
+        .launcher-instructions h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .setup-steps {
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .step-content p {
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .config-example {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .config-example h4 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .config-example pre {
+            background: var(--bg-medium);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .config-example code {
+            color: var(--text-light);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .launcher-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .launcher-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .launcher-actions {
+                flex-direction: column;
+            }
+        }
+
         /* Footer with Server Status */
         .footer {
             background: var(--secondary-color);
@@ -440,18 +666,109 @@
             </div>
             <div class="feature-card">
                 <span class="feature-icon">📦</span>
-                <h3>PlayOnline Integration</h3>
-                <p>Complete client file management system with automatic updates, integrity validation, and multi-language support based on original PlayOnline architecture.</p>
+                <h3>FFXI Content System</h3>
+                <p>Complete client file management system with automatic updates, integrity validation, and multi-language support based on proven content delivery architecture.</p>
             </div>
             <div class="feature-card">
                 <span class="feature-icon">🔄</span>
                 <h3>Client Updates</h3>
-                <p>Automated client file validation and updates with 2,469 tracked files totaling 536.8 MB of content from the original PlayOnline manifests.</p>
+                <p>Automated client file validation and updates with 2,469 tracked files totaling 536.8 MB of content from comprehensive content manifests.</p>
             </div>
             <div class="feature-card">
                 <span class="feature-icon">🌍</span>
                 <h3>Multi-Language Support</h3>
                 <p>Full localization support for German, English, and French clients with separate content delivery and language-specific file management.</p>
+            </div>
+        </section>
+
+        <!-- FFXI Launcher Download Section -->
+        <section class="launcher-section">
+            <div class="section-header">
+                <h2>🚀 FFXI Launcher Download</h2>
+                <p>Advanced launcher with Ashita v4 integration and .env configuration support</p>
+            </div>
+            
+            <div class="launcher-content">
+                <div class="launcher-info">
+                    <div class="launcher-card">
+                        <div class="launcher-icon">📱</div>
+                        <h3>FFXI Server Launcher</h3>
+                        <p>Complete launcher solution with GUI and CLI interfaces, automatic configuration generation, and server status checking.</p>
+                        
+                        <div class="launcher-features">
+                            <div class="feature-item">✅ Ashita v4 Integration</div>
+                            <div class="feature-item">✅ .env Configuration Support</div>
+                            <div class="feature-item">✅ Server Status Checking</div>
+                            <div class="feature-item">✅ Client Validation</div>
+                            <div class="feature-item">✅ Auto-Update Support</div>
+                            <div class="feature-item">✅ GUI and CLI Modes</div>
+                        </div>
+                        
+                        <div class="launcher-stats" id="launcherStats">
+                            <div class="stat-item">
+                                <span class="stat-label">Version:</span>
+                                <span class="stat-value" id="launcherVersion">1.0.0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Size:</span>
+                                <span class="stat-value" id="launcherSize">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Updated:</span>
+                                <span class="stat-value" id="launcherUpdated">--</span>
+                            </div>
+                        </div>
+                        
+                        <div class="launcher-actions">
+                            <button class="download-btn primary" id="downloadLauncher" onclick="downloadLauncher()">
+                                <span class="btn-icon">⬇️</span>
+                                Download Launcher
+                            </button>
+                            <button class="download-btn secondary" onclick="showLauncherRequirements()">
+                                <span class="btn-icon">ℹ️</span>
+                                Requirements
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="launcher-instructions">
+                    <h3>📋 Quick Setup Guide</h3>
+                    <div class="setup-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Download & Extract</h4>
+                                <p>Download the launcher package and extract to your preferred location</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Configure Server</h4>
+                                <p>Copy <code>.env.example</code> to <code>.env</code> and edit server settings</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Launch Client</h4>
+                                <p>Run <code>FFXI_Launcher.exe</code> and connect to the server</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="config-example">
+                        <h4>📝 Example Configuration</h4>
+                        <pre><code># .env file example
+FFXI_SERVER_NAME=Your Server Name
+FFXI_SERVER_HOST=your.server.com
+FFXI_LOGIN_PORT=54001
+FFXI_MAP_PORT=54230
+FFXI_SEARCH_PORT=54002
+FFXI_CLIENT_PATH=C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XI</code></pre>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -498,15 +815,15 @@
                         </div>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">PlayOnline Files</span>
-                        <div class="status-value" id="playonlineFiles">--</div>
+                        <span class="status-label">Content Files</span>
+                        <div class="status-value" id="contentFiles">--</div>
                     </div>
                 </div>
                 
                 <div class="server-links">
                     <a href="admin.html" class="server-link">📊 Admin Dashboard</a>
                     <a href="#client-update" class="server-link">📦 Client Updates</a>
-                    <a href="#playonline-status" class="server-link">🎮 PlayOnline Status</a>
+                    <a href="#ffxi-content-status" class="server-link">🎮 Content System</a>
                     <a href="http://localhost:3000" target="_blank" class="server-link">📈 Grafana Monitoring</a>
                     <a href="http://localhost:9090" target="_blank" class="server-link">🎯 Prometheus Metrics</a>
                     <a href="http://localhost:8080" target="_blank" class="server-link">🗄️ Database Admin</a>
@@ -551,7 +868,7 @@
                     ]);
 
                     this.updateStatusDisplay(statusData, metricsData);
-                    this.updatePlayOnlineStatus();
+                    this.updateContentStatus();
                 } catch (error) {
                     console.error('Failed to update server status:', error);
                     this.showErrorState();
@@ -640,8 +957,8 @@
                 document.getElementById('playersOnline').textContent = statusData.players.online || statusData.players;
                 document.getElementById('serverUptime').textContent = statusData.server.uptime;
                 
-                // Update PlayOnline Files count
-                document.getElementById('playonlineFiles').textContent = '2,469 files';
+                // Update Content Files count
+                document.getElementById('contentFiles').textContent = '2,469 files';
                 
                 // Update response time in a new location or keep existing
                 const responseTimeEl = document.getElementById('responseTime');
@@ -702,9 +1019,9 @@
                 document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
             }
 
-            async updatePlayOnlineStatus() {
+            async updateContentStatus() {
                 try {
-                    const response = await fetch('/api/playonline/updates/available', {
+                    const response = await fetch('/api/ffxi/updates/available', {
                         headers: {
                             'Authorization': 'Bearer ' + this.getAuthToken()
                         }
@@ -730,7 +1047,7 @@
                         clientUpdatesEl.className = 'status-value status-online';
                     }
                 } catch (error) {
-                    console.error('Failed to check PlayOnline status:', error);
+                    console.error('Failed to check content system status:', error);
                     // Set fallback status
                     const clientUpdatesEl = document.getElementById('clientUpdates');
                     clientUpdatesEl.innerHTML = '<span class="status-indicator online"></span>Ready';
@@ -742,7 +1059,130 @@
         // Initialize monitoring when page loads
         document.addEventListener('DOMContentLoaded', () => {
             new ServerMonitor();
+            loadLauncherInfo();
         });
+
+        // Launcher functionality
+        async function loadLauncherInfo() {
+            try {
+                const response = await fetch('/downloads/launcher_info.json');
+                if (response.ok) {
+                    const info = await response.json();
+                    document.getElementById('launcherVersion').textContent = info.version || '1.0.0';
+                    document.getElementById('launcherSize').textContent = formatFileSize(info.size || 0);
+                    document.getElementById('launcherUpdated').textContent = formatDate(info.created);
+                    return true;
+                }
+            } catch (error) {
+                console.log('Launcher info not available:', error);
+            }
+            return false;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        async function downloadLauncher() {
+            const downloadBtn = document.getElementById('downloadLauncher');
+            const originalText = downloadBtn.innerHTML;
+            
+            try {
+                downloadBtn.innerHTML = '<span class="btn-icon">⏳</span>Preparing Download...';
+                downloadBtn.disabled = true;
+                
+                // Check if launcher package exists
+                const response = await fetch('/downloads/FFXI_Launcher.zip', { method: 'HEAD' });
+                
+                if (response.ok) {
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.href = '/downloads/FFXI_Launcher.zip';
+                    link.download = 'FFXI_Launcher.zip';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    downloadBtn.innerHTML = '<span class="btn-icon">✅</span>Downloaded!';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error('Launcher package not found');
+                }
+            } catch (error) {
+                console.error('Download failed:', error);
+                downloadBtn.innerHTML = '<span class="btn-icon">❌</span>Download Failed';
+                
+                // Show build launcher option
+                const buildMessage = 'Launcher not built yet. Building now...';
+                downloadBtn.innerHTML = '<span class="btn-icon">🔧</span>' + buildMessage;
+                
+                try {
+                    // Try to trigger launcher build
+                    const buildResponse = await fetch('/api/build-launcher', { method: 'POST' });
+                    if (buildResponse.ok) {
+                        downloadBtn.innerHTML = '<span class="btn-icon">⏳</span>Building...';
+                        
+                        // Poll for build completion
+                        let attempts = 0;
+                        const checkBuild = setInterval(async () => {
+                            attempts++;
+                            const checkResponse = await fetch('/downloads/FFXI_Launcher.zip', { method: 'HEAD' });
+                            
+                            if (checkResponse.ok) {
+                                clearInterval(checkBuild);
+                                downloadBtn.innerHTML = '<span class="btn-icon">✅</span>Ready! Click to Download';
+                                downloadBtn.disabled = false;
+                            } else if (attempts > 30) { // 30 seconds timeout
+                                clearInterval(checkBuild);
+                                downloadBtn.innerHTML = '<span class="btn-icon">❌</span>Build Timeout';
+                                setTimeout(() => {
+                                    downloadBtn.innerHTML = originalText;
+                                    downloadBtn.disabled = false;
+                                }, 3000);
+                            }
+                        }, 1000);
+                    } else {
+                        throw new Error('Build trigger failed');
+                    }
+                } catch (buildError) {
+                    console.error('Build failed:', buildError);
+                    downloadBtn.innerHTML = '<span class="btn-icon">❌</span>Build Failed';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 3000);
+                }
+            }
+        }
+
+        function showLauncherRequirements() {
+            const requirements = [
+                "Windows 7 or newer",
+                "FFXI client installed",
+                ".NET Framework 4.7.2 or newer",
+                "VC++ Redistributable 2015-2022",
+                "50 MB free disk space",
+                "Internet connection for server communication"
+            ];
+            
+            const message = "System Requirements:\n\n" + requirements.map(req => "• " + req).join("\n") + 
+                          "\n\nThe launcher includes:\n• Ashita v4 integration files\n• Configuration templates\n• Setup documentation";
+            
+            alert(message);
+        }
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

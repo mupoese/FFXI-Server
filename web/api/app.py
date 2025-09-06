@@ -1034,7 +1034,7 @@ def get_gm_audit_log():
         return jsonify({'error': str(e)}), 500
 
 # PlayOnline Client Management Endpoints
-@app.route('/api/playonline/manifest/<version>', methods=['GET'])
+@app.route('/api/ffxi/manifest/<version>', methods=['GET'])
 @require_auth
 def get_client_manifest(version):
     """Get client file manifest for version validation"""
@@ -1067,7 +1067,7 @@ def get_client_manifest(version):
         logger.error(f"Failed to get client manifest: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/playonline/validate', methods=['POST'])
+@app.route('/api/ffxi/validate', methods=['POST'])
 @require_auth
 def validate_client_files():
     """Validate client files against server manifest"""
@@ -1166,7 +1166,7 @@ def validate_client_files():
         logger.error(f"Failed to validate client files: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/playonline/file/<file_hash>', methods=['GET'])
+@app.route('/api/ffxi/file/<file_hash>', methods=['GET'])
 @require_auth
 def serve_client_file(file_hash):
     """Serve individual files for client updates"""
@@ -1186,7 +1186,7 @@ def serve_client_file(file_hash):
         
         # In a production environment, this would serve the actual file
         # For now, return file information and download URL
-        download_url = f"/downloads/playonline/{file_hash}"
+        download_url = f"/downloads/ffxi/{file_hash}"
         
         # Log the download request
         player_id = request.args.get('player_id')
@@ -1212,7 +1212,7 @@ def serve_client_file(file_hash):
         logger.error(f"Failed to serve client file: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/playonline/updates/available', methods=['GET'])
+@app.route('/api/ffxi/updates/available', methods=['GET'])
 @require_auth
 def get_available_updates():
     """Get available client updates"""
@@ -1293,7 +1293,7 @@ def get_available_updates():
         logger.error(f"Failed to get available updates: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/playonline/downloads/stats', methods=['GET'])
+@app.route('/api/ffxi/downloads/stats', methods=['GET'])
 @require_auth
 def get_download_statistics():
     """Get PlayOnline download statistics"""
@@ -1368,7 +1368,7 @@ def get_download_statistics():
         logger.error(f"Failed to get download statistics: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/playonline/languages', methods=['GET'])
+@app.route('/api/ffxi/languages', methods=['GET'])
 @require_auth
 def get_supported_languages():
     """Get supported languages and localization content"""
@@ -1426,6 +1426,73 @@ def get_supported_languages():
         
     except Exception as e:
         logger.error(f"Failed to get language support: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/build-launcher', methods=['POST'])
+@require_auth
+def build_launcher():
+    """Build and package the FFXI launcher"""
+    try:
+        logger.info("Starting launcher build process")
+        
+        # Run the launcher build script
+        import subprocess
+        import threading
+        from pathlib import Path
+        
+        def run_build():
+            try:
+                build_script = Path("tools/build_launcher.py")
+                if not build_script.exists():
+                    logger.error("Build script not found")
+                    return
+                
+                # Run build process
+                result = subprocess.run([
+                    sys.executable, str(build_script)
+                ], capture_output=True, text=True, timeout=300)  # 5 minute timeout
+                
+                if result.returncode == 0:
+                    logger.info("Launcher build completed successfully")
+                else:
+                    logger.error(f"Launcher build failed: {result.stderr}")
+            except subprocess.TimeoutExpired:
+                logger.error("Launcher build timed out")
+            except Exception as e:
+                logger.error(f"Launcher build error: {e}")
+        
+        # Start build in background thread
+        build_thread = threading.Thread(target=run_build, daemon=True)
+        build_thread.start()
+        
+        return jsonify({
+            'status': 'build_started',
+            'message': 'Launcher build process started',
+            'estimated_time_seconds': 120,
+            'check_url': '/downloads/FFXI_Launcher.zip',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to start launcher build: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/downloads/<path:filename>')
+def serve_downloads(filename):
+    """Serve files from downloads directory"""
+    try:
+        from flask import send_from_directory
+        downloads_dir = Path("web/downloads")
+        downloads_dir.mkdir(exist_ok=True)
+        
+        file_path = downloads_dir / filename
+        if file_path.exists() and file_path.is_file():
+            return send_from_directory(str(downloads_dir), filename)
+        else:
+            return jsonify({'error': 'File not found'}), 404
+            
+    except Exception as e:
+        logger.error(f"Failed to serve download file {filename}: {e}")
         return jsonify({'error': str(e)}), 500
 
 # Main application

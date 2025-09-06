@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PlayOnline Manifest Parser and Analyzer
-Utility for processing FFXI PlayOnlineViewer file manifests and patch data
+FFXI Content Manager and Analyzer
+Utility for processing FFXI content manifests and update data
 
-This tool demonstrates integration potential between the original PlayOnline
-update system and the modern FFXI server infrastructure.
+This tool provides FFXI-style content management inspired by the original 
+update system architecture for modern FFXI server infrastructure.
 """
 
 import os

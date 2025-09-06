@@ -1,9 +1,9 @@
--- PlayOnline Client File Management Schema
+-- FFXI Content Management Schema
 -- Integration script for FFXI server database
--- Based on analysis of 2,469 files from PlayOnlineViewer manifests
+-- Inspired by content delivery systems for client-server communication
 
--- Client file manifest table
-CREATE TABLE IF NOT EXISTS client_manifest (
+-- FFXI client file manifest table
+CREATE TABLE IF NOT EXISTS ffxi_client_manifest (
     file_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     file_hash VARCHAR(64) NOT NULL UNIQUE,
     file_path VARCHAR(512) NOT NULL,
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS client_manifest (
     INDEX idx_size (file_size)
 );
 
--- Client version tracking
-CREATE TABLE IF NOT EXISTS client_versions (
+-- FFXI client version tracking
+CREATE TABLE IF NOT EXISTS ffxi_client_versions (
     version_id VARCHAR(20) PRIMARY KEY,
     version_name VARCHAR(100),
     release_date DATE,
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS client_versions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Client update requests and tracking
-CREATE TABLE IF NOT EXISTS client_update_requests (
+-- FFXI client update requests and tracking
+CREATE TABLE IF NOT EXISTS ffxi_client_updates (
     request_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     player_id INT,
     client_version VARCHAR(20),

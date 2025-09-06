@@ -1,0 +1,22 @@
+{
+  "name": "FFXI Server Launcher",
+  "version": "1.0.0",
+  "description": "Advanced FFXI launcher with Ashita v4 integration",
+  "filename": "FFXI_Launcher.zip",
+  "size": 8092630,
+  "created": "1757170451.751583",
+  "requirements": [
+    "Windows 7 or newer",
+    "FFXI client installed",
+    ".NET Framework 4.7.2+",
+    "VC++ Redistributable 2015-2022"
+  ],
+  "features": [
+    "GUI and CLI interfaces",
+    "Ashita v4 integration",
+    "Automatic configuration generation",
+    "Server status checking",
+    "Client validation",
+    ".env file configuration"
+  ]
+}

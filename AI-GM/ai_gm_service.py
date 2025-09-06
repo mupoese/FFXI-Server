@@ -596,28 +596,97 @@ class AIGMService:
             return {}
     
     # Battle Test System Integration
-    def create_gm_battle_session(self, gm_id: int, gm_name: str, zone_id: int, 
-                                config_name: str = "standard_test") -> str:
-        """Create a GM battle test session"""
+    def create_gm_battle_session(self, gm_id: int, gm_name: str, zone_id: int, zone_name: str = "",
+                                gm_position: tuple = (0.0, 0.0, 0.0), config_name: str = "standard_test", 
+                                announcement: str = "", public_demo: bool = True) -> str:
+        """Create a GM battle test session with announcement support"""
         if not self.battle_system:
             return ""
         
         try:
             session_id = self.battle_system.create_battle_test_session(
-                gm_id, gm_name, zone_id, config_name
+                gm_id=gm_id,
+                gm_name=gm_name, 
+                zone_id=zone_id,
+                zone_name=zone_name,
+                gm_position=gm_position,
+                config_name=config_name,
+                announcement=announcement,
+                public_demo=public_demo
             )
             
+            # Send server-wide announcement if it's a public demo
+            if public_demo and session_id:
+                self.send_server_announcement_for_battle_test(
+                    session_id, gm_name, zone_name, config_name, announcement
+                )
+            
             # Log the session creation
+            log_message = f"Battle test session {session_id} created for GM {gm_name}"
+            if announcement:
+                log_message += f" with announcement: {announcement}"
+            if not public_demo:
+                log_message += " (private session)"
+                
             self.execute_query("""
                 INSERT INTO audit_gm (date_time, gm_name, command, full_string)
                 VALUES (NOW(), %s, 'battle_test', %s)
-            """, (self.config.gm_name, f"Battle test session {session_id} created for GM {gm_name}"))
+            """, (self.config.gm_name, log_message))
             
             return session_id
             
         except Exception as e:
             self.logger.error(f"Error creating battle session: {e}")
             return ""
+    
+    def send_server_announcement_for_battle_test(self, session_id: str, gm_name: str, 
+                                               zone_name: str, config_name: str, 
+                                               custom_message: str = ""):
+        """Send server-wide announcement for battle test sessions"""
+        try:
+            if not self.battle_system or session_id not in self.battle_system.active_sessions:
+                return
+            
+            session = self.battle_system.active_sessions[session_id]
+            
+            # Get the full announcement from the battle system
+            announcement_data = self.battle_system._send_battle_test_announcement(session, config_name)
+            
+            if announcement_data:
+                # Log the announcement
+                self.logger.info(f"Server announcement sent for battle test session {session_id}")
+                
+                # Store announcement in audit log
+                self.execute_query("""
+                    INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+                    VALUES (NOW(), %s, 'server_announcement', %s)
+                """, (gm_name, f"Battle test announcement: {announcement_data['full_message'][:200]}..."))
+                
+                # This is where you would integrate with the actual server's announcement system
+                # For example, sending to all connected players via the game server API
+                
+        except Exception as e:
+            self.logger.error(f"Error sending server announcement: {e}")
+    
+    def update_battle_session_announcement(self, session_id: str, new_announcement: str) -> bool:
+        """Update the announcement for an active battle session"""
+        try:
+            if not self.battle_system:
+                return False
+            
+            result = self.battle_system.update_session_announcement(session_id, new_announcement)
+            
+            if result:
+                self.execute_query("""
+                    INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+                    VALUES (NOW(), %s, 'announcement_update', %s)
+                """, (self.config.gm_name, f"Session {session_id} announcement updated: {new_announcement}"))
+                
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error updating session announcement: {e}")
+            return False
     
     def spawn_battle_test_mob(self, session_id: str, gm_position: tuple, 
                              mob_request: Dict = None) -> Dict[str, Any]:

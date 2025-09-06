@@ -264,10 +264,13 @@ commandObj.onTrigger = function(player, action, target, param)
     elseif action == "battle" then
         if not target then
             player:printToPlayer("Battle Test Commands:")
-            player:printToPlayer("!aigm battle create [config] - Create battle test session")
+            player:printToPlayer("!aigm battle create [config] [announcement] - Create battle test session")
             player:printToPlayer("!aigm battle spawn [mobid] - Spawn test mob")
             player:printToPlayer("!aigm battle end - End current battle test session")
+            player:printToPlayer("!aigm battle announce [message] - Update session announcement")
+            player:printToPlayer("!aigm battle private - Create private test session (no announcements)")
             player:printToPlayer("Configs: quick_test, standard_test, advanced_test, endgame_test")
+            player:printToPlayer("Example: !aigm battle create standard_test \"Combat mechanics demo for new players\"")
             return
         end
         
@@ -275,14 +278,64 @@ commandObj.onTrigger = function(player, action, target, param)
         
         if battleAction == "create" then
             local configType = param or "standard_test"
-            local sessionId = aiGM.createBattleSession(player, player:getZone():getName(), configType)
+            local announcement = ""
+            local isPublic = true
+            
+            -- Parse announcement from param if it contains quotes
+            if param and string.find(param, '"') then
+                local parts = {}
+                for part in string.gmatch(param, '([^"]+)') do
+                    table.insert(parts, part)
+                end
+                if #parts >= 2 then
+                    configType = string.gsub(parts[1], "%s+", "")
+                    announcement = parts[2]
+                end
+            end
+            
+            local sessionId = aiGM.createBattleSession(player, player:getZone():getName(), configType, announcement, isPublic)
             
             if sessionId then
                 player:printToPlayer(string.format("Battle test session created: %s", sessionId))
+                player:printToPlayer(string.format("Zone: %s | Config: %s", player:getZone():getName(), configType))
+                if announcement and announcement ~= "" then
+                    player:printToPlayer(string.format("Announcement: %s", announcement))
+                end
+                player:printToPlayer("Server announcement sent to all players.")
                 player:printToPlayer("Use !aigm battle spawn to spawn test mobs")
-                aiGM.logAction("BATTLE_SESSION_CREATE", player:getName(), string.format("Session: %s, Config: %s", sessionId, configType))
+                aiGM.logAction("BATTLE_SESSION_CREATE", player:getName(), 
+                             string.format("Session: %s, Config: %s, Zone: %s", sessionId, configType, player:getZone():getName()))
             else
                 player:printToPlayer("Failed to create battle test session")
+            end
+            
+        elseif battleAction == "private" then
+            local configType = param or "standard_test" 
+            local sessionId = aiGM.createBattleSession(player, player:getZone():getName(), configType, "", false)
+            
+            if sessionId then
+                player:printToPlayer(string.format("Private battle test session created: %s", sessionId))
+                player:printToPlayer("No server announcements will be sent.")
+                player:printToPlayer("Use !aigm battle spawn to spawn test mobs")
+                aiGM.logAction("BATTLE_SESSION_CREATE_PRIVATE", player:getName(), string.format("Session: %s", sessionId))
+            else
+                player:printToPlayer("Failed to create private battle test session")
+            end
+            
+        elseif battleAction == "announce" then
+            if not param or param == "" then
+                player:printToPlayer("Usage: !aigm battle announce \"Your announcement message\"")
+                player:printToPlayer("Example: !aigm battle announce \"Testing HNM mechanics - stay back!\"")
+                return
+            end
+            
+            -- Find player's active session
+            local sessionId = string.format("bt_%d_", player:getID())
+            if aiGM.updateSessionAnnouncement(sessionId, param) then
+                player:printToPlayer(string.format("Session announcement updated: %s", param))
+                aiGM.logAction("BATTLE_ANNOUNCEMENT_UPDATE", player:getName(), param)
+            else
+                player:printToPlayer("No active battle session found or update failed")
             end
             
         elseif battleAction == "spawn" then

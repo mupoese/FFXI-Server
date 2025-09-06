@@ -275,23 +275,96 @@ end
 -----------------------------------
 
 -- Create a GM battle test session
-function aiGM.createBattleSession(gm, zoneName, configType)
+function aiGM.createBattleSession(gm, zoneName, configType, announcement, isPublic)
     if not gm then
         return nil
     end
     
     configType = configType or "standard_test"
+    announcement = announcement or ""
+    isPublic = isPublic == nil and true or isPublic  -- Default to public
     local zoneId = gm:getZoneID()
+    local pos = gm:getPos()
     
     -- This would interface with the Python AI-GM service
     local sessionId = string.format("bt_%d_%d", gm:getID(), os.time())
     
-    aiGM.sendMessage(gm, string.format("Battle test session created: %s", sessionId), aiGM.MessageType.BATTLE_TEST)
-    aiGM.sendMessage(gm, "Use !aigm spawn to spawn test mobs for battle testing", aiGM.MessageType.INFO)
+    -- Send server-wide announcement if public demonstration
+    if isPublic then
+        aiGM.sendBattleTestAnnouncement(gm, zoneName, configType, pos, announcement)
+    end
     
-    printf("[AI-GM] Battle test session %s created for GM %s in zone %d", sessionId, gm:getName(), zoneId)
+    aiGM.sendMessage(gm, string.format("Battle test session created: %s", sessionId), aiGM.MessageType.BATTLE_TEST)
+    aiGM.sendMessage(gm, string.format("Zone: %s | Type: %s | Public: %s", zoneName, configType, isPublic and "Yes" or "No"), aiGM.MessageType.INFO)
+    if announcement and announcement ~= "" then
+        aiGM.sendMessage(gm, string.format("Announcement: %s", announcement), aiGM.MessageType.INFO)
+    end
+    aiGM.sendMessage(gm, "Use !aigm battle spawn to spawn test mobs", aiGM.MessageType.INFO)
+    
+    printf("[AI-GM] Battle test session %s created for GM %s in zone %d (%s)", sessionId, gm:getName(), zoneId, zoneName)
     
     return sessionId
+end
+
+-- Send server-wide battle test announcement
+function aiGM.sendBattleTestAnnouncement(gm, zoneName, configType, position, customMessage)
+    if not gm or not aiGM.announceActions then
+        return
+    end
+    
+    -- Determine safety level based on config type
+    local safetyWarnings = {
+        quick_test = "⚠️  Low-level players welcome to observe",
+        standard_test = "⚠️  Mid-level players (25+) recommended",
+        advanced_test = "⚠️  High-level players only (50+) - Combat may be dangerous",
+        endgame_test = "⚠️  EXTREME DANGER - Endgame content testing - Keep safe distance!"
+    }
+    
+    local safetyMsg = safetyWarnings[configType] or "⚠️  Use caution when observing"
+    local locStr = string.format("(%.1f, %.1f, %.1f)", position.x, position.y, position.z)
+    
+    -- Build announcement message
+    local announcement = {
+        "🛡️ GM BATTLE DEMONSTRATION STARTING 🛡️",
+        string.format("GM: %s", gm:getName()),
+        string.format("Location: %s %s", zoneName, locStr),
+        string.format("Test Type: %s", configType:gsub("_", " "):gsub("(%a)([%w_']*)", function(first, rest) return first:upper() .. rest end)),
+        safetyMsg
+    }
+    
+    -- Add custom message if provided
+    if customMessage and customMessage ~= "" then
+        table.insert(announcement, string.format("Comment: %s", customMessage))
+    end
+    
+    table.insert(announcement, "Players may observe from a safe distance")
+    
+    -- Send announcement to all players in the zone
+    local zone = gm:getZone()
+    if zone then
+        for _, player in pairs(zone:getPlayers()) do
+            if player then
+                for _, line in ipairs(announcement) do
+                    player:printToPlayer(line, 0x0E)  -- Yellow text
+                end
+            end
+        end
+    end
+    
+    -- Log the announcement
+    printf("[AI-GM] Battle test announcement sent by %s in %s", gm:getName(), zoneName)
+end
+
+-- Update session announcement
+function aiGM.updateSessionAnnouncement(sessionIdPrefix, newAnnouncement)
+    if not sessionIdPrefix or not newAnnouncement then
+        return false
+    end
+    
+    -- This would interface with the Python battle test system
+    -- For now, just log the update
+    printf("[AI-GM] Session announcement updated: %s", newAnnouncement)
+    return true
 end
 
 -- Spawn a mob for battle testing
@@ -302,6 +375,7 @@ function aiGM.spawnBattleTestMob(gm, sessionId, mobRequest)
     
     local pos = gm:getPos()
     local zoneId = gm:getZoneID()
+    local zoneName = gm:getZone():getName()
     
     -- Calculate spawn position near GM
     local spawnX = pos.x + math.random(-30, 30)
@@ -311,16 +385,83 @@ function aiGM.spawnBattleTestMob(gm, sessionId, mobRequest)
     -- Example mob spawning (this would need integration with actual mob spawn system)
     local mobId = mobRequest and mobRequest.mobId or 17461280  -- Default Goblin Thug
     
-    aiGM.sendMessage(gm, string.format("Spawning test mob at position (%.1f, %.1f, %.1f)", spawnX, spawnY, spawnZ), aiGM.MessageType.BATTLE_TEST)
+    -- Get mob information for announcement
+    local mobInfo = aiGM.getMobInfo(mobId)
+    local mobName = mobInfo.name or "Test Mob"
+    local mobLevel = mobInfo.level or 15
+    
+    -- Send mob spawn announcement to zone
+    if aiGM.announceActions then
+        aiGM.sendMobSpawnAnnouncement(gm, mobName, mobLevel, zoneName, pos, mobInfo.family)
+    end
+    
+    aiGM.sendMessage(gm, string.format("Spawning %s (Level %d) at position (%.1f, %.1f, %.1f)", mobName, mobLevel, spawnX, spawnY, spawnZ), aiGM.MessageType.BATTLE_TEST)
     
     -- Log the spawn for analytics
-    printf("[AI-GM] Battle test mob %d spawned for session %s", mobId, sessionId)
+    printf("[AI-GM] Battle test mob %d (%s) spawned for session %s", mobId, mobName, sessionId)
     
     return {
         mobId = mobId,
+        mobName = mobName,
+        level = mobLevel,
         position = { x = spawnX, y = spawnY, z = spawnZ },
         sessionId = sessionId
     }
+end
+
+-- Send mob spawn announcement to players in zone
+function aiGM.sendMobSpawnAnnouncement(gm, mobName, mobLevel, zoneName, position, mobFamily)
+    if not gm or not aiGM.announceActions then
+        return
+    end
+    
+    local locStr = string.format("(%.1f, %.1f, %.1f)", position.x, position.y, position.z)
+    
+    -- Build mob spawn announcement
+    local announcement = {
+        string.format("🗡️ GM %s spawning test mob:", gm:getName()),
+        string.format("Mob: %s (Level %d)", mobName, mobLevel),
+        string.format("Location: %s %s", zoneName, locStr)
+    }
+    
+    if mobFamily then
+        table.insert(announcement, string.format("Family: %s", mobFamily))
+    end
+    
+    -- Add safety warnings based on mob level
+    if mobLevel >= 60 then
+        table.insert(announcement, "⚠️ HIGH LEVEL MOB - Keep safe distance!")
+    elseif mobLevel >= 40 then
+        table.insert(announcement, "⚠️ Moderate level mob - Lower level players stay back")
+    end
+    
+    -- Send to all players in zone
+    local zone = gm:getZone()
+    if zone then
+        for _, player in pairs(zone:getPlayers()) do
+            if player then
+                for _, line in ipairs(announcement) do
+                    player:printToPlayer(line, 0x0C)  -- Orange text for mob spawns
+                end
+            end
+        end
+    end
+    
+    printf("[AI-GM] Mob spawn announcement sent for %s in %s", mobName, zoneName)
+end
+
+-- Get mob information for announcements
+function aiGM.getMobInfo(mobId)
+    -- This would query the actual mob database
+    -- For now, return example data based on common mob IDs
+    local mobDatabase = {
+        [17461280] = { name = "Goblin Thug", level = 15, family = "Goblin" },
+        [17534976] = { name = "Orc Fighter", level = 25, family = "Orc" },
+        [17289216] = { name = "Greater Pugil", level = 45, family = "Pugil" },
+        [17355776] = { name = "Ancient Dragon", level = 75, family = "Dragon" }
+    }
+    
+    return mobDatabase[mobId] or { name = "Unknown Mob", level = 1, family = "Unknown" }
 end
 
 -- Handle player assistance request

@@ -52,6 +52,11 @@ class BattleTestSession:
     start_time: datetime
     end_time: Optional[datetime] = None
     zone_id: int = 0
+    zone_name: str = ""
+    location: Tuple[float, float, float] = (0.0, 0.0, 0.0)
+    announcement_text: str = ""
+    public_demonstration: bool = True
+    safety_warning_level: str = "moderate"  # low, moderate, high, extreme
     mobs_tested: List[MobTestData] = field(default_factory=list)
     damage_dealt: int = 0
     damage_received: int = 0
@@ -154,8 +159,11 @@ class GMBattleTestSystem:
         self.logger.info(f"Loaded {len(self.test_configs)} test configurations")
     
     def create_battle_test_session(self, gm_id: int, gm_name: str, 
-                                 zone_id: int, config_name: str = "standard_test") -> str:
-        """Create a new battle test session"""
+                                 zone_id: int, zone_name: str = "", 
+                                 gm_position: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+                                 config_name: str = "standard_test", 
+                                 announcement: str = "", public_demo: bool = True) -> str:
+        """Create a new battle test session with announcement capabilities"""
         try:
             session_id = f"bt_{gm_id}_{int(time.time())}"
             
@@ -167,10 +175,19 @@ class GMBattleTestSystem:
                 gm_id=gm_id,
                 gm_name=gm_name,
                 start_time=datetime.now(),
-                zone_id=zone_id
+                zone_id=zone_id,
+                zone_name=zone_name,
+                location=gm_position,
+                announcement_text=announcement,
+                public_demonstration=public_demo,
+                safety_warning_level=self._determine_safety_level(config_name)
             )
             
             self.active_sessions[session_id] = session
+            
+            # Send server-wide announcement if it's a public demonstration
+            if public_demo:
+                self._send_battle_test_announcement(session, config_name)
             
             self.logger.info(f"Created battle test session {session_id} for GM {gm_name}")
             return session_id
@@ -221,6 +238,11 @@ class GMBattleTestSystem:
             # Add to session
             session.mobs_tested.append(mob_data)
             
+            # Send mob spawn announcement if session is public
+            announcement_result = None
+            if session.public_demonstration:
+                announcement_result = self.send_mob_spawn_announcement(session_id, mob_data)
+            
             self.logger.info(f"Spawned {mob_data.mob_name} for battle test session {session_id}")
             
             return {
@@ -232,7 +254,8 @@ class GMBattleTestSystem:
                     "family": mob_data.family,
                     "hp": mob_data.hp_pool,
                     "difficulty": mob_data.difficulty_rating
-                }
+                },
+                "announcement": announcement_result
             }
             
         except Exception as e:
@@ -515,6 +538,138 @@ class GMBattleTestSystem:
                 "total_actions_recorded": len(self.battle_analytics),
                 "recent_actions": self.battle_analytics[-10:] if self.battle_analytics else []
             }
+    
+    def _determine_safety_level(self, config_name: str) -> str:
+        """Determine safety warning level based on test configuration"""
+        safety_levels = {
+            "quick_test": "low",
+            "standard_test": "moderate", 
+            "advanced_test": "high",
+            "endgame_test": "extreme"
+        }
+        return safety_levels.get(config_name, "moderate")
+    
+    def _send_battle_test_announcement(self, session: BattleTestSession, config_name: str):
+        """Send server-wide announcement for battle test session"""
+        try:
+            # Format location string
+            loc_str = f"({session.location[0]:.1f}, {session.location[1]:.1f}, {session.location[2]:.1f})"
+            
+            # Create safety warning based on level
+            safety_warnings = {
+                "low": "⚠️  Low-level players welcome to observe",
+                "moderate": "⚠️  Mid-level players (25+) recommended", 
+                "high": "⚠️  High-level players only (50+) - Combat may be dangerous",
+                "extreme": "⚠️  EXTREME DANGER - Endgame content testing - Keep safe distance!"
+            }
+            
+            safety_msg = safety_warnings.get(session.safety_warning_level, "⚠️  Use caution when observing")
+            
+            # Build announcement message
+            announcement_parts = [
+                f"🛡️ GM BATTLE DEMONSTRATION STARTING 🛡️",
+                f"GM: {session.gm_name}",
+                f"Location: {session.zone_name} {loc_str}",
+                f"Test Type: {config_name.replace('_', ' ').title()}",
+                safety_msg
+            ]
+            
+            # Add custom comment if provided
+            if session.announcement_text.strip():
+                announcement_parts.append(f"Comment: {session.announcement_text}")
+            
+            announcement_parts.append("Players may observe from a safe distance")
+            
+            # Join all parts into final message
+            full_announcement = "\n".join(announcement_parts)
+            
+            # Log the announcement for server broadcast
+            self.logger.info(f"Battle test announcement for session {session.session_id}:")
+            self.logger.info(full_announcement)
+            
+            # Store announcement data for external broadcasting
+            announcement_data = {
+                "type": "battle_test_announcement",
+                "session_id": session.session_id,
+                "gm_name": session.gm_name,
+                "zone_name": session.zone_name,
+                "location": session.location,
+                "config_type": config_name,
+                "safety_level": session.safety_warning_level,
+                "custom_message": session.announcement_text,
+                "full_message": full_announcement,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # This would be used by the AI-GM service to broadcast via game server
+            return announcement_data
+            
+        except Exception as e:
+            self.logger.error(f"Error sending battle test announcement: {e}")
+            return None
+    
+    def update_session_announcement(self, session_id: str, new_announcement: str) -> bool:
+        """Update announcement text for an active session"""
+        try:
+            if session_id not in self.active_sessions:
+                return False
+            
+            session = self.active_sessions[session_id]
+            old_announcement = session.announcement_text
+            session.announcement_text = new_announcement
+            
+            self.logger.info(f"Updated announcement for session {session_id}: '{old_announcement}' -> '{new_announcement}'")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Error updating session announcement: {e}")
+            return False
+    
+    def send_mob_spawn_announcement(self, session_id: str, mob_data: MobTestData) -> Dict[str, Any]:
+        """Send announcement when spawning a test mob"""
+        try:
+            if session_id not in self.active_sessions:
+                return {"success": False, "error": "Session not found"}
+            
+            session = self.active_sessions[session_id]
+            
+            # Create mob spawn announcement
+            mob_announcement = [
+                f"🗡️ GM {session.gm_name} spawning test mob:",
+                f"Mob: {mob_data.mob_name} (Level {mob_data.level})",
+                f"Location: {session.zone_name} ({session.location[0]:.1f}, {session.location[1]:.1f}, {session.location[2]:.1f})",
+                f"Family: {mob_data.family}"
+            ]
+            
+            # Add special warnings for dangerous mobs
+            if mob_data.level >= 60:
+                mob_announcement.append("⚠️ HIGH LEVEL MOB - Keep safe distance!")
+            elif mob_data.level >= 40:
+                mob_announcement.append("⚠️ Moderate level mob - Lower level players stay back")
+            
+            if mob_data.special_attacks:
+                mob_announcement.append(f"Special Attacks: {', '.join(mob_data.special_attacks[:3])}")
+            
+            announcement_text = "\n".join(mob_announcement)
+            
+            announcement_data = {
+                "type": "mob_spawn_announcement", 
+                "session_id": session_id,
+                "gm_name": session.gm_name,
+                "mob_name": mob_data.mob_name,
+                "mob_level": mob_data.level,
+                "location": session.location,
+                "zone_name": session.zone_name,
+                "full_message": announcement_text,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            self.logger.info(f"Mob spawn announcement for session {session_id}: {mob_data.mob_name}")
+            return {"success": True, "announcement": announcement_data}
+            
+        except Exception as e:
+            self.logger.error(f"Error sending mob spawn announcement: {e}")
+            return {"success": False, "error": str(e)}
 
 # Example usage and testing
 if __name__ == "__main__":

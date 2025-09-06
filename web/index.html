@@ -839,6 +839,100 @@ FFXI_CLIENT_PATH=C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XI</code></p
     </footer>
 
     <script>
+        // Global configuration - will be updated from server
+        let serverConfig = {
+            serverName: 'FFXI',  // Default, will be updated from API
+            displayName: 'FFXI Server',
+            host: 'localhost',
+            ports: {
+                login: 54001,
+                map: 54230,
+                search: 54002
+            }
+        };
+
+        // Initialize page with server configuration
+        async function initializePage() {
+            try {
+                // Fetch server configuration
+                const response = await fetch('/api/ports');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.server_name) {
+                        serverConfig.serverName = data.server_name;
+                        serverConfig.displayName = `${data.server_name} Server`;
+                        serverConfig.ports = data.ports;
+                        
+                        // Update page branding
+                        updatePageBranding();
+                    }
+                }
+            } catch (error) {
+                console.warn('Could not fetch server configuration, using defaults');
+            }
+            
+            // Continue with other initialization
+            updateServerStatus();
+            loadFFXIStats();
+            updateLauncherInfo();
+        }
+
+        function updatePageBranding() {
+            // Update page title
+            document.title = `LandSandBoat ${serverConfig.serverName} Server - Welcome to Vana'diel`;
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle) {
+                pageTitle.textContent = `LandSandBoat ${serverConfig.serverName} Server - Welcome to Vana'diel`;
+            }
+            
+            // Update main header
+            const mainTitle = document.querySelector('.hero-content h1');
+            if (mainTitle) {
+                mainTitle.innerHTML = `🌟 Welcome to ${serverConfig.displayName}`;
+            }
+            
+            // Update FFXI content system title
+            const contentTitle = document.querySelector('.card h3');
+            if (contentTitle && contentTitle.textContent.includes('FFXI Content System')) {
+                contentTitle.textContent = `${serverConfig.serverName} Content System`;
+            }
+            
+            // Update launcher section
+            const launcherTitle = document.querySelector('.launcher-section h2');
+            if (launcherTitle) {
+                launcherTitle.innerHTML = `🚀 ${serverConfig.serverName} Launcher Download`;
+            }
+            
+            const launcherSubtitle = document.querySelector('.launcher-card h3');
+            if (launcherSubtitle) {
+                launcherSubtitle.textContent = `${serverConfig.serverName} Server Launcher`;
+            }
+            
+            // Update configuration example
+            const configExample = document.querySelector('.config-example pre code');
+            if (configExample) {
+                configExample.textContent = `# .env file example
+SERVERNAME=${serverConfig.serverName}
+${serverConfig.serverName}_SERVER_NAME=${serverConfig.displayName}
+${serverConfig.serverName}_SERVER_HOST=your.server.com
+${serverConfig.serverName}_LOGIN_PORT=${serverConfig.ports.LOGIN_DATA_PORT || 54001}
+${serverConfig.serverName}_MAP_PORT=${serverConfig.ports.MAP_PORT || 54230}
+${serverConfig.serverName}_SEARCH_PORT=${serverConfig.ports.SEARCH_PORT || 54002}
+${serverConfig.serverName}_CLIENT_PATH=C:\\\\Program Files (x86)\\\\SquareEnix\\\\FINAL FANTASY XI`;
+            }
+            
+            // Update launcher executable name in instructions
+            const launcherExe = document.querySelector('.step-content code');
+            if (launcherExe && launcherExe.textContent.includes('FFXI_Launcher.exe')) {
+                launcherExe.textContent = `${serverConfig.serverName}_Launcher.exe`;
+            }
+            
+            // Update footer copyright
+            const footer = document.querySelector('.footer-info p');
+            if (footer) {
+                footer.innerHTML = `&copy; 2024 LandSandBoat ${serverConfig.serverName} Server. Enhanced with Docker, Prometheus & Grafana monitoring.`;
+            }
+        }
         // Server status monitoring
         class ServerMonitor {
             constructor() {
@@ -1058,6 +1152,9 @@ FFXI_CLIENT_PATH=C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XI</code></p
 
         // Initialize monitoring when page loads
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize page with server configuration first
+            initializePage();
+            
             new ServerMonitor();
             loadLauncherInfo();
         });
@@ -1101,14 +1198,15 @@ FFXI_CLIENT_PATH=C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XI</code></p
                 downloadBtn.innerHTML = '<span class="btn-icon">⏳</span>Preparing Download...';
                 downloadBtn.disabled = true;
                 
-                // Check if launcher package exists
-                const response = await fetch('/downloads/FFXI_Launcher.zip', { method: 'HEAD' });
+                // Use configurable server name for download path
+                const launcherFile = `${serverConfig.serverName}_Launcher.zip`;
+                const response = await fetch(`/downloads/${launcherFile}`, { method: 'HEAD');
                 
                 if (response.ok) {
                     // Create download link
                     const link = document.createElement('a');
-                    link.href = '/downloads/FFXI_Launcher.zip';
-                    link.download = 'FFXI_Launcher.zip';
+                    link.href = `/downloads/${launcherFile}`;
+                    link.download = launcherFile;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

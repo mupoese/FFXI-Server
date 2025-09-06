@@ -35,34 +35,29 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
+# Configuration with dynamic server name support
 class Config:
-    SECRET_KEY = os.environ.get('FFXI_API_SECRET_KEY', 'your_secret_key_here_change_this')
+    # Get server name from environment (defaults to FFXI)
+    SERVER_NAME = os.environ.get('SERVERNAME', 'FFXI')
+    
+    SECRET_KEY = os.environ.get(f'{SERVER_NAME}_API_SECRET_KEY', 'your_secret_key_here_change_this')
+    ADMIN_USERNAME = os.environ.get(f'{SERVER_NAME}_ADMIN_USERNAME', 'admin')
+    ADMIN_PASSWORD = os.environ.get(f'{SERVER_NAME}_ADMIN_PASSWORD', 'admin123')
+    
     DB_CONFIG = {
-        'host': os.environ.get('FFXI_SQL_HOST', 'db'),
-        'port': int(os.environ.get('FFXI_SQL_PORT', 3306)),
-        'user': os.environ.get('FFXI_SQL_LOGIN', 'xiuser'),
-        'password': os.environ.get('FFXI_SQL_PASSWORD', 'xiserver_2024'),
-        'database': os.environ.get('FFXI_SQL_DATABASE', 'xidb'),
-        'pool_name': 'ffxi_api_pool',
+        'host': os.environ.get(f'{SERVER_NAME}_SQL_HOST', 'db'),
+        'port': int(os.environ.get(f'{SERVER_NAME}_SQL_PORT', 3306)),
+        'user': os.environ.get(f'{SERVER_NAME}_SQL_LOGIN', 'xiuser'),
+        'password': os.environ.get(f'{SERVER_NAME}_SQL_PASSWORD', 'xiserver_2024'),
+        'database': os.environ.get(f'{SERVER_NAME}_SQL_DATABASE', 'xidb'),
+        'pool_name': f'{SERVER_NAME.lower()}_api_pool',
         'pool_size': 10,
         'pool_reset_session': True,
         'autocommit': True
     }
     API_PORT = int(os.environ.get('FFXI_API_PORT', 5000))
     
-    # FFXI Port Configuration
-    FFXI_PORTS = {
-        'LOGIN_VIEW_PORT': 54001,
-        'LOGIN_DATA_PORT': 54230,
-        'LOGIN_AUTH_PORT': 54231,
-        'LOGIN_CONF_PORT': 51220,
-        'MAP_PORT': 54230,  # Same as LOGIN_DATA_PORT
-        'SEARCH_PORT': 54002,
-        'ZMQ_PORT': 54003,
-        'HTTP_PORT': 8088,
-        'SQL_PORT': 3306
-    }
+
     
     # Network bonding configuration
     BONDING_CONFIG = {
@@ -184,7 +179,7 @@ def get_server_stats() -> Dict[str, Any]:
     }
     
     # Check port health
-    for port_name, port_num in Config.FFXI_PORTS.items():
+    for port_name, port_num in Config.PORTS.items():
         if port_name != 'SQL_PORT':  # Skip database port for external check
             stats['ports'][port_name] = {
                 'port': port_num,
@@ -244,7 +239,7 @@ def health_check():
         'status': 'healthy',
         'timestamp': datetime.utcnow().isoformat(),
         'version': '1.0.0',
-        'service': 'FFXI Server Management API'
+        'service': f'{Config.SERVER_NAME} Server Management API'
     })
 
 @app.route('/auth/token', methods=['POST'])
@@ -255,13 +250,14 @@ def get_auth_token():
     if not data or 'username' not in data or 'password' not in data:
         return jsonify({'error': 'Username and password required'}), 400
     
-    # Simple authentication (in production, use proper user management)
-    if data['username'] == 'admin' and data['password'] == Config.SECRET_KEY:
+    # Enhanced authentication with configurable credentials
+    if data['username'] == Config.ADMIN_USERNAME and data['password'] == Config.ADMIN_PASSWORD:
         token = generate_api_token(data['username'])
         return jsonify({
             'token': token,
             'expires_in': 86400,  # 24 hours
-            'token_type': 'Bearer'
+            'token_type': 'Bearer',
+            'server_name': Config.SERVER_NAME
         })
     
     return jsonify({'error': 'Invalid credentials'}), 401
@@ -282,8 +278,9 @@ def get_server_status():
 def get_port_configuration():
     """Get current port configuration"""
     return jsonify({
-        'ports': Config.FFXI_PORTS,
+        'ports': Config.PORTS,
         'bonding': Config.BONDING_CONFIG,
+        'server_name': Config.SERVER_NAME,
         'timestamp': datetime.utcnow().isoformat()
     })
 
@@ -364,12 +361,12 @@ def cloudflare_tunnel_config():
             domain = data.get('domain', 'example.com')
             
             port_mappings = {
-                'login': Config.FFXI_PORTS['LOGIN_VIEW_PORT'],
-                'data': Config.FFXI_PORTS['LOGIN_DATA_PORT'],
-                'auth': Config.FFXI_PORTS['LOGIN_AUTH_PORT'],
-                'config': Config.FFXI_PORTS['LOGIN_CONF_PORT'],
-                'search': Config.FFXI_PORTS['SEARCH_PORT'],
-                'admin': Config.FFXI_PORTS['HTTP_PORT']
+                'login': Config.PORTS['LOGIN_VIEW_PORT'],
+                'data': Config.PORTS['LOGIN_DATA_PORT'],
+                'auth': Config.PORTS['LOGIN_AUTH_PORT'],
+                'config': Config.PORTS['LOGIN_CONF_PORT'],
+                'search': Config.PORTS['SEARCH_PORT'],
+                'admin': Config.PORTS['HTTP_PORT']
             }
             
             for service, port in port_mappings.items():
@@ -454,9 +451,9 @@ def windower_compatibility():
             'use_tcp_nodelay': True
         },
         'ports': {
-            'login': Config.FFXI_PORTS['LOGIN_VIEW_PORT'],
-            'data': Config.FFXI_PORTS['LOGIN_DATA_PORT'],
-            'search': Config.FFXI_PORTS['SEARCH_PORT']
+            'login': Config.PORTS['LOGIN_VIEW_PORT'],
+            'data': Config.PORTS['LOGIN_DATA_PORT'],
+            'search': Config.PORTS['SEARCH_PORT']
         },
         'bonding_support': Config.BONDING_CONFIG['enabled'],
         'timestamp': datetime.utcnow().isoformat()
@@ -476,9 +473,9 @@ def ashita_compatibility():
             'use_high_performance_mode': True
         },
         'ports': {
-            'login': Config.FFXI_PORTS['LOGIN_VIEW_PORT'],
-            'data': Config.FFXI_PORTS['LOGIN_DATA_PORT'],
-            'search': Config.FFXI_PORTS['SEARCH_PORT']
+            'login': Config.PORTS['LOGIN_VIEW_PORT'],
+            'data': Config.PORTS['LOGIN_DATA_PORT'],
+            'search': Config.PORTS['SEARCH_PORT']
         },
         'bonding_support': Config.BONDING_CONFIG['enabled'],
         'timestamp': datetime.utcnow().isoformat()
@@ -1497,15 +1494,16 @@ def serve_downloads(filename):
 
 # Main application
 if __name__ == '__main__':
-    logger.info("Starting FFXI Server Management API")
+    logger.info(f"Starting {Config.SERVER_NAME} Server Management API")
+    logger.info(f"Server Name: {Config.SERVER_NAME}")
     logger.info(f"API will be available on port {Config.API_PORT}")
     logger.info(f"Database connection: {Config.DB_CONFIG['host']}:{Config.DB_CONFIG['port']}")
     logger.info(f"Network bonding enabled: {Config.BONDING_CONFIG['enabled']}")
-    logger.info("PlayOnline client management endpoints enabled")
+    logger.info(f"{Config.SERVER_NAME} client management endpoints enabled")
     
     app.run(
         host='0.0.0.0',
         port=Config.API_PORT,
-        debug=os.environ.get('FFXI_DEBUG_MODE', 'false').lower() == 'true',
+        debug=os.environ.get(f'{Config.SERVER_NAME}_DEBUG_MODE', 'false').lower() == 'true',
         threaded=True
     )

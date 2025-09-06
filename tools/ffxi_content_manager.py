@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-FFXI Content Manager and Analyzer
-Utility for processing FFXI content manifests and update data
+Dynamic Server Content Manager and Analyzer
+Utility for processing content manifests and update data with configurable server branding
 
-This tool provides FFXI-style content management inspired by the original 
-update system architecture for modern FFXI server infrastructure.
+This tool provides content management inspired by the original PlayOnline
+update system architecture for modern server infrastructure.
 """
 
 import os
@@ -15,6 +15,9 @@ from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from datetime import datetime
+
+# Get configurable server name
+SERVER_NAME = os.environ.get('SERVERNAME', 'FFXI')
 
 @dataclass
 class ManifestEntry:

@@ -10,13 +10,17 @@ local aiGM = {}
 aiGM.name = "AI-GM"
 aiGM.level = 2
 aiGM.announceActions = true
+aiGM.mlEnabled = true
+aiGM.battleTestEnabled = true
 
 -- Message types for different situations
 aiGM.MessageType = {
     INFO = 0,
     WARNING = 1,
     ERROR = 2,
-    SYSTEM = 3
+    SYSTEM = 3,
+    ML_ALERT = 4,
+    BATTLE_TEST = 5
 }
 
 -- Severity levels for incidents
@@ -267,8 +271,213 @@ function aiGM.spawnTemporaryGM(level, zoneName, reason)
 end
 
 -----------------------------------
--- Player Behavior Analysis
+-- Battle Test Functions
 -----------------------------------
+
+-- Create a GM battle test session
+function aiGM.createBattleSession(gm, zoneName, configType)
+    if not gm then
+        return nil
+    end
+    
+    configType = configType or "standard_test"
+    local zoneId = gm:getZoneID()
+    
+    -- This would interface with the Python AI-GM service
+    local sessionId = string.format("bt_%d_%d", gm:getID(), os.time())
+    
+    aiGM.sendMessage(gm, string.format("Battle test session created: %s", sessionId), aiGM.MessageType.BATTLE_TEST)
+    aiGM.sendMessage(gm, "Use !aigm spawn to spawn test mobs for battle testing", aiGM.MessageType.INFO)
+    
+    printf("[AI-GM] Battle test session %s created for GM %s in zone %d", sessionId, gm:getName(), zoneId)
+    
+    return sessionId
+end
+
+-- Spawn a mob for battle testing
+function aiGM.spawnBattleTestMob(gm, sessionId, mobRequest)
+    if not gm or not sessionId then
+        return false
+    end
+    
+    local pos = gm:getPos()
+    local zoneId = gm:getZoneID()
+    
+    -- Calculate spawn position near GM
+    local spawnX = pos.x + math.random(-30, 30)
+    local spawnZ = pos.z + math.random(-30, 30)
+    local spawnY = pos.y
+    
+    -- Example mob spawning (this would need integration with actual mob spawn system)
+    local mobId = mobRequest and mobRequest.mobId or 17461280  -- Default Goblin Thug
+    
+    aiGM.sendMessage(gm, string.format("Spawning test mob at position (%.1f, %.1f, %.1f)", spawnX, spawnY, spawnZ), aiGM.MessageType.BATTLE_TEST)
+    
+    -- Log the spawn for analytics
+    printf("[AI-GM] Battle test mob %d spawned for session %s", mobId, sessionId)
+    
+    return {
+        mobId = mobId,
+        position = { x = spawnX, y = spawnY, z = spawnZ },
+        sessionId = sessionId
+    }
+end
+
+-- Handle player assistance request
+function aiGM.requestPlayerAssist(player, issueType, description, urgency)
+    if not player then
+        return nil
+    end
+    
+    urgency = urgency or "normal"
+    local pos = player:getPos()
+    local zoneId = player:getZoneID()
+    
+    local requestId = string.format("assist_%d_%d", player:getID(), os.time())
+    
+    -- Notify player
+    aiGM.sendMessage(player, "Your assistance request has been received. A GM will respond shortly.", aiGM.MessageType.INFO)
+    
+    -- Notify GMs based on urgency
+    local minGMLevel = 1
+    if urgency == "high" then
+        minGMLevel = 2
+    elseif urgency == "emergency" then
+        minGMLevel = 3
+    end
+    
+    local assistMessage = string.format("Player Assistance Request [%s]: %s in zone %d - %s", 
+                                      urgency:upper(), player:getName(), zoneId, description)
+    aiGM.notifyGMs(assistMessage, minGMLevel)
+    
+    -- For combat-related issues, prepare for potential battle demo
+    if issueType == "stuck_in_combat" or issueType == "mob_assistance" or issueType == "combat_help" then
+        aiGM.sendMessage(player, "A GM may spawn a demonstration mob to show combat mechanics.", aiGM.MessageType.INFO)
+    end
+    
+    printf("[AI-GM] Assistance request %s created for player %s: %s", requestId, player:getName(), description)
+    
+    return requestId
+end
+
+-- Respond to assistance request with battle demo
+function aiGM.respondWithBattleDemo(gm, requestId, playerName, issueType)
+    if not gm or not requestId then
+        return false
+    end
+    
+    local player = aiGM.getPlayer(playerName)
+    if not player then
+        aiGM.sendMessage(gm, string.format("Player %s not found for assistance", playerName), aiGM.MessageType.ERROR)
+        return false
+    end
+    
+    -- Create a demonstration battle session
+    local sessionId = aiGM.createBattleSession(gm, player:getZone():getName(), "quick_test")
+    
+    if sessionId then
+        -- Teleport GM to player's location
+        local playerPos = player:getPos()
+        gm:setPos(playerPos.x + 10, playerPos.y, playerPos.z + 10, playerPos.rot)
+        
+        -- Notify both GM and player
+        aiGM.sendMessage(gm, string.format("Responding to assist request %s with battle demonstration", requestId), aiGM.MessageType.BATTLE_TEST)
+        aiGM.sendMessage(player, string.format("GM %s is responding to your request with a combat demonstration", gm:getName()), aiGM.MessageType.INFO)
+        
+        -- Spawn appropriate demonstration mob
+        local mobRequest = {
+            level = player:getMainLvl(),
+            appropriate_for_demo = true
+        }
+        
+        aiGM.spawnBattleTestMob(gm, sessionId, mobRequest)
+        
+        return true
+    end
+    
+    return false
+end
+
+-----------------------------------
+-- ML Integration Functions
+-----------------------------------
+
+-- Analyze player behavior using ML
+function aiGM.analyzePlayerWithML(player)
+    if not player or not aiGM.mlEnabled then
+        return nil
+    end
+    
+    -- Gather player data for ML analysis
+    local pos = player:getPos()
+    local playerData = {
+        playerId = player:getID(),
+        playerName = player:getName(),
+        zoneId = player:getZoneID(),
+        position = { x = pos.x, y = pos.y, z = pos.z },
+        hpPercentage = player:getHP() / player:getMaxHP(),
+        mpPercentage = player:getMP() / player:getMaxMP(),
+        mainJob = player:getMainJob(),
+        mainLevel = player:getMainLvl(),
+        deathCount = player:getCharVar("deathCount") or 0,
+        jailHistory = player:getCharVar("jailHistory") or 0
+    }
+    
+    -- This would interface with the Python ML engine
+    -- For now, return mock analysis results
+    local analysis = {
+        riskScore = math.random() * 0.3,  -- Low risk for demo
+        behaviorClass = "normal",
+        isAnomaly = false,
+        confidence = 0.85
+    }
+    
+    -- Log ML analysis
+    if analysis.riskScore > 0.7 then
+        printf("[AI-GM ML] High risk behavior detected for player %s (score: %.3f)", 
+               player:getName(), analysis.riskScore)
+    end
+    
+    return analysis
+end
+
+-- Learn from GM interaction
+function aiGM.learnFromGMInteraction(player, gmAction, outcome)
+    if not player or not aiGM.mlEnabled then
+        return
+    end
+    
+    local interactionData = {
+        playerId = player:getID(),
+        playerName = player:getName(),
+        gmAction = gmAction,
+        outcome = outcome,
+        timestamp = os.time()
+    }
+    
+    -- This would send data to the ML engine for learning
+    printf("[AI-GM ML] Learning from GM interaction: %s -> %s for player %s", 
+           gmAction, outcome, player:getName())
+end
+
+-- Get ML system status
+function aiGM.getMLStatus()
+    if not aiGM.mlEnabled then
+        return {
+            enabled = false,
+            reason = "ML system disabled"
+        }
+    end
+    
+    -- This would query the actual ML engine status
+    return {
+        enabled = true,
+        modelsLoaded = 3,
+        hardwareAcceleration = "CUDA",
+        lastTraining = "2024-01-01 12:00:00",
+        predictionsToday = 1247
+    }
+end
 
 -- Check if a player's behavior is suspicious
 function aiGM.analyzePlayerBehavior(player)

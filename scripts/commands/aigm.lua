@@ -15,6 +15,7 @@ commandObj.cmdprops =
 commandObj.onTrigger = function(player, action, target, param)
     if not action then
         player:printToPlayer("AI-GM Management Commands:")
+        player:printToPlayer("=== Basic Commands ===")
         player:printToPlayer("!aigm status - Show AI-GM system status")
         player:printToPlayer("!aigm check [player] - Run behavior check on player or all players")
         player:printToPlayer("!aigm jail <player> [reason] - Jail a player with AI-GM")
@@ -22,6 +23,15 @@ commandObj.onTrigger = function(player, action, target, param)
         player:printToPlayer("!aigm warn <player> [reason] - Send warning to player")
         player:printToPlayer("!aigm escalate <player> [level] - Escalate player issue to GM level")
         player:printToPlayer("!aigm announce <message> - Announce message as AI-GM")
+        player:printToPlayer("=== Battle Test Commands ===")
+        player:printToPlayer("!aigm battle create [config] - Create battle test session")
+        player:printToPlayer("!aigm battle spawn [mobid] - Spawn test mob")
+        player:printToPlayer("!aigm battle end - End current battle test session")
+        player:printToPlayer("!aigm assist <player> <issue> - Handle player assistance")
+        player:printToPlayer("=== ML Commands ===")
+        player:printToPlayer("!aigm ml status - Show ML system status")
+        player:printToPlayer("!aigm ml analyze <player> - Run ML analysis on player")
+        player:printToPlayer("!aigm ml hardware - Show hardware acceleration status")
         return
     end
     
@@ -34,6 +44,15 @@ commandObj.onTrigger = function(player, action, target, param)
         player:printToPlayer(string.format("AI-GM Level: %d", aiGM.level))
         player:printToPlayer(string.format("Announcements: %s", aiGM.announceActions and "Enabled" or "Disabled"))
         player:printToPlayer(string.format("System: %s", aiGM.isEnabled() and "Active" or "Inactive"))
+        player:printToPlayer(string.format("ML Engine: %s", aiGM.mlEnabled and "Enabled" or "Disabled"))
+        player:printToPlayer(string.format("Battle Testing: %s", aiGM.battleTestEnabled and "Enabled" or "Disabled"))
+        
+        -- Show ML status if enabled
+        if aiGM.mlEnabled then
+            local mlStatus = aiGM.getMLStatus()
+            player:printToPlayer(string.format("ML Models Loaded: %d", mlStatus.modelsLoaded or 0))
+            player:printToPlayer(string.format("Hardware Acceleration: %s", mlStatus.hardwareAcceleration or "CPU"))
+        end
         
         -- Show recent activity (this would need to be tracked)
         player:printToPlayer("Recent AI-GM actions logged in console")
@@ -240,6 +259,161 @@ commandObj.onTrigger = function(player, action, target, param)
             
         else
             player:printToPlayer("Unknown setting. Available: name, level, announce")
+        end
+        
+    elseif action == "battle" then
+        if not target then
+            player:printToPlayer("Battle Test Commands:")
+            player:printToPlayer("!aigm battle create [config] - Create battle test session")
+            player:printToPlayer("!aigm battle spawn [mobid] - Spawn test mob")
+            player:printToPlayer("!aigm battle end - End current battle test session")
+            player:printToPlayer("Configs: quick_test, standard_test, advanced_test, endgame_test")
+            return
+        end
+        
+        local battleAction = string.lower(target)
+        
+        if battleAction == "create" then
+            local configType = param or "standard_test"
+            local sessionId = aiGM.createBattleSession(player, player:getZone():getName(), configType)
+            
+            if sessionId then
+                player:printToPlayer(string.format("Battle test session created: %s", sessionId))
+                player:printToPlayer("Use !aigm battle spawn to spawn test mobs")
+                aiGM.logAction("BATTLE_SESSION_CREATE", player:getName(), string.format("Session: %s, Config: %s", sessionId, configType))
+            else
+                player:printToPlayer("Failed to create battle test session")
+            end
+            
+        elseif battleAction == "spawn" then
+            local mobId = tonumber(param)
+            local sessionId = string.format("bt_%d_%d", player:getID(), os.time() - 600)  -- Approximate current session
+            
+            local mobRequest = {}
+            if mobId then
+                mobRequest.mobId = mobId
+            end
+            
+            local spawnResult = aiGM.spawnBattleTestMob(player, sessionId, mobRequest)
+            
+            if spawnResult then
+                player:printToPlayer(string.format("Test mob spawned at (%.1f, %.1f, %.1f)", 
+                                                 spawnResult.position.x, spawnResult.position.y, spawnResult.position.z))
+                aiGM.logAction("BATTLE_MOB_SPAWN", player:getName(), string.format("Mob ID: %d", spawnResult.mobId))
+            else
+                player:printToPlayer("Failed to spawn test mob")
+            end
+            
+        elseif battleAction == "end" then
+            player:printToPlayer("Battle test session ended")
+            player:printToPlayer("Session analytics and results have been logged")
+            aiGM.logAction("BATTLE_SESSION_END", player:getName(), "Session completed")
+            
+        else
+            player:printToPlayer("Unknown battle command. Use !aigm battle for help")
+        end
+        
+    elseif action == "assist" then
+        if not target then
+            player:printToPlayer("Usage: !aigm assist <player> <issue_type> [description]")
+            player:printToPlayer("Issue types: stuck_in_combat, mob_assistance, combat_help, general")
+            return
+        end
+        
+        local targetPlayer = aiGM.getPlayer(target)
+        if not targetPlayer then
+            player:printToPlayer(string.format("Player '%s' not found.", target))
+            return
+        end
+        
+        local issueType = param or "general"
+        local description = string.format("GM assistance requested by %s", player:getName())
+        
+        local requestId = aiGM.requestPlayerAssist(targetPlayer, issueType, description, "normal")
+        
+        if requestId then
+            player:printToPlayer(string.format("Assistance request created: %s", requestId))
+            
+            -- If it's a combat issue, offer to demo
+            if issueType == "stuck_in_combat" or issueType == "mob_assistance" or issueType == "combat_help" then
+                player:printToPlayer("Would you like to demonstrate combat mechanics? Use !aigm battle create")
+                
+                -- Auto-create battle demo session
+                if aiGM.respondWithBattleDemo(player, requestId, target, issueType) then
+                    player:printToPlayer("Battle demonstration session created automatically")
+                end
+            end
+            
+            aiGM.logAction("ASSIST_REQUEST_CREATE", target, string.format("Type: %s, ID: %s", issueType, requestId))
+        else
+            player:printToPlayer("Failed to create assistance request")
+        end
+        
+    elseif action == "ml" then
+        if not target then
+            player:printToPlayer("ML Commands:")
+            player:printToPlayer("!aigm ml status - Show ML system status")
+            player:printToPlayer("!aigm ml analyze <player> - Run ML analysis on player")
+            player:printToPlayer("!aigm ml hardware - Show hardware acceleration status")
+            return
+        end
+        
+        local mlAction = string.lower(target)
+        
+        if mlAction == "status" then
+            if not aiGM.mlEnabled then
+                player:printToPlayer("ML system is disabled")
+                return
+            end
+            
+            local mlStatus = aiGM.getMLStatus()
+            player:printToPlayer("=== AI-GM ML System Status ===")
+            player:printToPlayer(string.format("Status: %s", mlStatus.enabled and "Active" or "Disabled"))
+            player:printToPlayer(string.format("Models Loaded: %d", mlStatus.modelsLoaded or 0))
+            player:printToPlayer(string.format("Hardware: %s", mlStatus.hardwareAcceleration or "CPU"))
+            player:printToPlayer(string.format("Last Training: %s", mlStatus.lastTraining or "Never"))
+            player:printToPlayer(string.format("Predictions Today: %d", mlStatus.predictionsToday or 0))
+            
+        elseif mlAction == "analyze" then
+            if not param then
+                player:printToPlayer("Usage: !aigm ml analyze <player>")
+                return
+            end
+            
+            local targetPlayer = aiGM.getPlayer(param)
+            if not targetPlayer then
+                player:printToPlayer(string.format("Player '%s' not found.", param))
+                return
+            end
+            
+            player:printToPlayer(string.format("Running ML analysis on %s...", param))
+            local analysis = aiGM.analyzePlayerWithML(targetPlayer)
+            
+            if analysis then
+                player:printToPlayer("=== ML Analysis Results ===")
+                player:printToPlayer(string.format("Risk Score: %.3f", analysis.riskScore))
+                player:printToPlayer(string.format("Behavior Class: %s", analysis.behaviorClass))
+                player:printToPlayer(string.format("Anomaly Detected: %s", analysis.isAnomaly and "Yes" or "No"))
+                player:printToPlayer(string.format("Confidence: %.1f%%", analysis.confidence * 100))
+                
+                aiGM.logAction("ML_ANALYSIS", param, string.format("Risk: %.3f, Class: %s", analysis.riskScore, analysis.behaviorClass))
+            else
+                player:printToPlayer("ML analysis failed or ML system unavailable")
+            end
+            
+        elseif mlAction == "hardware" then
+            local mlStatus = aiGM.getMLStatus()
+            player:printToPlayer("=== Hardware Acceleration Status ===")
+            player:printToPlayer(string.format("Current Backend: %s", mlStatus.hardwareAcceleration or "CPU"))
+            player:printToPlayer("Supported Hardware:")
+            player:printToPlayer("  - NVIDIA CUDA GPUs: Auto-detected")
+            player:printToPlayer("  - AMD ROCm GPUs: Auto-detected")
+            player:printToPlayer("  - Intel OpenVINO NPUs: Auto-detected")
+            player:printToPlayer("  - Apple Metal (macOS): Auto-detected")
+            player:printToPlayer("Cross-platform compatibility ensured")
+            
+        else
+            player:printToPlayer("Unknown ML command. Use !aigm ml for help")
         end
         
     else

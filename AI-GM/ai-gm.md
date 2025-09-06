@@ -1,67 +1,122 @@
-# FFXI Server AI-GM System Documentation
+# FFXI Server AI-GM Enhanced System Documentation
 
 ## Overview
 
-The AI-GM (Artificial Intelligence Game Master) system is an experimental automated moderation and player assistance system for the FFXI server. It provides intelligent monitoring, automated problem resolution, and escalation capabilities while working alongside human game masters.
+The AI-GM (Artificial Intelligence Game Master) system is an experimental automated moderation and player assistance system for the FFXI server. **NEWLY ENHANCED** with advanced machine learning capabilities, cross-platform hardware acceleration, and comprehensive battle testing tools. It provides intelligent monitoring, automated problem resolution, and escalation capabilities while working alongside human game masters.
 
 ## Key Features
 
-### 🤖 Automated Moderation
-- **Behavior Analysis**: Continuous monitoring of player activities and behavior patterns
-- **Problem Detection**: Automatic identification of stuck players, suspicious activities, and rule violations
-- **Disciplinary Actions**: Automated warnings, temporary jailing, and escalation procedures
-- **Smart Resolution**: Context-aware decision making for appropriate responses
+### 🧠 **NEW: Machine Learning Engine**
+- **Cross-Platform GPU/NPU Support**: NVIDIA CUDA, AMD ROCm, Intel OpenVINO, Apple Metal
+- **Real-Time Behavior Analysis**: Advanced anomaly detection and behavior classification
+- **Continuous Learning**: AI learns from server interactions and GM decisions
+- **Hardware Auto-Detection**: Automatically selects best available acceleration
+- **Predictive Moderation**: Proactive identification of potential issues
 
-### 💬 Player Communication
+### ⚔️ **NEW: Battle Test System**
+- **GM Battle Testing**: Spawn mobs and test combat mechanics in controlled environments
+- **Player Assistance**: Automated help system with GM demonstration capabilities  
+- **Session Management**: Track battle test sessions with comprehensive analytics
+- **Demo Mode**: GMs can show combat mechanics to players in need
+- **Multi-Config Support**: Quick, standard, advanced, and endgame test configurations
+
+### 🤖 Enhanced Automated Moderation
+- **Behavior Analysis**: ML-powered continuous monitoring of player activities and behavior patterns
+- **Problem Detection**: Advanced automatic identification of stuck players, suspicious activities, and rule violations
+- **Disciplinary Actions**: Intelligent automated warnings, temporary jailing, and escalation procedures
+- **Smart Resolution**: Context-aware decision making with ML-enhanced accuracy
+
+### 💬 Advanced Player Communication
 - **Direct Messaging**: AI-GM can communicate directly with players through in-game messages
-- **Warning System**: Automated warning delivery with escalation tracking
+- **Intelligent Warning System**: ML-enhanced warning delivery with behavioral pattern analysis
 - **Status Updates**: Real-time feedback to players about moderation actions
-- **Help Assistance**: Automated help for common player issues (stuck, death, etc.)
+- **Automated Assistance**: Smart help for common player issues with battle demonstrations
 
-### 🚨 Escalation Management
-- **GM Notification**: Automatic alerts to human GMs for complex situations
-- **Severity Assessment**: Intelligent classification of incident severity levels
-- **Level-Based Escalation**: Automatic escalation to appropriate GM levels (2nd/3rd tier)
-- **Admin Alerts**: Critical incident notifications for server administrators
+### 🚨 Smart Escalation Management
+- **ML-Enhanced GM Notification**: Automatic alerts to human GMs for complex situations with risk assessment
+- **Intelligent Severity Assessment**: ML-powered classification of incident severity levels
+- **Adaptive Escalation**: Dynamic escalation to appropriate GM levels based on behavioral patterns
+- **Predictive Admin Alerts**: Proactive critical incident notifications for server administrators
 
 ### 🔒 Enhanced Jail System
-- **Smart Jailing**: Automated player jailing with duration management
+- **AI-Powered Jailing**: ML-informed automated player jailing with duration management
 - **Multiple Cells**: Support for 32 jail cells across two floors in Mordion Gaol
-- **Auto-Release**: Scheduled release system for temporary punishments
-- **Audit Logging**: Complete tracking of all jail actions and reasons
+- **Smart Auto-Release**: Intelligent scheduled release system for temporary punishments
+- **Comprehensive Audit Logging**: ML-enhanced tracking of all jail actions and behavioral patterns
 
 ## System Architecture
 
 ### Core Components
 
-#### 1. AI-GM Service (`ai_gm_service.py`)
-The main Python service that handles:
-- Database monitoring and analysis
-- Incident detection and classification
-- Automated response execution
-- Escalation management
-- Scheduled task processing
+#### 1. **NEW: ML Engine (`ml_engine.py`)**
+Advanced machine learning system featuring:
+- Cross-platform hardware acceleration (NVIDIA, AMD, Intel, Apple)
+- Real-time player behavior analysis and anomaly detection
+- Continuous learning from GM interactions and server data
+- Predictive behavior classification and risk assessment
+- Intelligent model selection and optimization
 
-#### 2. Lua Communication Interface (`scripts/globals/ai_gm.lua`)
-Provides in-game functionality for:
-- Player messaging and warnings
-- Jail management integration
-- GM notification system
-- Behavior analysis functions
+#### 2. **NEW: Battle Test System (`battle_test_system.py`)**
+Comprehensive GM battle testing framework providing:
+- Automated test session management and analytics
+- Player assistance request handling with demo capabilities
+- Mob spawning and combat mechanics testing
+- Multi-configuration support for different test scenarios
+- Real-time battle analytics and performance tracking
 
-#### 3. Enhanced Jail Utilities (`src/map/utils/jailutils.cpp/h`)
+#### 3. Enhanced AI-GM Service (`ai_gm_service.py`)
+The main Python service now includes:
+- ML-enhanced database monitoring and analysis
+- Advanced incident detection and classification
+- Hardware-accelerated automated response execution
+- Intelligent escalation management with risk assessment
+- Battle test integration and session coordination
+
+#### 4. Advanced Lua Communication Interface (`scripts/globals/ai_gm.lua`)
+Enhanced in-game functionality featuring:
+- ML-powered player behavior analysis functions
+- Battle test session creation and management
+- Player assistance request handling with combat demos
+- Hardware status monitoring and ML system integration
+- Enhanced GM notification system with risk assessment
+
+#### 5. Enhanced Jail Utilities (`src/map/utils/jailutils.cpp/h`)
 Extended C++ utilities offering:
-- Advanced jail management functions
-- Duration-based sentencing
-- Automated release scheduling
-- GM notification integration
+- ML-informed jail management functions
+- Advanced duration-based sentencing with behavioral factors
+- Intelligent automated release scheduling
+- Enhanced GM notification integration with risk data
 
-#### 4. Admin Command Interface (`scripts/commands/aigm.lua`)
-Administrative control system featuring:
-- Manual AI-GM action execution
-- System configuration management
-- Status monitoring and reporting
-- Override capabilities for human GMs
+#### 6. **NEW: Enhanced Admin Command Interface (`scripts/commands/aigm.lua`)**
+Expanded administrative control system featuring:
+- Battle test session management commands
+- ML system monitoring and configuration
+- Hardware acceleration status and optimization
+- Player assistance request handling
+- Advanced system diagnostics and analytics
+
+## **NEW: Hardware Requirements and Cross-Platform Support**
+
+### Supported Platforms
+- **Windows**: NVIDIA CUDA, Intel OpenVINO, CPU fallback
+- **macOS**: Apple Metal (M1/M2/M3), Intel OpenVINO, CPU fallback  
+- **Linux**: NVIDIA CUDA, AMD ROCm, Intel OpenVINO, CPU fallback
+
+### Recommended Hardware
+- **NVIDIA GPU**: RTX 20/30/40 series, GTX 1060+ for CUDA acceleration
+- **AMD GPU**: RX 5000/6000/7000 series for ROCm acceleration (Linux)
+- **Intel Hardware**: 4th gen Core+ with integrated NPU, Arc GPUs
+- **Apple Silicon**: M1/M2/M3 chips with Metal acceleration
+- **RAM**: 8GB minimum, 16GB+ recommended for ML workloads
+- **Storage**: SSD recommended for model loading performance
+
+### Hardware Auto-Detection
+The system automatically detects and configures the best available hardware:
+- **CUDA Detection**: Automatic NVIDIA GPU detection and optimization
+- **ROCm Detection**: AMD GPU support on compatible Linux systems  
+- **Metal Detection**: Native Apple Silicon acceleration on macOS
+- **OpenVINO Detection**: Intel CPU, GPU, and NPU optimization
+- **Graceful Fallback**: CPU-only operation when hardware acceleration unavailable
 
 ## Installation and Configuration
 

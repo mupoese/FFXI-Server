@@ -29,6 +29,21 @@ from mysql.connector import pooling
 # Add the tools directory to the path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'tools'))
 
+# Import AI-GM ML and Battle Test modules
+try:
+    from ml_engine import AIGMMLEngine, PlayerBehaviorData
+    ML_AVAILABLE = True
+except ImportError:
+    ML_AVAILABLE = False
+    print("Warning: ML engine not available, running without machine learning capabilities")
+
+try:
+    from battle_test_system import GMBattleTestSystem, BattleTestSession, PlayerAssistRequest
+    BATTLE_TEST_AVAILABLE = True
+except ImportError:
+    BATTLE_TEST_AVAILABLE = False
+    print("Warning: Battle test system not available, running without battle testing capabilities")
+
 class AIGMSeverity(Enum):
     """Severity levels for AI-GM actions"""
     INFO = "info"
@@ -85,6 +100,17 @@ class AIGMConfig:
     gm_name: str = "AI-GM"
     gm_level: int = 2
     announce_actions: bool = True
+    
+    # Machine Learning settings
+    ml_enabled: bool = True
+    ml_learning_enabled: bool = True
+    ml_model_update_interval: int = 1000
+    hardware_acceleration: bool = True
+    
+    # Battle Test settings
+    battle_test_enabled: bool = True
+    auto_assist_enabled: bool = True
+    demo_sessions_enabled: bool = True
 
 class AIGMService:
     """Main AI-GM service class"""
@@ -95,6 +121,24 @@ class AIGMService:
         self.db_pool = None
         self.incident_history: List[PlayerIncident] = []
         self.player_warnings: Dict[int, int] = {}
+        
+        # Initialize ML Engine
+        self.ml_engine = None
+        if ML_AVAILABLE and config.ml_enabled:
+            try:
+                self.ml_engine = AIGMMLEngine()
+                self.logger.info("AI-GM ML Engine initialized")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize ML engine: {e}")
+        
+        # Initialize Battle Test System
+        self.battle_system = None
+        if BATTLE_TEST_AVAILABLE and config.battle_test_enabled:
+            try:
+                self.battle_system = GMBattleTestSystem()
+                self.logger.info("AI-GM Battle Test System initialized")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize battle test system: {e}")
         
         # Setup logging
         logging.basicConfig(
@@ -125,6 +169,16 @@ class AIGMService:
                 database=self.config.db_name,
                 autocommit=True
             )
+            
+            # Initialize ML engine if available
+            if self.ml_engine and self.config.ml_enabled:
+                self.ml_engine.load_models()
+                self.logger.info("ML models loaded")
+                
+                # Train initial models with historical data
+                historical_data = self._fetch_historical_player_data()
+                if historical_data:
+                    self._train_ml_models_with_data(historical_data)
             
             self.logger.info("AI-GM Service initialized successfully")
             return True
@@ -466,10 +520,281 @@ class AIGMService:
         except Exception as e:
             self.logger.error(f"Failed to release player: {e}")
     
+    # ML Integration Methods
+    def _fetch_historical_player_data(self) -> List[Dict]:
+        """Fetch historical player data for ML training"""
+        try:
+            # Fetch player behavior data from the last 30 days
+            historical_query = """
+                SELECT c.charid, c.charname, c.pos_zone, c.pos_x, c.pos_y, c.pos_z,
+                       c.hp, c.maxhp, c.mp, c.maxmp, c.mjob, c.mlvl,
+                       COALESCE(cv_jail.value, 0) as jail_history,
+                       COALESCE(cv_death.value, 0) as death_count,
+                       UNIX_TIMESTAMP(c.last_update) as last_update_ts,
+                       cs.login_time, cs.logout_time
+                FROM chars c
+                LEFT JOIN char_vars cv_jail ON c.charid = cv_jail.charid AND cv_jail.varname = 'jailHistory'
+                LEFT JOIN char_vars cv_death ON c.charid = cv_death.charid AND cv_death.varname = 'deathCount'
+                LEFT JOIN char_stats cs ON c.charid = cs.charid
+                WHERE c.last_update >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                LIMIT 10000
+            """
+            
+            return self.execute_query(historical_query)
+            
+        except Exception as e:
+            self.logger.error(f"Error fetching historical data: {e}")
+            return []
+    
+    def _train_ml_models_with_data(self, historical_data: List[Dict]):
+        """Train ML models with historical data"""
+        if not self.ml_engine or not historical_data:
+            return
+        
+        try:
+            # Convert to pandas DataFrame for ML processing
+            df = self.ml_engine.preprocess_player_data(historical_data)
+            
+            if len(df) > 50:  # Need sufficient data for training
+                self.ml_engine.train_anomaly_detector(df)
+                self.ml_engine.train_behavior_classifier(df)
+                self.ml_engine.train_neural_network(df)
+                
+                self.logger.info(f"ML models trained with {len(df)} historical records")
+            
+        except Exception as e:
+            self.logger.error(f"Error training ML models: {e}")
+    
+    def _analyze_player_with_ml(self, player_data: Dict) -> Dict[str, Any]:
+        """Analyze player behavior using ML"""
+        if not self.ml_engine:
+            return {}
+        
+        try:
+            # Prepare data for ML analysis
+            ml_data = {
+                'player_id': player_data.get('charid', 0),
+                'timestamp': datetime.now(),
+                'zone_id': player_data.get('pos_zone', 0),
+                'pos_x': player_data.get('pos_x', 0),
+                'pos_y': player_data.get('pos_y', 0),
+                'pos_z': player_data.get('pos_z', 0),
+                'hp_percentage': player_data.get('hp', 0) / max(player_data.get('maxhp', 1), 1),
+                'mp_percentage': player_data.get('mp', 0) / max(player_data.get('maxmp', 1), 1),
+                'actions_per_minute': 1.0,  # Would need to calculate from activity
+                'chat_messages_per_hour': 0,  # Would need to track from chat logs
+                'login_duration_minutes': 60.0,  # Would calculate from login time
+                'death_count': player_data.get('death_count', 0),
+                'jail_history': player_data.get('jail_history', 0),
+                'gm_interactions': 0  # Would track from audit logs
+            }
+            
+            return self.ml_engine.predict_player_behavior(ml_data)
+            
+        except Exception as e:
+            self.logger.error(f"Error in ML analysis: {e}")
+            return {}
+    
+    # Battle Test System Integration
+    def create_gm_battle_session(self, gm_id: int, gm_name: str, zone_id: int, 
+                                config_name: str = "standard_test") -> str:
+        """Create a GM battle test session"""
+        if not self.battle_system:
+            return ""
+        
+        try:
+            session_id = self.battle_system.create_battle_test_session(
+                gm_id, gm_name, zone_id, config_name
+            )
+            
+            # Log the session creation
+            self.execute_query("""
+                INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+                VALUES (NOW(), %s, 'battle_test', %s)
+            """, (self.config.gm_name, f"Battle test session {session_id} created for GM {gm_name}"))
+            
+            return session_id
+            
+        except Exception as e:
+            self.logger.error(f"Error creating battle session: {e}")
+            return ""
+    
+    def spawn_battle_test_mob(self, session_id: str, gm_position: tuple, 
+                             mob_request: Dict = None) -> Dict[str, Any]:
+        """Spawn a mob for GM battle testing"""
+        if not self.battle_system:
+            return {"success": False, "error": "Battle system not available"}
+        
+        try:
+            spawn_request = mob_request or {}
+            spawn_request["gm_position"] = gm_position
+            
+            return self.battle_system.spawn_test_mob(session_id, spawn_request)
+            
+        except Exception as e:
+            self.logger.error(f"Error spawning battle test mob: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def handle_player_assist_request(self, player_id: int, player_name: str,
+                                   zone_id: int, position: tuple, issue_type: str,
+                                   description: str, urgency: str = "normal") -> str:
+        """Handle a player assistance request"""
+        if not self.battle_system:
+            return ""
+        
+        try:
+            request_id = self.battle_system.create_assist_request(
+                player_id, player_name, zone_id, position, issue_type, description, urgency
+            )
+            
+            # Log the assistance request
+            self.execute_query("""
+                INSERT INTO audit_gm (date_time, gm_name, command, full_string)
+                VALUES (NOW(), %s, 'assist_request', %s)
+            """, (self.config.gm_name, f"Assist request {request_id} created for {player_name}: {description}"))
+            
+            # Auto-assign if demo sessions are enabled and it's a combat issue
+            if (self.config.demo_sessions_enabled and 
+                issue_type in ["stuck_in_combat", "mob_assistance", "combat_help"]):
+                
+                # Try to find an available GM or create an AI-GM session
+                assign_result = self.battle_system.assign_gm_to_request(
+                    request_id, self.config.gm_name, auto_spawn_for_demo=True
+                )
+                
+                self.logger.info(f"Auto-assigned AI-GM to assist request {request_id}")
+            
+            return request_id
+            
+        except Exception as e:
+            self.logger.error(f"Error handling assist request: {e}")
+            return ""
+    
+    def get_system_status(self) -> Dict[str, Any]:
+        """Get comprehensive AI-GM system status"""
+        status = {
+            "service_running": self.running,
+            "database_connected": self.db_pool is not None,
+            "incidents_tracked": len(self.incident_history),
+            "ml_enabled": self.ml_engine is not None,
+            "battle_test_enabled": self.battle_system is not None
+        }
+        
+        # ML Status
+        if self.ml_engine:
+            status["ml_status"] = self.ml_engine.get_hardware_status()
+        
+        # Battle Test Status
+        if self.battle_system:
+            status["active_battle_sessions"] = len(self.battle_system.active_sessions)
+            status["pending_assist_requests"] = len([
+                r for r in self.battle_system.assist_requests.values() 
+                if r.status in ["pending", "assigned"]
+            ])
+        
+        return status
+    
     async def run_monitoring_cycle(self):
-        """Run one monitoring cycle"""
+        """Run one monitoring cycle with ML enhancement"""
         self.monitor_player_behavior()
         self.check_scheduled_releases()
+        
+        # Enhanced monitoring with ML if available
+        if self.ml_engine and self.config.ml_enabled:
+            await self._run_ml_enhanced_monitoring()
+        
+        # Check for pending assist requests if battle system is available
+        if self.battle_system and self.config.auto_assist_enabled:
+            await self._process_pending_assist_requests()
+    
+    async def _run_ml_enhanced_monitoring(self):
+        """Run ML-enhanced player behavior monitoring"""
+        try:
+            # Get current online players
+            online_players = self.execute_query("""
+                SELECT c.charid, c.charname, c.pos_zone, c.pos_x, c.pos_y, c.pos_z,
+                       c.hp, c.maxhp, c.mp, c.maxmp, c.mjob, c.mlvl,
+                       COALESCE(cv_jail.value, 0) as jail_history,
+                       COALESCE(cv_death.value, 0) as death_count,
+                       UNIX_TIMESTAMP(c.last_update) as last_update_ts
+                FROM chars c
+                LEFT JOIN char_vars cv_jail ON c.charid = cv_jail.charid AND cv_jail.varname = 'jailHistory'
+                LEFT JOIN char_vars cv_death ON c.charid = cv_death.charid AND cv_death.varname = 'deathCount'
+                WHERE c.last_update >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+                LIMIT 100
+            """)
+            
+            for player_data in online_players:
+                # Run ML analysis on player
+                ml_prediction = self._analyze_player_with_ml(player_data)
+                
+                if ml_prediction:
+                    # Check for high-risk behavior
+                    if ml_prediction.get('is_anomaly', False):
+                        incident = PlayerIncident(
+                            player_id=player_data['charid'],
+                            player_name=player_data['charname'],
+                            incident_type="ml_anomaly_detected",
+                            severity=AIGMSeverity.WARNING,
+                            description=f"ML detected anomalous behavior (score: {ml_prediction.get('anomaly_score', 0):.3f})"
+                        )
+                        self.report_incident(incident)
+                    
+                    # Check behavior classification
+                    behavior_class = ml_prediction.get('behavior_class', 'normal')
+                    if behavior_class in ['concerning', 'violation']:
+                        severity = AIGMSeverity.MODERATE if behavior_class == 'concerning' else AIGMSeverity.SEVERE
+                        incident = PlayerIncident(
+                            player_id=player_data['charid'],
+                            player_name=player_data['charname'],
+                            incident_type="ml_behavior_classification",
+                            severity=severity,
+                            description=f"ML classified behavior as '{behavior_class}' (confidence: {ml_prediction.get('behavior_confidence', 0):.3f})"
+                        )
+                        self.report_incident(incident)
+                    
+                    # Learn from the interaction if learning is enabled
+                    if self.config.ml_learning_enabled:
+                        outcome = "normal"  # This would be determined by actual GM actions
+                        self.ml_engine.learn_from_interaction(player_data, outcome)
+                        
+        except Exception as e:
+            self.logger.error(f"Error in ML-enhanced monitoring: {e}")
+    
+    async def _process_pending_assist_requests(self):
+        """Process pending player assistance requests"""
+        try:
+            if not self.battle_system:
+                return
+            
+            pending_requests = self.battle_system.get_pending_assist_requests("emergency")
+            
+            for request in pending_requests:
+                if request["status"] == "pending" and request["urgency"] == "emergency":
+                    # Auto-assign emergency requests to AI-GM
+                    assign_result = self.battle_system.assign_gm_to_request(
+                        request["request_id"], 
+                        self.config.gm_name,
+                        auto_spawn_for_demo=True
+                    )
+                    
+                    if assign_result.get("success", False):
+                        self.logger.info(f"Auto-assigned emergency assist request {request['request_id']}")
+                        
+                        # Escalate to human GMs
+                        self.escalate_to_gm(
+                            PlayerIncident(
+                                player_id=0,  # Unknown player ID from assist request
+                                player_name=request["player_name"],
+                                incident_type="emergency_assist_request",
+                                severity=AIGMSeverity.CRITICAL,
+                                description=f"Emergency assistance: {request['description']}"
+                            ), 
+                            3  # Escalate to GM level 3+
+                        )
+                        
+        except Exception as e:
+            self.logger.error(f"Error processing assist requests: {e}")
     
     async def start(self):
         """Start the AI-GM service"""

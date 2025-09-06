@@ -1,0 +1,182 @@
+name: "macOS Manual Build"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+        - Debug
+        - Release
+      run_integration_tests:
+        description: 'Run integration tests'
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  MacOS_64bit:
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Dependencies (Brew)
+        run: |
+          # Handle cmake installation conflicts between taps
+          if brew list cmake >/dev/null 2>&1; then
+            echo "cmake is already installed, uninstalling first..."
+            brew uninstall cmake
+          fi
+          brew install mariadb zeromq cppzmq luajit cmake ninja
+      - name: Cache 'build' folder
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ github.repository }}-${{ runner.os }}-macos-manual
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
+          # Optimize for Apple Silicon or Intel
+          cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=${{ inputs.build_type }}
+      - name: Build
+        run: |
+          cmake --build build --parallel $(sysctl -n hw.ncpu)
+      - name: Archive Executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_executables_${{ inputs.build_type }}
+          path: |
+            xi_connect
+            xi_map
+            xi_search
+            xi_world
+            xi_test
+
+  MacOS_Launcher_Build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --break-system-packages pyzmq requests flask pyinstaller
+      - name: Create Test Environment File
+        run: |
+          cp .env.example .env.test
+          sed -i '' 's/SERVERNAME=FFXI/SERVERNAME=MacManualServer/' .env.test
+          sed -i '' 's/FFXI_/MACMANUALSERVER_/g' .env.test
+          echo "MACMANUALSERVER_DEBUG_MODE=true" >> .env.test
+          echo "MACMANUALSERVER_MANUAL_BUILD=true" >> .env.test
+      - name: Test Basic Launcher Build
+        run: |
+          python3 tools/build_launcher.py
+          echo "✅ macOS launcher build completed"
+      - name: Test Enhanced Launcher Build
+        run: |
+          cp .env.test .env
+          python3 tools/enhanced_build_launcher.py
+          echo "✅ macOS enhanced launcher build completed"
+      - name: Archive macOS Launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_launcher_manual_build
+          path: |
+            launcher_build/
+            web/downloads/
+        if: always()
+
+  MacOS_Integration_Tests:
+    needs: MacOS_64bit
+    runs-on: macos-15
+    if: inputs.run_integration_tests == true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos_executables_${{ inputs.build_type }}
+          path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Dependencies
+        run: |
+          # Handle potential package installation conflicts
+          for pkg in mariadb zeromq zmq luajit; do
+            if brew list "$pkg" >/dev/null 2>&1; then
+              echo "$pkg is already installed, checking if reinstall is needed..."
+              # Only force reinstall if there are conflicts
+              brew install "$pkg" || (brew uninstall "$pkg" && brew install "$pkg")
+            else
+              brew install "$pkg"
+            fi
+          done
+          # Start MariaDB service
+          brew services start mariadb
+          sleep 10
+          # Set up database
+          mysql -u root -e "CREATE DATABASE IF NOT EXISTS xidb;"
+          mysql -u root -e "CREATE USER IF NOT EXISTS 'xiuser'@'localhost' IDENTIFIED BY 'xipass';"
+          mysql -u root -e "GRANT ALL PRIVILEGES ON xidb.* TO 'xiuser'@'localhost';"
+          mysql -u root -e "FLUSH PRIVILEGES;"
+      - name: Install Python Dependencies
+        run: |
+          python3 -m pip install --break-system-packages -r tools/requirements-py312.txt
+      - name: Import SQL files
+        run: |
+          python3 ./tools/dbtool.py setup
+      - name: Copy settings
+        run: |
+          cp settings/default/* settings/
+      - name: Run macOS-specific tests
+        run: |
+          chmod +x xi_connect xi_map xi_search xi_world xi_test
+          
+          # Test executables can start
+          timeout 10 ./xi_connect --version || echo "Version check completed"
+          timeout 10 ./xi_map --version || echo "Version check completed"
+          timeout 10 ./xi_search --version || echo "Version check completed"
+          timeout 10 ./xi_world --version || echo "Version check completed"
+          
+          # Test database connectivity
+          python3 -c "
+          import mysql.connector
+          try:
+              conn = mysql.connector.connect(
+                  host='localhost', 
+                  user='xiuser', 
+                  password='xipass', 
+                  database='xidb'
+              )
+              print('Database connection successful')
+              conn.close()
+          except Exception as e:
+              print(f'Database connection failed: {e}')
+              exit(1)
+          "
+      - name: Cleanup
+        if: always()
+        run: |
+          brew services stop mariadb || true

@@ -62,7 +62,14 @@ def create_configured_launcher(config, output_dir):
         f'{server_name}_WINDOWER_COMPATIBLE': config.get(f'{server_name}_WINDOWER_COMPATIBLE', 'true'),
         f'{server_name}_ASHITA_COMPATIBLE': config.get(f'{server_name}_ASHITA_COMPATIBLE', 'true'),
         f'{server_name}_AUTO_UPDATE': config.get(f'{server_name}_AUTO_UPDATE', 'true'),
-        f'{server_name}_CLIENT_TIMEOUT': config.get(f'{server_name}_CLIENT_TIMEOUT', '30000')
+        f'{server_name}_CLIENT_TIMEOUT': config.get(f'{server_name}_CLIENT_TIMEOUT', '30000'),
+        # URL Configuration with IPv4/IPv6 fallbacks
+        f'{server_name}_SERVER_URL': config.get(f'{server_name}_SERVER_URL', 'http://localhost:5000'),
+        f'{server_name}_API_BASE_URL': config.get(f'{server_name}_API_BASE_URL', 'http://localhost:5000/api'),
+        f'{server_name}_SERVER_IPV4': config.get(f'{server_name}_SERVER_IPV4', '127.0.0.1'),
+        f'{server_name}_SERVER_IPV6': config.get(f'{server_name}_SERVER_IPV6', '::1'),
+        f'{server_name}_API_PORT': config.get(f'{server_name}_API_PORT', '5000'),
+        f'{server_name}_WEB_PORT': config.get(f'{server_name}_WEB_PORT', '80')
     }
     
     # Inject the baked configuration into the launcher code

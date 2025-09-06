@@ -1492,6 +1492,64 @@ def serve_downloads(filename):
         logger.error(f"Failed to serve download file {filename}: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/launcher/heartbeat', methods=['POST'])
+@require_auth
+def launcher_heartbeat():
+    """Receive heartbeat from launcher clients"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Heartbeat data required'}), 400
+        
+        launcher_version = data.get('launcher_version', 'unknown')
+        timestamp = data.get('timestamp', datetime.utcnow().isoformat())
+        server_name = data.get('server_name', Config.SERVER_NAME)
+        user_id = g.user_id
+        
+        # Log the heartbeat (could be stored in database for analytics)
+        logger.info(f"Launcher heartbeat from {user_id}: version {launcher_version}, server {server_name}")
+        
+        # Respond with server information and any pending messages
+        response = {
+            'status': 'heartbeat_received',
+            'server_time': datetime.utcnow().isoformat(),
+            'server_version': '2.0.0',
+            'server_name': Config.SERVER_NAME,
+            'api_version': '1.0.0',
+            'launcher_compatible': True,
+            'messages': [],  # Could include server messages/announcements
+            'config_updates': {}  # Could include configuration updates
+        }
+        
+        # Add any server messages or configuration updates
+        try:
+            # Check for server announcements
+            announce_query = """
+            SELECT message, priority, expires_at 
+            FROM server_announcements 
+            WHERE active = 1 AND (expires_at IS NULL OR expires_at > NOW())
+            ORDER BY priority DESC, created_at DESC
+            LIMIT 5
+            """
+            announcements = execute_query(announce_query)
+            
+            if announcements:
+                for announcement in announcements:
+                    response['messages'].append({
+                        'message': announcement['message'],
+                        'priority': announcement['priority'],
+                        'expires_at': announcement['expires_at'].isoformat() if announcement['expires_at'] else None
+                    })
+        except Exception as e:
+            logger.warning(f"Failed to fetch announcements: {e}")
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        logger.error(f"Launcher heartbeat failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # Main application
 if __name__ == '__main__':
     logger.info(f"Starting {Config.SERVER_NAME} Server Management API")

@@ -1,0 +1,60 @@
+# Real-time Streaming and Rendering Requirements for FFXI Server
+# Core streaming and rendering dependencies
+
+# Video processing and streaming
+opencv-python>=4.8.0
+ffmpeg-python>=0.2.0
+numpy>=1.24.0
+Pillow>=10.0.0
+
+# 3D rendering and game engine
+moderngl>=5.8.0
+pygame>=2.5.0
+PyOpenGL>=3.1.7
+PyOpenGL-accelerate>=3.1.7
+
+# Streaming platform APIs
+google-api-python-client>=2.100.0  # YouTube
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.1
+requests>=2.31.0                   # Twitch, Facebook, etc.
+websockets>=11.0.0                 # Real-time communication
+
+# FFXI asset processing
+construct>=2.10.0                  # DAT file parsing
+lz4>=4.3.0                        # FFXI compression
+zstandard>=0.21.0                 # Additional compression
+
+# Real-time data processing
+redis>=4.6.0                      # Caching and real-time data
+asyncio-mqtt>=0.13.0              # Real-time messaging
+aiofiles>=23.2.0                  # Async file operations
+
+# Audio processing (for GM voice commentary)
+pyaudio>=0.2.11
+pydub>=0.25.1
+speech-recognition>=3.10.0
+
+# Performance monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0
+
+# Machine learning for scene optimization
+scikit-learn>=1.3.0
+torch>=2.0.0                      # Optional, for advanced ML
+torchvision>=0.15.0               # Computer vision utilities
+
+# Database connectivity
+mysql-connector-python>=8.1.0
+redis>=4.6.0
+
+# Async web framework for streaming API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+websockets>=11.0.0
+
+# Configuration and utilities
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+click>=8.1.0                      # CLI interface
+rich>=13.5.0                      # Rich console output

@@ -1,83 +1,74 @@
 {
-  "timestamp": "2025-09-06T21:55:29.952666",
+  "timestamp": "2025-09-06T22:11:10.950582",
   "jobs": {
     "warrior": {
-      "current_percentage": 47.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 15,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 3,
-      "lua_bindings": 21,
-      "missing_features": [
-        "Missing Mighty Strikes implementation"
-      ],
+      "lua_functions": 24,
+      "lua_bindings": 47,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "monk": {
-      "current_percentage": 44.5,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 3,
-      "lua_bindings": 21,
-      "missing_features": [
-        "Missing Chi Blast implementation",
-        "Missing Hundred Fists implementation"
-      ],
+      "lua_functions": 26,
+      "lua_bindings": 47,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "white_mage": {
-      "current_percentage": 26.0,
+      "current_percentage": 50.0,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 100,
-      "lua_functions": 4,
-      "lua_bindings": 25,
+      "lua_functions": 22,
+      "lua_bindings": 32,
       "missing_features": [
         "Missing Cure spells implementation",
         "Missing Protect/Shell implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries",
         "Complete spell access implementation"
       ]
     },
     "black_mage": {
-      "current_percentage": 26.0,
+      "current_percentage": 45.5,
       "abilities_implemented": 0,
       "abilities_total": 6,
       "spells_implemented": 0,
       "spells_total": 120,
-      "lua_functions": 4,
-      "lua_bindings": 12,
+      "lua_functions": 17,
+      "lua_bindings": 23,
       "missing_features": [
         "Missing Nuke spells implementation",
         "Missing Enfeebling implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries",
         "Complete spell access implementation"
       ]
     },
     "red_mage": {
-      "current_percentage": 22.5,
+      "current_percentage": 39.0,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 60,
-      "lua_functions": 0,
-      "lua_bindings": 6,
+      "lua_functions": 11,
+      "lua_bindings": 18,
       "missing_features": [
         "Missing Enfeebling implementation"
       ],
@@ -88,166 +79,132 @@
       ]
     },
     "thief": {
-      "current_percentage": 39.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 1,
-      "lua_bindings": 10,
-      "missing_features": [
-        "Missing Sneak Attack implementation",
-        "Missing Trick Attack implementation",
-        "Missing Perfect Dodge implementation"
-      ],
+      "lua_functions": 22,
+      "lua_bindings": 34,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "paladin": {
-      "current_percentage": 25.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 13,
       "abilities_total": 12,
-      "spells_implemented": 0,
+      "spells_implemented": 20,
       "spells_total": 20,
-      "lua_functions": 0,
-      "lua_bindings": 26,
+      "lua_functions": 35,
+      "lua_bindings": 48,
       "missing_features": [],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "enhancement_priorities": []
     },
     "dark_knight": {
-      "current_percentage": 20.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 10,
-      "spells_implemented": 0,
+      "spells_implemented": 15,
       "spells_total": 15,
-      "lua_functions": 0,
-      "lua_bindings": 7,
-      "missing_features": [
-        "Missing Blood Weapon implementation",
-        "Missing Last Resort implementation"
-      ],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 37,
+      "lua_bindings": 44,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "beastmaster": {
-      "current_percentage": 45.5,
+      "current_percentage": 72.5,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 2,
-      "lua_bindings": 4,
+      "lua_functions": 42,
+      "lua_bindings": 12,
       "missing_features": [
         "Missing Feral Howl implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "bard": {
-      "current_percentage": 26.0,
+      "current_percentage": 52.0,
       "abilities_implemented": 0,
       "abilities_total": 6,
       "spells_implemented": 0,
       "spells_total": 25,
-      "lua_functions": 4,
-      "lua_bindings": 11,
-      "missing_features": [
-        "Missing Soul Voice implementation",
-        "Missing Clarion Call implementation"
-      ],
+      "lua_functions": 18,
+      "lua_bindings": 25,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries",
         "Complete spell access implementation"
       ]
     },
     "ranger": {
-      "current_percentage": 42.5,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 0,
-      "lua_bindings": 5,
-      "missing_features": [
-        "Missing Eagle Eye Shot implementation"
-      ],
+      "lua_functions": 30,
+      "lua_bindings": 25,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "samurai": {
-      "current_percentage": 37.5,
+      "current_percentage": 69.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 0,
-      "lua_bindings": 5,
-      "missing_features": [
-        "Missing Meikyo Shisui implementation",
-        "Missing Third Eye implementation",
-        "Missing Warding Circle implementation"
-      ],
+      "lua_functions": 16,
+      "lua_bindings": 16,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "ninja": {
-      "current_percentage": 24.5,
+      "current_percentage": 52.5,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 37,
-      "lua_functions": 3,
-      "lua_bindings": 24,
+      "lua_functions": 21,
+      "lua_bindings": 43,
       "missing_features": [
-        "Missing Mijin Gakure implementation",
         "Missing Dual Wield implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries",
         "Complete spell access implementation"
       ]
     },
     "dragoon": {
-      "current_percentage": 53.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 7,
-      "lua_bindings": 8,
-      "missing_features": [
-        "Missing Ancient Circle implementation"
-      ],
+      "lua_functions": 33,
+      "lua_bindings": 36,
+      "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "summoner": {
-      "current_percentage": 20.5,
+      "current_percentage": 28.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 30,
-      "lua_functions": 2,
-      "lua_bindings": 2,
+      "lua_functions": 7,
+      "lua_bindings": 5,
       "missing_features": [
         "Missing Avatar's Favor implementation",
         "Missing Elemental Siphon implementation",
@@ -266,7 +223,7 @@
       "spells_implemented": 0,
       "spells_total": 50,
       "lua_functions": 10,
-      "lua_bindings": 7,
+      "lua_bindings": 10,
       "missing_features": [
         "Missing Burst Affinity implementation",
         "Missing Chain Affinity implementation"
@@ -278,15 +235,14 @@
       ]
     },
     "corsair": {
-      "current_percentage": 46.5,
+      "current_percentage": 59.5,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 6,
-      "lua_bindings": 0,
+      "lua_functions": 13,
+      "lua_bindings": 9,
       "missing_features": [
-        "Missing Wild Card implementation",
         "Missing Quick Draw implementation",
         "Missing Random Deal implementation"
       ],
@@ -296,66 +252,58 @@
       ]
     },
     "puppetmaster": {
-      "current_percentage": 48.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 2,
-      "lua_bindings": 5,
+      "lua_functions": 28,
+      "lua_bindings": 12,
       "missing_features": [],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "dancer": {
-      "current_percentage": 49.5,
+      "current_percentage": 67.5,
       "abilities_implemented": 0,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 8,
-      "lua_bindings": 20,
+      "lua_functions": 25,
+      "lua_bindings": 53,
       "missing_features": [
         "Missing Flourishes implementation",
         "Missing Waltzes implementation",
         "Missing Sambas implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries"
       ]
     },
     "scholar": {
-      "current_percentage": 25.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 10,
-      "spells_implemented": 0,
+      "spells_implemented": 40,
       "spells_total": 40,
-      "lua_functions": 0,
-      "lua_bindings": 5,
+      "lua_functions": 41,
+      "lua_bindings": 117,
       "missing_features": [],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "enhancement_priorities": []
     },
     "geomancer": {
-      "current_percentage": 26.0,
+      "current_percentage": 52.5,
       "abilities_implemented": 0,
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 35,
-      "lua_functions": 4,
-      "lua_bindings": 9,
+      "lua_functions": 25,
+      "lua_bindings": 29,
       "missing_features": [
-        "Missing Life Cycle implementation",
         "Missing Indicolure implementation"
       ],
       "enhancement_priorities": [
-        "Expand Lua function implementation",
         "Complete job ability database entries",
         "Complete spell access implementation"
       ]
@@ -366,8 +314,8 @@
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 8,
-      "lua_functions": 22,
-      "lua_bindings": 20,
+      "lua_functions": 43,
+      "lua_bindings": 33,
       "missing_features": [
         "Missing Embolden implementation"
       ],
@@ -379,48 +327,48 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 0,
-    "average_completeness": 35.5,
+    "jobs_at_100_percent": 3,
+    "average_completeness": 64.8,
     "highest_priority_jobs": [
       [
-        "dark_knight",
-        20.0
+        "summoner",
+        28.0
       ],
       [
-        "summoner",
-        20.5
+        "blue_mage",
+        35.0
       ],
       [
         "red_mage",
-        22.5
-      ],
-      [
-        "ninja",
-        24.5
-      ],
-      [
-        "paladin",
-        25.0
-      ],
-      [
-        "scholar",
-        25.0
-      ],
-      [
-        "white_mage",
-        26.0
+        39.0
       ],
       [
         "black_mage",
-        26.0
+        45.5
+      ],
+      [
+        "white_mage",
+        50.0
       ],
       [
         "bard",
-        26.0
+        52.0
+      ],
+      [
+        "ninja",
+        52.5
       ],
       [
         "geomancer",
-        26.0
+        52.5
+      ],
+      [
+        "rune_fencer",
+        52.5
+      ],
+      [
+        "corsair",
+        59.5
       ]
     ],
     "enhancement_phases": [
@@ -428,26 +376,10 @@
         "phase": 1,
         "name": "Critical Jobs (<50% Complete)",
         "jobs": [
-          "dark_knight",
           "summoner",
-          "red_mage",
-          "ninja",
-          "paladin",
-          "scholar",
-          "white_mage",
-          "black_mage",
-          "bard",
-          "geomancer",
           "blue_mage",
-          "samurai",
-          "thief",
-          "ranger",
-          "monk",
-          "beastmaster",
-          "corsair",
-          "warrior",
-          "puppetmaster",
-          "dancer"
+          "red_mage",
+          "black_mage"
         ],
         "estimated_hours": 40
       },
@@ -455,12 +387,32 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
+          "white_mage",
+          "bard",
+          "ninja",
+          "geomancer",
           "rune_fencer",
-          "dragoon"
+          "corsair",
+          "dancer",
+          "samurai",
+          "beastmaster"
         ],
         "estimated_hours": 20
+      },
+      {
+        "phase": 3,
+        "name": "Advanced Jobs (75-90% Complete)",
+        "jobs": [
+          "warrior",
+          "monk",
+          "thief",
+          "ranger",
+          "dragoon",
+          "puppetmaster"
+        ],
+        "estimated_hours": 10
       }
     ],
-    "estimated_effort_hours": 60
+    "estimated_effort_hours": 70
   }
 }

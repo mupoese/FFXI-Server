@@ -258,7 +258,7 @@ xi.job_utils.summoner.useElementalSiphon = function(player, target, ability)
     local currentWeather = player:getWeather()
     local zone = player:getZone()
     
-    -- Calculate MP recovery based on day/weather
+    -- Calculate MP recovery based on day/weather with merit bonuses
     local baseMPRecovery = 50
     local dayBonus = 0
     local weatherBonus = 0
@@ -306,8 +306,11 @@ xi.job_utils.summoner.useElementalSiphon = function(player, target, ability)
     -- Job point bonuses
     local jpBonus = player:getJobPointLevel(xi.jp.ELEMENTAL_SIPHON_EFFECT) * 5
     
+    -- Merit bonuses for summoning magic cast time (affects siphon efficiency)
+    local meritBonus = player:getMerit(xi.merit.SUMMONING_MAGIC_CAST_TIME) * 5 -- 5 MP per merit
+    
     -- Calculate total MP recovery
-    local totalRecovery = baseMPRecovery + dayBonus + weatherBonus + jpBonus
+    local totalRecovery = baseMPRecovery + dayBonus + weatherBonus + jpBonus + meritBonus
     
     -- Apply subjob penalty
     if player:getMainJob() ~= xi.job.SMN then
@@ -982,6 +985,86 @@ xi.job_utils.summoner.applyJobPointBonuses = function(player)
     local avatar = player:getPet()
     if avatar then
         xi.job_utils.summoner.enhanceAvatarStats(player, avatar)
+    end
+end
+
+-----------------------------------
+-- Complete Merit Integration System
+-----------------------------------
+
+-- Get merit bonuses for avatar combat stats
+xi.job_utils.summoner.getAvatarMeritBonuses = function(player)
+    if not xi.job_utils.summoner.validateJobAccess(player, true, true, 1) then
+        return { physicalAccuracy = 0, physicalAttack = 0, magicalAccuracy = 0, magicalAttack = 0 }
+    end
+    
+    local penalty = xi.job_utils.summoner.calculateSubjobPenalty(player, 1.0, "merit")
+    
+    return {
+        physicalAccuracy = math.floor(player:getMerit(xi.merit.AVATAR_PHYSICAL_ACCURACY) * penalty),
+        physicalAttack = math.floor(player:getMerit(xi.merit.AVATAR_PHYSICAL_ATTACK) * penalty),
+        magicalAccuracy = math.floor(player:getMerit(xi.merit.AVATAR_MAGICAL_ACCURACY) * penalty),
+        magicalAttack = math.floor(player:getMerit(xi.merit.AVATAR_MAGICAL_ATTACK) * penalty)
+    }
+end
+
+-- Merit-enhanced summoning magic cast time
+xi.job_utils.summoner.getSummoningCastTimeReduction = function(player)
+    if not xi.job_utils.summoner.validateJobAccess(player, true, true, 1) then
+        return 0
+    end
+    
+    local penalty = xi.job_utils.summoner.calculateSubjobPenalty(player, 1.0, "merit")
+    local meritReduction = player:getMerit(xi.merit.SUMMONING_MAGIC_CAST_TIME) * 5 -- 5% per merit
+    
+    return math.floor(meritReduction * penalty)
+end
+
+-- Merit-enhanced blood pact abilities (Meteor Strike, etc.)
+xi.job_utils.summoner.getBloodPactMeritBonuses = function(player, bloodPactType)
+    if not xi.job_utils.summoner.validateJobAccess(player, true, true, 1) then
+        return { damage = 0, recast = 0 }
+    end
+    
+    local penalty = xi.job_utils.summoner.calculateSubjobPenalty(player, 1.0, "merit")
+    local damageBonus = 0
+    
+    -- Specific blood pact merit bonuses
+    if bloodPactType == "meteor_strike" then
+        damageBonus = player:getMerit(xi.merit.METEOR_STRIKE)
+    elseif bloodPactType == "heavenly_strike" then
+        damageBonus = player:getMerit(xi.merit.HEAVENLY_STRIKE)
+    elseif bloodPactType == "wind_blade" then
+        damageBonus = player:getMerit(xi.merit.WIND_BLADE)
+    elseif bloodPactType == "geocrush" then
+        damageBonus = player:getMerit(xi.merit.GEOCRUSH)
+    end
+    
+    return {
+        damage = math.floor(damageBonus * penalty),
+        recast = 0 -- Merits generally provide damage, not recast
+    }
+end
+
+-- Apply complete merit bonuses to avatar
+xi.job_utils.summoner.applyMeritBonusesToAvatar = function(player, avatar)
+    if not avatar or not xi.job_utils.summoner.validateJobAccess(player, true, true, 1) then
+        return
+    end
+    
+    local meritBonuses = xi.job_utils.summoner.getAvatarMeritBonuses(player)
+    
+    -- Apply merit bonuses to avatar stats
+    avatar:addMod(xi.mod.ACC, meritBonuses.physicalAccuracy)
+    avatar:addMod(xi.mod.ATT, meritBonuses.physicalAttack)
+    avatar:addMod(xi.mod.MACC, meritBonuses.magicalAccuracy)
+    avatar:addMod(xi.mod.MATT, meritBonuses.magicalAttack)
+    
+    -- Apply summoning skill merit bonus
+    local skillMeritBonus = player:getMerit(xi.merit.SUMMONING) -- Summoning magic skill merit
+    if skillMeritBonus > 0 then
+        local penalty = xi.job_utils.summoner.calculateSubjobPenalty(player, 1.0, "merit")
+        avatar:addMod(xi.mod.SUMMONING_MAGIC, math.floor(skillMeritBonus * penalty))
     end
 end
 

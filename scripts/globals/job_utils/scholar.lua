@@ -189,10 +189,10 @@ local darkArtsSpells = {
 }
 
 -----------------------------------
--- Enhanced Sublimation System
+-- Enhanced Sublimation System with Merit Integration
 -----------------------------------
 
--- Sublimation MP calculation based on level and job
+-- Merit-enhanced sublimation MP calculation
 xi.job_utils.scholar.calculateSublimationMP = function(player)
     local hasAccess, level, isMainJob = xi.job_utils.scholar.validateJobAccess(player)
     if not hasAccess then
@@ -203,7 +203,21 @@ xi.job_utils.scholar.calculateSublimationMP = function(player)
     local baseRate = isMainJob and 0.25 or 0.125 -- 25% for main job, 12.5% for subjob
     local levelBonus = math.floor(level / 10) * 0.01 -- 1% per 10 levels
     
-    return math.floor(maxHP * (baseRate + levelBonus))
+    -- Merit bonus for maximum sublimation
+    local meritBonus = player:getMerit(xi.merit.MAX_SUBLIMATION) * 10 -- 10 MP per merit
+    
+    local calculatedMP = math.floor(maxHP * (baseRate + levelBonus))
+    return calculatedMP + meritBonus
+end
+
+-- Merit-enhanced sublimation recharge time
+xi.job_utils.scholar.getSublimationRechargeTime = function(player)
+    local baseRecharge = 300 -- 5 minutes base
+    
+    -- Merit reduction (if exists)
+    local meritReduction = 0 -- Placeholder for future merit
+    
+    return math.max(60, baseRecharge - meritReduction) -- Minimum 1 minute
 end
 
 -- Check if HP is safe for sublimation
@@ -410,7 +424,7 @@ xi.job_utils.scholar.useTabulaRasa = function(player, target, ability)
     player:addStatusEffect(xi.effect.TABULA_RASA, math.floor(helixBonus * 1.5), 0, duration, 0, math.floor(regenBonus * 1.5))
 end
 
--- Light Arts - Enhanced with complete job point integration
+-- Light Arts - Enhanced with complete job point and merit integration
 xi.job_utils.scholar.useLightArts = function(player, target, ability)
     local hasAccess, level, isMainJob = xi.job_utils.scholar.validateJobAccess(player)
     if not hasAccess then
@@ -428,16 +442,21 @@ xi.job_utils.scholar.useLightArts = function(player, target, ability)
     player:delStatusEffect(xi.effect.EQUANIMITY)
     player:delStatusEffect(xi.effect.IMMANENCE)
     
-    -- Calculate effectiveness
+    -- Calculate effectiveness with merit bonuses
     local jpValue = player:getJobPointLevel(xi.jp.LIGHT_ARTS_EFFECT)
-    local effectBonus = ARTS_EFFECT_BASE + jpValue + player:getMod(xi.mod.LIGHT_ARTS_EFFECT)
+    local meritBonus = player:getMerit(xi.merit.GRIMOIRE_RECAST) * 2 -- Merit enhances Arts effectiveness
+    local effectBonus = ARTS_EFFECT_BASE + jpValue + meritBonus + player:getMod(xi.mod.LIGHT_ARTS_EFFECT)
     local regenBonus = level >= 20 and (3 * math.floor((level - 10) / 10)) or 0
     local duration = (ARTS_BASE_DURATION * 60) + player:getMod(xi.mod.ENHANCES_LIGHT_ARTS) -- Convert to seconds
+    
+    -- Merit enhancement for Helix magic accuracy/attack
+    local helixBonus = player:getMerit(xi.merit.HELIX_MAGIC_ACC_ATT)
     
     -- Apply subjob penalty
     if not isMainJob then
         effectBonus = math.floor(effectBonus * 0.5)
         duration = math.floor(duration * 0.5)
+        helixBonus = math.floor(helixBonus * 0.5)
     end
     
     -- Reset stratagem charges
@@ -445,10 +464,10 @@ xi.job_utils.scholar.useLightArts = function(player, target, ability)
     player:setLocalVar("StratagemCharges", maxCharges)
     player:setLocalVar("StratagemRechargeTimer", 0)
     
-    player:addStatusEffect(xi.effect.LIGHT_ARTS, effectBonus, 0, duration, 0, regenBonus)
+    player:addStatusEffect(xi.effect.LIGHT_ARTS, effectBonus, 0, duration, 0, regenBonus + helixBonus)
 end
 
--- Dark Arts - Enhanced with complete job point integration
+-- Dark Arts - Enhanced with complete job point and merit integration
 xi.job_utils.scholar.useDarkArts = function(player, target, ability)
     local hasAccess, level, isMainJob = xi.job_utils.scholar.validateJobAccess(player)
     if not hasAccess then
@@ -464,15 +483,20 @@ xi.job_utils.scholar.useDarkArts = function(player, target, ability)
     player:delStatusEffect(xi.effect.PENURY)
     player:delStatusEffect(xi.effect.PERPETUANCE)
     
-    -- Calculate effectiveness
+    -- Calculate effectiveness with merit bonuses
     local jpValue = player:getJobPointLevel(xi.jp.DARK_ARTS_EFFECT)
-    local effectBonus = ARTS_EFFECT_BASE + jpValue + player:getMod(xi.mod.DARK_ARTS_EFFECT)
+    local meritBonus = player:getMerit(xi.merit.GRIMOIRE_RECAST) * 2 -- Merit enhances Arts effectiveness
+    local effectBonus = ARTS_EFFECT_BASE + jpValue + meritBonus + player:getMod(xi.mod.DARK_ARTS_EFFECT)
     local duration = (ARTS_BASE_DURATION * 60) + player:getMod(xi.mod.ENHANCES_DARK_ARTS) -- Convert to seconds
+    
+    -- Merit enhancement for Helix magic accuracy/attack
+    local helixBonus = player:getMerit(xi.merit.HELIX_MAGIC_ACC_ATT)
     
     -- Apply subjob penalty
     if not isMainJob then
         effectBonus = math.floor(effectBonus * 0.5)
         duration = math.floor(duration * 0.5)
+        helixBonus = math.floor(helixBonus * 0.5)
     end
     
     -- Reset stratagem charges
@@ -480,7 +504,7 @@ xi.job_utils.scholar.useDarkArts = function(player, target, ability)
     player:setLocalVar("StratagemCharges", maxCharges)
     player:setLocalVar("StratagemRechargeTimer", 0)
     
-    player:addStatusEffect(xi.effect.DARK_ARTS, effectBonus, 0, duration)
+    player:addStatusEffect(xi.effect.DARK_ARTS, effectBonus, 0, duration, 0, helixBonus)
 end
 
 -- Enhanced Sublimation with complete mechanics

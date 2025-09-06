@@ -108,6 +108,7 @@ init_environment() {
     # Source environment variables
     if [[ -f "$ENV_FILE" ]]; then
         set -a
+        # shellcheck source=/dev/null
         source "$ENV_FILE"
         set +a
         log_info "Environment variables loaded from .env"

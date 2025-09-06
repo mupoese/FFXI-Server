@@ -1,0 +1,1716 @@
+{
+  "metadata": {
+    "analysis_date": "2025-09-06T14:40:31.619254",
+    "source_path": "SquareEnix/PlayOnlineViewer",
+    "version": "1.18.15e"
+  },
+  "statistics": {
+    "total_files": 2469,
+    "total_size_bytes": 562881258,
+    "total_size_mb": 536.80539894104,
+    "by_category": {
+      "database": 128,
+      "other": 233,
+      "data": 63,
+      "graphics": 1548,
+      "documentation": 29,
+      "executable": 34,
+      "audio": 434
+    },
+    "by_language": {
+      "US": 2469
+    },
+    "by_extension": {
+      ".pfb": 64,
+      ".pib": 64,
+      ".dic": 16,
+      ".bin": 53,
+      ".png": 1399,
+      ".dat": 10,
+      ".inf": 3,
+      ".db": 2,
+      ".txt": 23,
+      ".ver": 1,
+      ".dll": 28,
+      ".exe": 6,
+      ".chm": 6,
+      ".sys": 2,
+      ".vxd": 2,
+      ".esd": 4,
+      ".cvt": 2,
+      ".bgw": 76,
+      ".pml": 187,
+      ".pcb": 2,
+      ".ang": 149,
+      ".spw": 358,
+      ".bmx": 4
+    },
+    "largest_files": [
+      {
+        "path": "viewer/data/pmlus/bgm/Daikoukai.114.bgw",
+        "size_mb": 14.45,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Daikoukai_(by_Noriko_Matsueda).114.bgw",
+        "size_mb": 14.45,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Daikoukai_(by_Noriko_Matsueda).114.bgw",
+        "size_mb": 14.45,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/pmlus/bgm/Daikoukai.114.bgw",
+        "size_mb": 14.45,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Foster_Family_(by_Noriko_Matsueda).122.bgw",
+        "size_mb": 9.16,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Foster_Family_(by_Noriko_Matsueda).122.bgw",
+        "size_mb": 9.16,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/pmlus/bgm/FFXIContMusic.151.bgw",
+        "size_mb": 8.92,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/pmlus/bgm/FFXIContMusic.151.bgw",
+        "size_mb": 8.92,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Honobono_(by_Noriko_Matsueda).110.bgw",
+        "size_mb": 8.92,
+        "category": "audio",
+        "language": "US"
+      },
+      {
+        "path": "viewer/data/system/bgm/Honobono_(by_Noriko_Matsueda).110.bgw",
+        "size_mb": 8.92,
+        "category": "audio",
+        "language": "US"
+      }
+    ],
+    "executables": [
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/app.dll",
+        "size_mb": 4.13
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/appEU.dll",
+        "size_mb": 4.13
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/polcore.dll",
+        "size_mb": 0.52
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/polcoreEU.dll",
+        "size_mb": 0.52
+      },
+      {
+        "path": "pol.exe",
+        "size_mb": 1.61
+      },
+      {
+        "path": "polcfg/polcfg.exe",
+        "size_mb": 0.64
+      },
+      {
+        "path": "polcfg/sysinfo.dll",
+        "size_mb": 0.26
+      },
+      {
+        "path": "polhook.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "unicows.dll",
+        "size_mb": 0.23
+      },
+      {
+        "path": "util/startpol.exe",
+        "size_mb": 0.21
+      },
+      {
+        "path": "util/unicows.dll",
+        "size_mb": 0.23
+      },
+      {
+        "path": "viewer/ax/MSVCR71.dll",
+        "size_mb": 0.33
+      },
+      {
+        "path": "viewer/ax/polmvf.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "viewer/ax/polmvfINT.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "viewer/contents/PolContents.dll",
+        "size_mb": 0.07
+      },
+      {
+        "path": "viewer/contents/polcontentsINT.dll",
+        "size_mb": 0.07
+      },
+      {
+        "path": "pol.exe",
+        "size_mb": 1.61
+      },
+      {
+        "path": "polhook.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "unicows.dll",
+        "size_mb": 0.23
+      },
+      {
+        "path": "viewer/com/app.dll",
+        "size_mb": 2.56
+      },
+      {
+        "path": "viewer/com/polcore.dll",
+        "size_mb": 0.28
+      },
+      {
+        "path": "viewer/contents/PolContents.dll",
+        "size_mb": 0.07
+      },
+      {
+        "path": "viewer/contents/polcontentsINT.dll",
+        "size_mb": 0.07
+      },
+      {
+        "path": "viewer/ax/MSVCR71.dll",
+        "size_mb": 0.33
+      },
+      {
+        "path": "viewer/ax/polmvf.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "viewer/ax/polmvfINT.dll",
+        "size_mb": 0.06
+      },
+      {
+        "path": "util/startpol.exe",
+        "size_mb": 0.21
+      },
+      {
+        "path": "util/unicows.dll",
+        "size_mb": 0.23
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/app.dll",
+        "size_mb": 4.13
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/appEU.dll",
+        "size_mb": 4.13
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/polcore.dll",
+        "size_mb": 0.52
+      },
+      {
+        "path": "patchfiles/PlayOnlineViewer/viewer/com/polcoreEU.dll",
+        "size_mb": 0.52
+      },
+      {
+        "path": "polcfg/polcfg.exe",
+        "size_mb": 0.64
+      },
+      {
+        "path": "polcfg/sysinfo.dll",
+        "size_mb": 0.26
+      }
+    ]
+  },
+  "integration_suggestions": {
+    "database_integration": {
+      "description": "Store manifest data in server database for client validation",
+      "sql_schema": "\n                    CREATE TABLE client_files (\n                        file_hash VARCHAR(64) PRIMARY KEY,\n                        file_path VARCHAR(512) NOT NULL,\n                        file_size BIGINT NOT NULL,\n                        category VARCHAR(50),\n                        language_code CHAR(2),\n                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n                    );\n                    \n                    CREATE INDEX idx_client_files_category ON client_files(category);\n                    CREATE INDEX idx_client_files_language ON client_files(language_code);\n                ",
+      "entries_to_store": 2469
+    },
+    "api_endpoints": {
+      "description": "REST API endpoints for client update system",
+      "endpoints": [
+        "GET /api/client/manifest/{version}",
+        "GET /api/client/file/{hash}",
+        "POST /api/client/validate",
+        "GET /api/client/patches/available",
+        "GET /api/client/language/{lang}/files"
+      ]
+    },
+    "content_delivery": {
+      "description": "CDN and caching strategy",
+      "total_size_mb": 536.81,
+      "largest_files_mb": [
+        {
+          "path": "viewer/data/pmlus/bgm/Daikoukai.114.bgw",
+          "size_mb": 14.45
+        },
+        {
+          "path": "viewer/data/system/bgm/Daikoukai_(by_Noriko_Matsueda).114.bgw",
+          "size_mb": 14.45
+        },
+        {
+          "path": "viewer/data/system/bgm/Daikoukai_(by_Noriko_Matsueda).114.bgw",
+          "size_mb": 14.45
+        },
+        {
+          "path": "viewer/data/pmlus/bgm/Daikoukai.114.bgw",
+          "size_mb": 14.45
+        },
+        {
+          "path": "viewer/data/system/bgm/Foster_Family_(by_Noriko_Matsueda).122.bgw",
+          "size_mb": 9.16
+        }
+      ],
+      "caching_priority": {
+        "high": [
+          "executable",
+          "data"
+        ],
+        "medium": [
+          "graphics",
+          "audio"
+        ],
+        "low": [
+          "documentation"
+        ]
+      }
+    },
+    "multi_language_support": {
+      "description": "Language-specific content delivery",
+      "languages": [
+        "US"
+      ],
+      "implementation": "Route requests based on client language preference"
+    }
+  },
+  "file_entries": [
+    {
+      "hash": "8HTtk008aFgDhvrasjanxA",
+      "size": 608,
+      "path": "data/db/ch_count.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "y@M23FtrZetO5zr9hgPDPt",
+      "size": 132,
+      "path": "data/db/ch_count.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "QUyBjw1aFZt8_bAJGEjw6T",
+      "size": 1360,
+      "path": "data/db/c_chan.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "@tjRs1jujuzobai4o0fgDt",
+      "size": 396,
+      "path": "data/db/c_chan.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "52uk6PkAXVfJgGzH9cUY7A",
+      "size": 1392,
+      "path": "data/db/kb_faq.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "dIwRXD4Tb9RZQnxozVP1gA",
+      "size": 300,
+      "path": "data/db/kb_faq.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "ESw3G0qdkFFDdEKkMzCR07",
+      "size": 128,
+      "path": "data/db/kb_faq_idx.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "hqcv2Og_XhAVLoK7MCqRkA",
+      "size": 300,
+      "path": "data/db/kb_faq_idx.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "ZxT152nRiFzal@sCoUhEtt",
+      "size": 8336,
+      "path": "data/db/prof_001.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "mH9S1SvWW60tVVxr3YDtMA",
+      "size": 356,
+      "path": "data/db/prof_001.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "ir6iA_ntJrFnD5eHzYwz_7",
+      "size": 3472,
+      "path": "data/db/prof_002.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "rBKL3foIJX3AIaOV931ZRT",
+      "size": 1020,
+      "path": "data/db/prof_002.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "vwzYmqjuI9c_PUR1ePXRsT",
+      "size": 27240,
+      "path": "data/db/prof_pol.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "32VvLePFfAsuR7sq52h3BT",
+      "size": 828,
+      "path": "data/db/prof_pol.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "6p5wua2n2HDARs0UAi5rqA",
+      "size": 344,
+      "path": "data/db/zo_count.pfb",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "Qa5_wo_IgqnX2LMa_S_wFA",
+      "size": 108,
+      "path": "data/db/zo_count.pib",
+      "category": "database",
+      "language": "US"
+    },
+    {
+      "hash": "@0XMFYSldn0QCtNnfgRgET",
+      "size": 152288,
+      "path": "data/dic/chat_name.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "r7yNjQcUQtr_Z2HI6y_QyA",
+      "size": 475128,
+      "path": "data/dic/entry.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "1YXqU8PjrK03rSJjELz_Nt",
+      "size": 38464,
+      "path": "data/dic/entrynw.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "Vw6OtYixtNR6cOjLeXWC07",
+      "size": 626608,
+      "path": "data/dic/entryz.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "dqIh75RXH@Gw@juw4bN1BT",
+      "size": 56496,
+      "path": "data/dic/entry_b.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "nKomPAtUy0NakP4RcRv3MT",
+      "size": 56488,
+      "path": "data/dic/entry_f.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "rkfADNQdamP7pPzhjx3CLt",
+      "size": 88686,
+      "path": "data/dic/fep.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "rrRhd8_nLyte8KLh9ozQGt",
+      "size": 67568,
+      "path": "data/dic/vulgar2.dic",
+      "category": "other",
+      "language": "US"
+    },
+    {
+      "hash": "ondQNQzKbAZhfWzw@s5MP7",
+      "size": 39128,
+      "path": "data/doc/polerr.bin",
+      "category": "data",
+      "language": "US"
+    },
+    {
+      "hash": "vrvhFtDI0_yovLCFbxlDCt",
+      "size": 6152,
+      "path": "data/doc/sqpolcts.bin",
+      "category": "data",
+      "language": "US"
+    },
+    {
+      "hash": "aQSdNzocOjWrPXGxxLvWb7",
+      "size": 8192,
+      "path": "data/font/fnt000.bin",
+      "category": "data",
+      "language": "US"
+    },
+    {
+      "hash": "aQSdNzocOjWrPXGxxLvWb7",
+      "size": 8192,
+      "path": "data/font/fnt001.bin",
+      "category": "data",
+      "language": "US"
+    },
+    {
+      "hash": "qaD5xpPVacORivggfcLswt",
+      "size": 5697,
+      "path": "data/icon/cicn_l000.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ASc7X3o3ucxtlSplQOOLFt",
+      "size": 3404,
+      "path": "data/icon/cicn_l001.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ZWx@4_VrXecDfrKNtigi5t",
+      "size": 3280,
+      "path": "data/icon/cicn_l002.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "MjEI9yKhkFVMcEBewDckHA",
+      "size": 3063,
+      "path": "data/icon/cicn_l249.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "lMJpp8vP_V2zHH_dXIwx3A",
+      "size": 4378,
+      "path": "data/icon/cicn_l250.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "tyX2@NxiW4gk3LTeqD3g6t",
+      "size": 2721,
+      "path": "data/icon/cicn_s000.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "Cn2Za7eTjhgw436yjuDOy7",
+      "size": 1106,
+      "path": "data/icon/cicn_s001.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "u2P1EBNkGezglpsJ1qsBM7",
+      "size": 2961,
+      "path": "data/icon/cicn_s002.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "4haCOC0H@lHAv2wkjUaSZA",
+      "size": 2319,
+      "path": "data/icon/cicn_s003.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ZZUs9YHdtj8Cjv@edSMPwA",
+      "size": 2592,
+      "path": "data/icon/cicn_s249.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "rTWoCyL6jUowBoaFYvx5xt",
+      "size": 2845,
+      "path": "data/icon/cicn_s250.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ikzyxDYHoqiNeBD0EEmkGA",
+      "size": 4923,
+      "path": "data/icon/download/hnf000.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "iQBQK358chOxwOFmpuywvt",
+      "size": 33527,
+      "path": "data/icon/download/hnf031.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "@64a@wImoLS7DHGaOLSMi7",
+      "size": 32873,
+      "path": "data/icon/download/hnf032.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "Kbu2h4xXwd_gx_kkSFrdD7",
+      "size": 18196,
+      "path": "data/icon/download/hnf033.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "_wiQupmDr9X4DiFIPvU@AA",
+      "size": 37566,
+      "path": "data/icon/download/hnf036.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "QNZX6tC0X2ncxjpdygEfGA",
+      "size": 20389,
+      "path": "data/icon/download/hnf037.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "d0lZbnAwaYF2Xc0LlxLrvt",
+      "size": 38373,
+      "path": "data/icon/download/hnf041.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "oAGytvasfFXGAAepS_Im_T",
+      "size": 15865,
+      "path": "data/icon/download/hnf042.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "hKhtDucmN09yQcy5mOU4At",
+      "size": 33444,
+      "path": "data/icon/download/hnf043.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "KqUikY0EDcAiWkzijuQMn7",
+      "size": 38366,
+      "path": "data/icon/download/hnf044.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "qVDykAv8zY9SO4aRsaX6MA",
+      "size": 39430,
+      "path": "data/icon/download/hnf045.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "zPm8fdzr1cwp0W6D7CnG3T",
+      "size": 34332,
+      "path": "data/icon/download/hnf046.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "0s4QVQ59fPYkhpG1gYmKAT",
+      "size": 37260,
+      "path": "data/icon/download/hnf048.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "1MVJQRpO4XF1uHCre07i2t",
+      "size": 35940,
+      "path": "data/icon/download/hnf049.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "r4WWmKPZQaGyzlp8UgJmtA",
+      "size": 38136,
+      "path": "data/icon/download/hnf050.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "d18SIDJeJTBQHDw4b@ckyt",
+      "size": 35260,
+      "path": "data/icon/download/hnf051.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "tjhKePeA9ccwXhvW918wNA",
+      "size": 34587,
+      "path": "data/icon/download/hnf052.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "KvjacVuz5UuRirqczRTHbA",
+      "size": 35592,
+      "path": "data/icon/download/hnf053.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "MxvTyNS8327zodhrv3w9XA",
+      "size": 36446,
+      "path": "data/icon/download/hnf054.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "NV6M0ncs21o3BVs9@J_alt",
+      "size": 34697,
+      "path": "data/icon/download/hnf055.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "0@IbQIAO@DFGK_vM1C1SQA",
+      "size": 38341,
+      "path": "data/icon/download/hnf056.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "i2V4Sk@f5ErG5FWYRQD9y7",
+      "size": 34920,
+      "path": "data/icon/download/hnf057.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "RgQ0K7732Xx6QoflI3Jwgt",
+      "size": 23132,
+      "path": "data/icon/download/hnf058.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "q3QHrSjwk3K2opjcRwQtCA",
+      "size": 36887,
+      "path": "data/icon/download/hnf065.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "XaZybTJpsLLMVuD3juot1A",
+      "size": 38445,
+      "path": "data/icon/download/hnf066.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "cyZa67eeTiJkfD0WfbGoo7",
+      "size": 16873,
+      "path": "data/icon/download/hnf067.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ETiAeLB@dnMiDwW4VaelwT",
+      "size": 39615,
+      "path": "data/icon/download/hnf068.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "0bGpcOGSIr5v_1973WaqGT",
+      "size": 34529,
+      "path": "data/icon/download/hnf069.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "aBcazEaqrTSitBLJt3SzYT",
+      "size": 28498,
+      "path": "data/icon/download/hnf070.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "9z35dGvdjvQGmC8Vptua7T",
+      "size": 42965,
+      "path": "data/icon/download/hnf072.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "8SwIiE0VuXgqk2DdjFaNp7",
+      "size": 38680,
+      "path": "data/icon/download/hnf073.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "IW7I@Y@NAHvH6XBJTmhoQA",
+      "size": 44684,
+      "path": "data/icon/download/hnf074.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "k05KqmzGM80ApuGL1Qw4Bt",
+      "size": 43474,
+      "path": "data/icon/download/hnf075.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "nPe@zMqQ3KohFadjZaQh_T",
+      "size": 41978,
+      "path": "data/icon/download/hnf076.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "7nJIthaubtG29QBUIVeGrA",
+      "size": 39688,
+      "path": "data/icon/download/hnf077.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "QMJfSa1U2ZV5LOAux9gus7",
+      "size": 43140,
+      "path": "data/icon/download/hnf078.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "t3_HCFTuwa9VuI5L@I3F6t",
+      "size": 39337,
+      "path": "data/icon/download/hnf079.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "uau0t5KQP7yrodbkj7apNt",
+      "size": 44688,
+      "path": "data/icon/download/hnf080.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "ndwKvQO7t24v4aCfWRTHf7",
+      "size": 40971,
+      "path": "data/icon/download/hnf081.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "xiG3R9MWCX6yEHeJwo2wSt",
+      "size": 41638,
+      "path": "data/icon/download/hnf082.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "nJFxyYZK9HPe9Nncqu0arA",
+      "size": 37784,
+      "path": "data/icon/download/hnf083.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "IEYuC6nT2BtQwuBVQJo0oT",
+      "size": 35450,
+      "path": "data/icon/download/hnf084.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "@LDL@@vO@UtPuLuMxpb1NT",
+      "size": 32670,
+      "path": "data/icon/download/hnf085.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "UJQoWMXlqx@RdWdliB48s7",
+      "size": 34132,
+      "path": "data/icon/download/hnf086.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "VxjIUsklAyCx4wM4mTICyt",
+      "size": 34585,
+      "path": "data/icon/download/hnf087.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "6h1qLulbW@AUp2TTs9BHlA",
+      "size": 36596,
+      "path": "data/icon/download/hnf088.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "A4HoBLL8vlu2aZ2bDvi947",
+      "size": 35541,
+      "path": "data/icon/download/hnf089.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "AyU4kaYCy38mmuDC2beyUt",
+      "size": 35579,
+      "path": "data/icon/download/hnf090.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "YP6X532lMo76B7XGKBxtfA",
+      "size": 34112,
+      "path": "data/icon/download/hnf091.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "T7U9uGR54PiRTg64BBYkZT",
+      "size": 31481,
+      "path": "data/icon/download/hnf092.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "xn3y398dzAaYOt8PFq23tt",
+      "size": 37241,
+      "path": "data/icon/download/hnf093.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "4yKDik45EJr7vF8mj7QG5T",
+      "size": 32754,
+      "path": "data/icon/download/hnf094.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "WrzPwXFPGPc7cttRNKmJOt",
+      "size": 32680,
+      "path": "data/icon/download/hnf095.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "qOM6zIfhTYzPvq97iGiAa7",
+      "size": 35806,
+      "path": "data/icon/download/hnf096.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "OqQTMEFdPuVJYmbP6DnUYA",
+      "size": 13299,
+      "path": "data/icon/download/hnf097.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "JCTtObT3lsPeT3Db6MiGCt",
+      "size": 40918,
+      "path": "data/icon/download/hnf100.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "iz0p_y1I1fud92Go4H450T",
+      "size": 36920,
+      "path": "data/icon/download/hnf101.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "Uolqfuu1YVVgDo5lcPpgXt",
+      "size": 10209,
+      "path": "data/icon/download/hnf102.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "Oa9gOcHKsnhiMQBWNqBBjt",
+      "size": 35936,
+      "path": "data/icon/download/hnf103.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "PPbaFeaCwZSmpo31VH7AWt",
+      "size": 35243,
+      "path": "data/icon/download/hnf104.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "bxKbBJzuuz_SriLLa9xcQt",
+      "size": 33605,
+      "path": "data/icon/download/hnf105.png",
+      "category": "graphics",
+      "language": "US"
+    }
+  ],
+  "patch_entries": [
+    {
+      "hash": "qpSKADJPzrI9V2m3D9XgW7",
+      "size": 85167,
+      "path": "file.txt",
+      "category": "documentation",
+      "language": "US"
+    },
+    {
+      "hash": "9qyr@ufojIqPXDIn_QodvT",
+      "size": 1691648,
+      "path": "pol.exe",
+      "category": "executable",
+      "language": "US"
+    },
+    {
+      "hash": "FdiW3peA6317IcfUizfHjt",
+      "size": 61440,
+      "path": "polhook.dll",
+      "category": "executable",
+      "language": "US"
+    },
+    {
+      "hash": "J9TjlV83cHUoFjiP2b0oZt",
+      "size": 245408,
+      "path": "unicows.dll",
+      "category": "executable",
+      "language": "US"
+    },
+    {
+      "hash": "0l5l6vqoE2sdeCftWIS9r7",
+      "size": 8,
+      "path": "version.dat",
+      "category": "data",
+      "language": "US"
+    },
+    {
+      "hash": "aLYQeeK@BvSwFz_AzRwoH7",
+      "size": 2685440,
+      "path": "viewer/com/app.dll",
+      "category": "executable",
+      "language": "US"
+    },
+    {
+      "hash": "DEAKzzE8RjNH5A8xYDCdnT",
+      "size": 292352,
+      "path": "viewer/com/polcore.dll",
+      "category": "executable",
+      "language": "US"
+    },
+    {
+      "hash": "UUd0KfFKCDvzKb9fzgzaY7",
+      "size": 5167,
+      "path": "viewer/data/system/wallpaper/BlackScreen.001.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "bx92x@MVtDEwcOY7iOesht",
+      "size": 105931,
+      "path": "viewer/data/system/wallpaper/BlueCrystal.002.png",
+      "category": "graphics",
+      "language": "US"
+    },
+    {
+      "hash": "Oo@sVINKz4ycv3ull9t9PA",
+      "size": 99984,
+      "path": "viewer/data/system/sound/tetra.esd/se001001.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "KQ3FPrLs3mzAG20mu8bOk7",
+      "size": 63408,
+      "path": "viewer/data/system/sound/tetra.esd/se001002.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "0l80fS2lO2BlAQULP0zhvt",
+      "size": 108624,
+      "path": "viewer/data/system/sound/tetra.esd/se001003.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "F2IfBZcFu7oniIXFEP7PBT",
+      "size": 99696,
+      "path": "viewer/data/system/sound/tetra.esd/se001004.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "2te_wG2ZA18KlaPFQ3lWrT",
+      "size": 85872,
+      "path": "viewer/data/system/sound/tetra.esd/se001005.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "bMSDTG6Nh8gKLgmOrI6CZT",
+      "size": 50736,
+      "path": "viewer/data/system/sound/tetra.esd/se001006.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "xKnu_ODITlTzErVNnLggqA",
+      "size": 145200,
+      "path": "viewer/data/system/sound/tetra.esd/se001007.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "vYhsOQkot@jAxJC06eRNxA",
+      "size": 63696,
+      "path": "viewer/data/system/sound/tetra.esd/se001008.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "BnReeF0XTYqG_JFgFWF6G7",
+      "size": 23376,
+      "path": "viewer/data/system/sound/tetra.esd/se001009.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "K581bPto5L1Af6yh0Xo2uT",
+      "size": 94512,
+      "path": "viewer/data/system/sound/tetra.esd/se001010.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "hRDRAh8Lrh3CmrDR5BDu27",
+      "size": 104304,
+      "path": "viewer/data/system/sound/tetra.esd/se001011.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "WROjZuK@WSic3trphtHsMt",
+      "size": 56496,
+      "path": "viewer/data/system/sound/tetra.esd/se001012.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "y3NKlXO3d6eSzIQ_leA9Vt",
+      "size": 115824,
+      "path": "viewer/data/system/sound/tetra.esd/se001013.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "vaZRP2NxPe2XrYDiH_eS@T",
+      "size": 131952,
+      "path": "viewer/data/system/sound/tetra.esd/se001017.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "EAV3WNEUQdpQ21QFVI6DQT",
+      "size": 126768,
+      "path": "viewer/data/system/sound/tetra.esd/se001018.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "bgVVRxWR1LQTrWYEMOJITt",
+      "size": 97392,
+      "path": "viewer/data/system/sound/tetra.esd/se001019.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "r8_MbnCDemmTu2iKajvjFt",
+      "size": 152400,
+      "path": "viewer/data/system/sound/tetra.esd/se001020.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "t5aG4vb_uoIc27dSRRFcSt",
+      "size": 182928,
+      "path": "viewer/data/system/sound/tetra.esd/se001021.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "3isgJGt8VzQNw61VJOnZIt",
+      "size": 162480,
+      "path": "viewer/data/system/sound/tetra.esd/se001022.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "zTrkOjC0u4VJRUNwPhZjG7",
+      "size": 168240,
+      "path": "viewer/data/system/sound/tetra.esd/se001023.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "2hUtjd5NCVYgT1uCzE7K1t",
+      "size": 162768,
+      "path": "viewer/data/system/sound/tetra.esd/se001024.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "6VvCiXyjE3l25boSZt9tRA",
+      "size": 134526,
+      "path": "viewer/data/system/sound/tetra.esd/se001025.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "8T0mjVc@QnyGXPH7gNC2y7",
+      "size": 62832,
+      "path": "viewer/data/system/sound/tetra.esd/se001026.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "uKgLWzSGOUvEqEatiCA88t",
+      "size": 103152,
+      "path": "viewer/data/system/sound/tetra.esd/se001027.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "dY89d4yLYRtUPqbJcJP5YT",
+      "size": 101136,
+      "path": "viewer/data/system/sound/tetra.esd/se001028.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Q3X9gDoInrjB1vI99l1lEt",
+      "size": 78960,
+      "path": "viewer/data/system/sound/tetra.esd/se001029.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Djoyj678Yb07qQ3vJtvuU7",
+      "size": 118128,
+      "path": "viewer/data/system/sound/tetra.esd/se001030.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "AfqpohO9pr@hhUaXMoNX_t",
+      "size": 120432,
+      "path": "viewer/data/system/sound/tetra.esd/se001031.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "eow4wPWmoOohOuYeDrlUL7",
+      "size": 88176,
+      "path": "viewer/data/system/sound/tetra.esd/se001032.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "hWWIlpK8Xh9aFuefCDOirt",
+      "size": 120144,
+      "path": "viewer/data/system/sound/tetra.esd/se001033.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Mn@PON@pndf2ptKsNPr37T",
+      "size": 112368,
+      "path": "viewer/data/system/sound/tetra.esd/se001034.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Eiz2DzRUM_tzOsRrNxR8zt",
+      "size": 115248,
+      "path": "viewer/data/system/sound/tetra.esd/se001035.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "n84IwNzrxDjaYCpyXV8w1A",
+      "size": 94512,
+      "path": "viewer/data/system/sound/tetra.esd/se001036.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "tjj@yvyYu77BBOKR47lkQA",
+      "size": 49872,
+      "path": "viewer/data/system/sound/tetra.esd/se001037.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "2LrbJLUlyqfgY5H9R0Kwot",
+      "size": 249744,
+      "path": "viewer/data/system/sound/tetra.esd/se001038.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "DOlMV8sT80jIkOETeGva27",
+      "size": 45840,
+      "path": "viewer/data/system/sound/tetra.esd/se001039.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "6xfIDJHMYtbSuxjXwlSdnA",
+      "size": 46992,
+      "path": "viewer/data/system/sound/tetra.esd/se001040.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "zKzr2o9TtWZcYm69N89uxT",
+      "size": 83856,
+      "path": "viewer/data/system/sound/tetra.esd/se001041.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "ztG6IOpiQbhilKkhheKbFA",
+      "size": 83856,
+      "path": "viewer/data/system/sound/tetra.esd/se001042.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "chDELuyHJhCDCPQ520Ix2t",
+      "size": 22512,
+      "path": "viewer/data/system/sound/tetra.esd/se001043.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "kdJ6C19FmYpfFQ3xe6t1WT",
+      "size": 39504,
+      "path": "viewer/data/system/sound/tetra.esd/se001044.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "ZcPW8TYmAi8w7wi9WybGp7",
+      "size": 126192,
+      "path": "viewer/data/system/sound/tetra.esd/se001045.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "vdzNjy2zJu0oc38qBiL00t",
+      "size": 10416,
+      "path": "viewer/data/system/sound/tetra.esd/se001046.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "YijsR9qvMp2UTZVcEb29mA",
+      "size": 9840,
+      "path": "viewer/data/system/sound/tetra.esd/se001047.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "NcxDva3YLMMTvAW3kgHLC7",
+      "size": 68304,
+      "path": "viewer/data/system/sound/tetra.esd/se001048.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "HDmOL8Yc9QhG77KsPaXaaT",
+      "size": 43248,
+      "path": "viewer/data/system/sound/tetra.esd/se001049.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "AXVoDpnpofRlbGienBB4ct",
+      "size": 28848,
+      "path": "viewer/data/system/sound/tetra.esd/se001050.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "gEuuhrweE9uDeDHt148lqt",
+      "size": 91920,
+      "path": "viewer/data/system/sound/tetra.esd/se001051.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "gu3oWc9jEt3gCzLGd_4Fl7",
+      "size": 109488,
+      "path": "viewer/data/system/sound/tetra.esd/se001052.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Z9eIiVc34Asq99@vJyLDnA",
+      "size": 95376,
+      "path": "viewer/data/system/sound/tetra.esd/se001053.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "pRwnYI1lvFKu7Vlb_0SFZT",
+      "size": 102000,
+      "path": "viewer/data/system/sound/tetra.esd/se001054.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "eJ_Iqzh@GcflIS9YGNnDat",
+      "size": 200784,
+      "path": "viewer/data/system/sound/tetra.esd/se001055.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "3cytoLDv846Bs6a6Kihf1A",
+      "size": 117264,
+      "path": "viewer/data/system/sound/tetra.esd/se001056.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "jdT77IA1rnPHzpqLJwTIkA",
+      "size": 93936,
+      "path": "viewer/data/system/sound/tetra.esd/se001057.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "6XoJ6HqnL33YamGIsTtyRA",
+      "size": 87600,
+      "path": "viewer/data/system/sound/tetra.esd/se001058.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "UpUg3s_oDzrk8ypEqgcWbt",
+      "size": 57360,
+      "path": "viewer/data/system/sound/tetra.esd/se001059.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "9whCJvW4IEkGTeF1nvUSTt",
+      "size": 247440,
+      "path": "viewer/data/system/sound/tetra.esd/se001060.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "@OVQwdcoJbsM7e1GLYSUU7",
+      "size": 98544,
+      "path": "viewer/data/system/sound/tetra.esd/se001061.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "B3a2EQ0ZMXXAvpjQm4h6Ht",
+      "size": 91920,
+      "path": "viewer/data/system/sound/tetra.esd/se001062.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "UzE6dpd@8yXJTZabd@1v0T",
+      "size": 15600,
+      "path": "viewer/data/system/sound/tetra.esd/se001063.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "PtqUqhTf9_4i237oaesr9t",
+      "size": 101136,
+      "path": "viewer/data/system/sound/tetra.esd/se001065.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "62XmII4YTU6mJmqPFOJPw7",
+      "size": 46992,
+      "path": "viewer/data/system/sound/viewer.esd/se000001.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "MoNp6G4Z9c1EYoXZsYIAxt",
+      "size": 53616,
+      "path": "viewer/data/system/sound/viewer.esd/se000002.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "MtbVmhOVWChvv68tcYsSfA",
+      "size": 96816,
+      "path": "viewer/data/system/sound/viewer.esd/se000003.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Eh7c8tIeylv0mmyuGQUKsT",
+      "size": 88176,
+      "path": "viewer/data/system/sound/viewer.esd/se000004.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "0izjKEgtk@e0mPwuLUHZtT",
+      "size": 112080,
+      "path": "viewer/data/system/sound/viewer.esd/se000005.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "cOjn7@TrVN@R1bT_rz0Swt",
+      "size": 80400,
+      "path": "viewer/data/system/sound/viewer.esd/se000006.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "7_TgdncZoGsRjItXB@6yI7",
+      "size": 69744,
+      "path": "viewer/data/system/sound/viewer.esd/se000007.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "1uOKnhSvLLTR6QTrVtrLHT",
+      "size": 67440,
+      "path": "viewer/data/system/sound/viewer.esd/se000008.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "F6TB0pIPs5LO9VqMefjmuA",
+      "size": 108624,
+      "path": "viewer/data/system/sound/viewer.esd/se000009.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "WR6ybzKJs8pWBrTlhY9C@t",
+      "size": 83856,
+      "path": "viewer/data/system/sound/viewer.esd/se000010.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "m74jII2CtXRY4a9I562jB7",
+      "size": 98544,
+      "path": "viewer/data/system/sound/viewer.esd/se000011.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "7N_W@PFLRrun7hR2Vpti17",
+      "size": 98256,
+      "path": "viewer/data/system/sound/viewer.esd/se000012.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "fofSmgimv2snRwn4iDRyYt",
+      "size": 95088,
+      "path": "viewer/data/system/sound/viewer.esd/se000013.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "wrWuECSZ9mluaEeT42G4fA",
+      "size": 50736,
+      "path": "viewer/data/system/sound/viewer.esd/se000014.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "K0a3hpdUG_L04sSoHTr2LA",
+      "size": 45840,
+      "path": "viewer/data/system/sound/viewer.esd/se000015.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "UilLBHUWzNoQi26_UMazcT",
+      "size": 93360,
+      "path": "viewer/data/system/sound/viewer.esd/se000016.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "Y3S8ILpSGlZGRJsWVgGaRt",
+      "size": 159024,
+      "path": "viewer/data/system/sound/viewer.esd/se000033.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "2R2TQg3yHg8gI4FESAubC7",
+      "size": 108912,
+      "path": "viewer/data/system/sound/viewer.esd/se000034.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "3s4Lvnt7EkiBmjaHLAiUWT",
+      "size": 104880,
+      "path": "viewer/data/system/sound/viewer.esd/se000035.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "pOQecWSRgX_IjryR7l8R7A",
+      "size": 131376,
+      "path": "viewer/data/system/sound/viewer.esd/se000036.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "tkcDlQzk2uVXG0epOv8eH7",
+      "size": 140304,
+      "path": "viewer/data/system/sound/viewer.esd/se000037.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "QGK2S2tV24GTcXwrXu6xBA",
+      "size": 138000,
+      "path": "viewer/data/system/sound/viewer.esd/se000038.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "V@gosTMzSLNcvgx3Q8hnlA",
+      "size": 144624,
+      "path": "viewer/data/system/sound/viewer.esd/se000039.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "4Befb_t1Irnq32bBrVq9nt",
+      "size": 133392,
+      "path": "viewer/data/system/sound/viewer.esd/se000040.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "0fhZUg6ajw6sbTGM6B9v4T",
+      "size": 112944,
+      "path": "viewer/data/system/sound/viewer.esd/se000041.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "IoEptxhY6vVQGdAgZUwdwT",
+      "size": 103440,
+      "path": "viewer/data/system/sound/viewer.esd/se000042.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "LyHouxTFND1d5KPBsUc297",
+      "size": 103440,
+      "path": "viewer/data/system/sound/viewer.esd/se000043.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "KrzEOhklz7nrsndRkpfJ1T",
+      "size": 105456,
+      "path": "viewer/data/system/sound/viewer.esd/se000044.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "QPG_gjCL9SxmIn5wsJkAot",
+      "size": 106608,
+      "path": "viewer/data/system/sound/viewer.esd/se000045.spw",
+      "category": "audio",
+      "language": "US"
+    },
+    {
+      "hash": "fB9MQy0xZ2zXIWcmksQiMt",
+      "size": 133680,
+      "path": "viewer/data/system/sound/viewer.esd/se000046.spw",
+      "category": "audio",
+      "language": "US"
+    }
+  ]
+}

@@ -488,7 +488,7 @@ function aiGM.requestPlayerAssist(player, issueType, description, urgency)
     end
     
     local assistMessage = string.format("Player Assistance Request [%s]: %s in zone %d - %s", 
-                                      urgency:upper(), player:getName(), zoneId, description)
+                                      string.upper(urgency), player:getName(), zoneId, description)
     aiGM.notifyGMs(assistMessage, minGMLevel)
     
     -- For combat-related issues, prepare for potential battle demo

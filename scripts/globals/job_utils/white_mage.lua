@@ -2,6 +2,8 @@
 -- White Mage Job Utilities
 -----------------------------------
 require('scripts/globals/utils')
+require('scripts/globals/jobpoints')
+require('scripts/globals/magic')
 -----------------------------------
 xi = xi or {}
 xi.job_utils = xi.job_utils or {}
@@ -21,6 +23,72 @@ local removables =
     xi.effect.MAGIC_EVASION_DOWN, xi.effect.MAGIC_DEF_DOWN, xi.effect.MAX_TP_DOWN,    xi.effect.SILENCE,
     xi.effect.PETRIFICATION
 }
+
+-----------------------------------
+-- Divine Magic Enhancement
+-----------------------------------
+function getDivineSealBonus(player)
+    if player:hasStatusEffect(xi.effect.DIVINE_SEAL) then
+        return 100 -- 100% magic accuracy bonus for healing
+    end
+    return 0
+end
+
+function calculateCurePotency(player, baseCure)
+    local healingSkill = player:getSkillLevel(xi.skill.HEALING_MAGIC)
+    local mnd = player:getStat(xi.mod.MND)
+    local vit = player:getStat(xi.mod.VIT)
+    
+    local potency = baseCure + math.floor(healingSkill / 5) + math.floor(mnd / 3) + math.floor(vit / 10)
+    
+    -- Apply Divine Seal bonus
+    if player:hasStatusEffect(xi.effect.DIVINE_SEAL) then
+        potency = potency * 1.5
+    end
+    
+    -- Job point bonuses
+    potency = potency + player:getJobPointLevel(xi.jp.CURE_POTENCY)
+    
+    return potency
+end
+
+function handleProtectShell(player, target, spellType, tier)
+    local duration = 1800 -- 30 minutes base
+    duration = duration + player:getJobPointLevel(xi.jp.PROTECT_SHELL_DURATION) * 60
+    
+    local power = tier * 10 + player:getJobPointLevel(xi.jp.PROTECT_SHELL_EFFECT)
+    
+    if spellType == "protect" then
+        target:addStatusEffect(xi.effect.PROTECT, power, 0, duration)
+    elseif spellType == "shell" then
+        target:addStatusEffect(xi.effect.SHELL, power, 0, duration)
+    end
+end
+
+function handleRaise(player, target, tier)
+    if not target:isDead() then
+        return false
+    end
+    
+    local weaknessLevel = 1
+    local hpPercent = 0.25
+    
+    -- Higher tier raises give better recovery
+    if tier >= 2 then
+        hpPercent = 0.5
+        weaknessLevel = 0
+    elseif tier >= 3 then
+        hpPercent = 0.75
+        weaknessLevel = 0
+    end
+    
+    target:raise(hpPercent)
+    if weaknessLevel > 0 then
+        target:addStatusEffect(xi.effect.WEAKNESS, weaknessLevel, 0, 300)
+    end
+    
+    return true
+end
 
 -----------------------------------
 -- Ability Check Functions
@@ -55,23 +123,52 @@ xi.job_utils.white_mage.checkMartyr = function(player, target, ability)
     end
 end
 
+xi.job_utils.white_mage.checkDivineSeal = function(player, target, ability)
+    if player:hasStatusEffect(xi.effect.DIVINE_SEAL) then
+        return xi.msg.basic.EFFECT_ALREADY_ACTIVE, 0
+    end
+    return 0, 0
+end
+
+-----------------------------------
+-- Healing and Protection Magic
+-----------------------------------
+xi.job_utils.white_mage.enhanceCure = function(player, target, baseCure)
+    return calculateCurePotency(player, baseCure)
+end
+
+xi.job_utils.white_mage.castProtect = function(player, target, tier)
+    handleProtectShell(player, target, "protect", tier)
+end
+
+xi.job_utils.white_mage.castShell = function(player, target, tier)
+    handleProtectShell(player, target, "shell", tier)
+end
+
+xi.job_utils.white_mage.castRaise = function(player, target, tier)
+    return handleRaise(player, target, tier)
+end
+
 -----------------------------------
 -- Ability Use Functions
 -----------------------------------
 xi.job_utils.white_mage.useAfflatusMisery = function(player, target, ability)
     target:delStatusEffect(xi.effect.AFFLATUS_SOLACE)
     target:delStatusEffect(xi.effect.AFFLATUS_MISERY)
-    target:addStatusEffect(xi.effect.AFFLATUS_MISERY, 8, 0, 7200)
+    local duration = 7200 + player:getJobPointLevel(xi.jp.AFFLATUS_MISERY_EFFECT) * 60
+    target:addStatusEffect(xi.effect.AFFLATUS_MISERY, 8, 0, duration)
 end
 
 xi.job_utils.white_mage.useAfflatusSolace = function(player, target, ability)
     target:delStatusEffect(xi.effect.AFFLATUS_SOLACE)
     target:delStatusEffect(xi.effect.AFFLATUS_MISERY)
-    target:addStatusEffect(xi.effect.AFFLATUS_SOLACE, 8, 0, 7200)
+    local duration = 7200 + player:getJobPointLevel(xi.jp.AFFLATUS_SOLACE_EFFECT) * 60
+    target:addStatusEffect(xi.effect.AFFLATUS_SOLACE, 8, 0, duration)
 end
 
 xi.job_utils.white_mage.useAsylum = function(player, target, ability)
-    target:addStatusEffect(xi.effect.ASYLUM, 3, 0, 30)
+    local duration = 30 + player:getJobPointLevel(xi.jp.ASYLUM_EFFECT)
+    target:addStatusEffect(xi.effect.ASYLUM, 3, 0, duration)
 end
 
 xi.job_utils.white_mage.useBenediction = function(player, target, ability)
@@ -90,7 +187,7 @@ xi.job_utils.white_mage.useBenediction = function(player, target, ability)
         heal = maxHeal
     end
 
-    local power = 33 --chance to remove Doom. Basing off of Holy Water?
+    local power = 33 + player:getJobPointLevel(xi.jp.BENEDICTION_EFFECT) --chance to remove Doom. Basing off of Holy Water?
 
     if target:hasStatusEffect(xi.effect.DOOM) and power > math.random(1, 100) then
         target:delStatusEffect(xi.effect.DOOM)
@@ -123,11 +220,13 @@ xi.job_utils.white_mage.useDevotion = function(player, target, ability)
 end
 
 xi.job_utils.white_mage.useDivineCaress = function(player, target, ability)
-    player:addStatusEffect(xi.effect.DIVINE_CARESS_I, 3, 0, 60)
+    local duration = 60 + player:getJobPointLevel(xi.jp.DIVINE_CARESS_EFFECT)
+    player:addStatusEffect(xi.effect.DIVINE_CARESS_I, 3, 0, duration)
 end
 
 xi.job_utils.white_mage.useDivineSeal = function(player, target, ability)
-    player:addStatusEffect(xi.effect.DIVINE_SEAL, 1, 0, 60)
+    local duration = 60 + player:getJobPointLevel(xi.jp.DIVINE_SEAL_EFFECT)
+    player:addStatusEffect(xi.effect.DIVINE_SEAL, 100, 0, duration)
 end
 
 xi.job_utils.white_mage.useMartyr = function(player, target, ability)
@@ -151,5 +250,6 @@ xi.job_utils.white_mage.useMartyr = function(player, target, ability)
 end
 
 xi.job_utils.white_mage.useSacrosanctity = function(player, target, ability)
-    target:addStatusEffect(xi.effect.SACROSANCTITY, 3, 0, 60)
+    local duration = 60 + player:getJobPointLevel(xi.jp.SACROSANCTITY_EFFECT)
+    target:addStatusEffect(xi.effect.SACROSANCTITY, 3, 0, duration)
 end

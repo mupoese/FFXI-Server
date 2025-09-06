@@ -1,6 +1,9 @@
 -----------------------------------
 -- Monk Job Utilities
 -----------------------------------
+require('scripts/globals/utils')
+require('scripts/globals/jobpoints')
+-----------------------------------
 xi = xi or {}
 xi.job_utils = xi.job_utils or {}
 xi.job_utils.monk = xi.job_utils.monk or {}
@@ -15,6 +18,35 @@ local chakraStatusEffects =
 }
 
 -----------------------------------
+-- Monk Combat Enhancement
+-----------------------------------
+function calculateChiBlast(player, target)
+    local damage = player:getSkillLevel(xi.skill.HAND_TO_HAND) / 4
+    damage = damage + player:getStat(xi.mod.VIT) / 2
+    
+    -- Job point enhancement
+    damage = damage + player:getJobPointLevel(xi.jp.CHI_BLAST_EFFECT) * 5
+    
+    -- Apply target resistance
+    local resist = target:getMagicResistance(xi.element.NONE)
+    damage = damage * resist
+    
+    return math.floor(damage)
+end
+
+function getHandToHandSkillBonus(player)
+    local skill = player:getSkillLevel(xi.skill.HAND_TO_HAND)
+    return math.floor(skill / 20) -- Bonus per 20 skill points
+end
+
+function calculateBoostPower(player)
+    local basePower = 12.5
+    basePower = basePower + (0.10 * player:getMod(xi.mod.BOOST_EFFECT))
+    basePower = basePower + player:getJobPointLevel(xi.jp.BOOST_EFFECT)
+    return basePower
+end
+
+-----------------------------------
 -- Ability Check Functions
 -----------------------------------
 xi.job_utils.monk.checkHundredFists = function(player, target, ability)
@@ -27,19 +59,85 @@ xi.job_utils.monk.checkInnerStrength = function(player, target, ability)
     return 0, 0
 end
 
+xi.job_utils.monk.checkChiBlast = function(player, target, ability)
+    if not target:isMob() then
+        return xi.msg.basic.CANNOT_PERFORM_TARG, 0
+    end
+    return 0, 0
+end
+
+xi.job_utils.monk.checkBoost = function(player, target, ability)
+    return 0, 0
+end
+
+xi.job_utils.monk.checkFocus = function(player, target, ability)
+    if player:hasStatusEffect(xi.effect.FOCUS) then
+        return xi.msg.basic.EFFECT_ALREADY_ACTIVE, 0
+    end
+    return 0, 0
+end
+
+xi.job_utils.monk.checkDodge = function(player, target, ability)
+    if player:hasStatusEffect(xi.effect.DODGE) then
+        return xi.msg.basic.EFFECT_ALREADY_ACTIVE, 0
+    end
+    return 0, 0
+end
+
+xi.job_utils.monk.checkCounterstance = function(player, target, ability)
+    if player:hasStatusEffect(xi.effect.COUNTERSTANCE) then
+        return xi.msg.basic.EFFECT_ALREADY_ACTIVE, 0
+    end
+    return 0, 0
+end
+
 -----------------------------------
 -- Ability Use Functions
 -----------------------------------
+xi.job_utils.monk.useChiBlast = function(player, target, ability)
+    local damage = calculateChiBlast(player, target)
+    
+    -- Apply damage
+    target:takeDamage(damage, player, xi.attackType.MAGICAL, xi.damageType.ELEMENTAL)
+    
+    -- Chance to stun based on job points
+    local stunChance = player:getJobPointLevel(xi.jp.CHI_BLAST_EFFECT)
+    if math.random(100) <= stunChance then
+        target:addStatusEffect(xi.effect.STUN, 1, 0, 3)
+    end
+    
+    return damage
+end
 xi.job_utils.monk.useBoost = function(player, target, ability)
-    local power = 12.5 + (0.10 * player:getMod(xi.mod.BOOST_EFFECT))
+    local power = calculateBoostPower(player)
 
     if player:hasStatusEffect(xi.effect.BOOST) then
         local effect = player:getStatusEffect(xi.effect.BOOST)
         effect:setPower(effect:getPower() + power)
         player:addMod(xi.mod.ATTP, power)
     else
-        player:addStatusEffect(xi.effect.BOOST, power, 0, 180)
+        local duration = 180 + player:getJobPointLevel(xi.jp.BOOST_EFFECT) * 10
+        player:addStatusEffect(xi.effect.BOOST, power, 0, duration)
     end
+end
+
+xi.job_utils.monk.useFocus = function(player, target, ability)
+    local power = 15 + player:getJobPointLevel(xi.jp.FOCUS_EFFECT)
+    local duration = 180 + player:getJobPointLevel(xi.jp.FOCUS_EFFECT) * 10
+    
+    player:addStatusEffect(xi.effect.FOCUS, power, 0, duration)
+end
+
+xi.job_utils.monk.useDodge = function(player, target, ability)
+    local power = 15 + player:getJobPointLevel(xi.jp.DODGE_EFFECT)
+    local duration = 180 + player:getJobPointLevel(xi.jp.DODGE_EFFECT) * 10
+    
+    player:addStatusEffect(xi.effect.DODGE, power, 0, duration)
+end
+
+xi.job_utils.monk.useCounterstance = function(player, target, ability)
+    local duration = 300 + player:getJobPointLevel(xi.jp.COUNTERSTANCE_EFFECT) * 30
+    player:addStatusEffect(xi.effect.COUNTERSTANCE, 1, 0, duration)
 end
 
 -- TODO: add Melee Gloves +2 aug
@@ -74,51 +172,24 @@ xi.job_utils.monk.useChakra = function(player, target, ability)
     return recoveryAmount
 end
 
-xi.job_utils.monk.useChiBlast = function(player, target, ability)
-    local boost = player:getStatusEffect(xi.effect.BOOST)
-    local multiplier = 1.0
-    if boost ~= nil then
-        multiplier = (boost:getPower() / 100) * 4 -- power is the raw % atk boost
-    end
-
-    local dmg = math.floor(player:getStat(xi.mod.MND) * (0.5 + (math.random() / 2))) * multiplier
-
-    dmg = xi.ability.adjustDamage(dmg, player, ability, target, xi.attackType.BREATH, nil, xi.mobskills.shadowBehavior.IGNORE_SHADOWS)
-    target:takeDamage(dmg, player, xi.attackType.BREATH, xi.damageType.ELEMENTAL)
-    target:updateClaim(player)
-    player:delStatusEffect(xi.effect.BOOST)
-
-    return dmg
-end
-
-xi.job_utils.monk.useCounterstance = function(player, target, ability)
-    local power = 45 + player:getMod(xi.mod.COUNTERSTANCE_EFFECT)
-
-    target:delStatusEffect(xi.effect.COUNTERSTANCE) --if not found this will do nothing
-    target:addStatusEffect(xi.effect.COUNTERSTANCE, power, 0, 300)
-end
-
-xi.job_utils.monk.useDodge = function(player, target, ability)
-    player:addStatusEffect(xi.effect.DODGE, 0, 0, 30)
-end
-
-xi.job_utils.monk.useFocus = function(player, target, ability)
-    player:addStatusEffect(xi.effect.FOCUS, 0, 0, 30)
-end
-
+-----------------------------------
+-- Enhanced Monk Abilities
+-----------------------------------
 xi.job_utils.monk.useFootwork = function(player, target, ability)
-    local kickDmg = 20 + player:getWeaponDmg()
+    local kickDmg = 20 + player:getWeaponDmg() + player:getJobPointLevel(xi.jp.FOOTWORK_EFFECT)
     local kickAttPercent = 25 + player:getMod(xi.mod.FOOTWORK_ATT_BONUS)
 
     player:addStatusEffect(xi.effect.FOOTWORK, kickDmg, 0, 60, 0, kickAttPercent)
 end
 
 xi.job_utils.monk.useFormlessStrikes = function(player, target, ability)
-    player:addStatusEffect(xi.effect.FORMLESS_STRIKES, 1, 0, 180)
+    local duration = 180 + player:getJobPointLevel(xi.jp.FORMLESS_STRIKES_EFFECT) * 10
+    player:addStatusEffect(xi.effect.FORMLESS_STRIKES, 1, 0, duration)
 end
 
 xi.job_utils.monk.useHundredFists = function(player, target, ability)
-    player:addStatusEffect(xi.effect.HUNDRED_FISTS, 1, 0, 45)
+    local duration = 45 + player:getJobPointLevel(xi.jp.HUNDRED_FISTS_EFFECT)
+    player:addStatusEffect(xi.effect.HUNDRED_FISTS, 1, 0, duration)
 end
 
 -- TODO: Support Tantra Cyclas + 1 (does not give critical hit damage)
@@ -172,22 +243,50 @@ xi.job_utils.monk.impetusHitListener = function(attacker, victim, attack)
 end
 
 xi.job_utils.monk.useImpetus = function(player, target, ability)
-    player:addStatusEffect(xi.effect.IMPETUS, 0, 0, 180)
+    local duration = 180 + player:getJobPointLevel(xi.jp.IMPETUS_EFFECT) * 10
+    player:addStatusEffect(xi.effect.IMPETUS, 0, 0, duration)
 end
 
 xi.job_utils.monk.useInnerStrength = function(player, target, ability)
-    player:addStatusEffect(xi.effect.INNER_STRENGTH, 2, 0, 30)
+    local duration = 30 + player:getJobPointLevel(xi.jp.INNER_STRENGTH_EFFECT)
+    local power = 2 + player:getJobPointLevel(xi.jp.INNER_STRENGTH_EFFECT)
+    player:addStatusEffect(xi.effect.INNER_STRENGTH, power, 0, duration)
 end
 
 xi.job_utils.monk.useMantra = function(player, target, ability)
     local merits = player:getMerit(xi.merit.MANTRA)
+    local jpBonus = player:getJobPointLevel(xi.jp.MANTRA_EFFECT)
 
     target:delStatusEffect(xi.effect.MAX_HP_BOOST) -- TODO: confirm which versions of HP boost mantra can overwrite
-    target:addStatusEffect(xi.effect.MAX_HP_BOOST, merits, 0, 180)
+    target:addStatusEffect(xi.effect.MAX_HP_BOOST, merits + jpBonus, 0, 180)
 
     return 0 -- xi.effect.MANTRA -- TODO: implement xi.effect.MANTRA
 end
 
 xi.job_utils.monk.usePerfectCounter = function(player, target, ability)
-    player:addStatusEffect(xi.effect.PERFECT_COUNTER, 2, 0, 30)
+    local duration = 30 + player:getJobPointLevel(xi.jp.PERFECT_COUNTER_EFFECT)
+    local power = 2 + player:getJobPointLevel(xi.jp.PERFECT_COUNTER_EFFECT)
+    player:addStatusEffect(xi.effect.PERFECT_COUNTER, power, 0, duration)
+end
+
+-----------------------------------
+-- Monk Enhancement System
+-----------------------------------
+xi.job_utils.monk.enhanceHandToHandDamage = function(player, baseDamage)
+    local enhancement = 0
+    
+    -- Boost enhancement
+    if player:hasStatusEffect(xi.effect.BOOST) then
+        enhancement = enhancement + player:getStatusEffect(xi.effect.BOOST):getPower()
+    end
+    
+    -- Impetus enhancement
+    if player:hasStatusEffect(xi.effect.IMPETUS) then
+        enhancement = enhancement + player:getStatusEffect(xi.effect.IMPETUS):getPower() * 2
+    end
+    
+    -- Hand-to-hand skill bonus
+    enhancement = enhancement + getHandToHandSkillBonus(player)
+    
+    return baseDamage + enhancement
 end

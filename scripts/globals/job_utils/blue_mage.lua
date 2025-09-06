@@ -152,7 +152,7 @@ function xi.job_utils.blue_mage.canSetBlueSpell(player, spellId, slotToPut)
     -- Calculate current point usage
     local currentPoints = 0
     for i = 1, 20 do -- Max 20 settable spells
-        local setSpell = player:getBlueSpell(i)
+        local setSpell = player:getSetBlueSpell(i)
         if setSpell and setSpell ~= 0 and i ~= slotToPut then
             local setSpellInfo = learnableSpells[setSpell]
             if setSpellInfo then
@@ -172,7 +172,7 @@ function xi.job_utils.blue_mage.setBlueSpell(player, spellId, slotToPut)
         return false
     end
     
-    player:setBlueSpell(slotToPut, spellId)
+    player:setSetBlueSpell(slotToPut, spellId)
     xi.job_utils.blue_mage.checkSetBonuses(player)
     
     return true
@@ -187,7 +187,7 @@ function xi.job_utils.blue_mage.checkSetBonuses(player)
     -- Get currently set spells
     local setSpells = {}
     for i = 1, 20 do
-        local spellId = player:getBlueSpell(i)
+        local spellId = player:getSetBlueSpell(i)
         if spellId and spellId ~= 0 then
             setSpells[spellId] = true
         end
@@ -206,7 +206,7 @@ function xi.job_utils.blue_mage.checkSetBonuses(player)
         if hasAllSpells then
             player:addJobTrait(bonus.trait, xi.job.BLU, bonus.value)
         else
-            player:delJobTrait(bonus.trait, xi.job.BLU)
+            player:delTrait(bonus.trait)
         end
     end
 end
@@ -238,7 +238,7 @@ function xi.job_utils.blue_mage.getClearMindBonus(player)
         if bonus.trait == xi.jobTrait.CLEAR_MIND then
             local setSpells = {}
             for i = 1, 20 do
-                local spellId = player:getBlueSpell(i)
+                local spellId = player:getSetBlueSpell(i)
                 if spellId and spellId ~= 0 then
                     setSpells[spellId] = true
                 end

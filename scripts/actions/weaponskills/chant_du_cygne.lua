@@ -24,11 +24,32 @@ weaponskillObject.onUseWeaponSkill = function(player, target, wsID, tp, primary,
         params.dex_wsc = 0.8
         params.multiHitfTP = true -- https://www.bg-wiki.com/ffxi/Chant_du_Cygne
     end
+    
+    -- ITERATION 8 Enhancement: Enhanced critical hit scaling
+    params.enhanced = true
+    if player:isPC() then
+        local jpLevel = player:getJobPointLevel(xi.jp.CRITICAL_HIT_RATE)
+        if jpLevel > 0 then
+            for i = 1, #params.critVaries do
+                params.critVaries[i] = params.critVaries[i] + (jpLevel * 0.01)
+            end
+        end
+        
+        -- Enhanced WSC with job mastery bonuses
+        local masteryBonus = player:getJobPointLevel(xi.jp.WEAPONSKILL_DAMAGE) * 0.01
+        params.dex_wsc = params.dex_wsc + masteryBonus
+    end
 
     -- Apply aftermath
     xi.aftermath.addStatusEffect(player, tp, xi.slot.MAIN, xi.aftermath.type.EMPYREAN)
 
-    local damage, criticalHit, tpHits, extraHits = xi.weaponskills.doPhysicalWeaponskill(player, target, wsID, params, tp, action, primary, taChar)
+    -- Use enhanced weaponskill function if available
+    local damage, criticalHit, tpHits, extraHits
+    if xi.enhanced_weaponskills and xi.enhanced_weaponskills.doEnhancedPhysicalWeaponskill then
+        damage, criticalHit, tpHits, extraHits = xi.enhanced_weaponskills.doEnhancedPhysicalWeaponskill(player, target, wsID, params, tp, action, primary, taChar)
+    else
+        damage, criticalHit, tpHits, extraHits = xi.weaponskills.doPhysicalWeaponskill(player, target, wsID, params, tp, action, primary, taChar)
+    end
 
     return tpHits, extraHits, criticalHit, damage
 end

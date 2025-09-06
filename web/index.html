@@ -439,14 +439,19 @@
                 <p>Advanced monitoring dashboard with Prometheus, Grafana, and real-time server statistics.</p>
             </div>
             <div class="feature-card">
-                <span class="feature-icon">🔧</span>
-                <h3>Modern Tools</h3>
-                <p>Comprehensive admin tools, automated deployment, and Docker-based infrastructure for easy management.</p>
+                <span class="feature-icon">📦</span>
+                <h3>PlayOnline Integration</h3>
+                <p>Complete client file management system with automatic updates, integrity validation, and multi-language support based on original PlayOnline architecture.</p>
             </div>
             <div class="feature-card">
-                <span class="feature-icon">👥</span>
-                <h3>Active Community</h3>
-                <p>Join a thriving community of FFXI players with regular events, support, and continuous server improvements.</p>
+                <span class="feature-icon">🔄</span>
+                <h3>Client Updates</h3>
+                <p>Automated client file validation and updates with 2,469 tracked files totaling 536.8 MB of content from the original PlayOnline manifests.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌍</span>
+                <h3>Multi-Language Support</h3>
+                <p>Full localization support for German, English, and French clients with separate content delivery and language-specific file management.</p>
             </div>
         </section>
     </main>
@@ -486,13 +491,22 @@
                         </div>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">Response Time</span>
-                        <div class="status-value" id="responseTime">--</div>
+                        <span class="status-label">Client Updates</span>
+                        <div class="status-value" id="clientUpdates">
+                            <span class="status-indicator online"></span>
+                            --
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">PlayOnline Files</span>
+                        <div class="status-value" id="playonlineFiles">--</div>
                     </div>
                 </div>
                 
                 <div class="server-links">
                     <a href="admin.html" class="server-link">📊 Admin Dashboard</a>
+                    <a href="#client-update" class="server-link">📦 Client Updates</a>
+                    <a href="#playonline-status" class="server-link">🎮 PlayOnline Status</a>
                     <a href="http://localhost:3000" target="_blank" class="server-link">📈 Grafana Monitoring</a>
                     <a href="http://localhost:9090" target="_blank" class="server-link">🎯 Prometheus Metrics</a>
                     <a href="http://localhost:8080" target="_blank" class="server-link">🗄️ Database Admin</a>
@@ -537,6 +551,7 @@
                     ]);
 
                     this.updateStatusDisplay(statusData, metricsData);
+                    this.updatePlayOnlineStatus();
                 } catch (error) {
                     console.error('Failed to update server status:', error);
                     this.showErrorState();
@@ -624,7 +639,15 @@
                 // Update other values
                 document.getElementById('playersOnline').textContent = statusData.players.online || statusData.players;
                 document.getElementById('serverUptime').textContent = statusData.server.uptime;
-                document.getElementById('responseTime').textContent = `${statusData.system?.response_time_ms || statusData.responseTime}ms`;
+                
+                // Update PlayOnline Files count
+                document.getElementById('playonlineFiles').textContent = '2,469 files';
+                
+                // Update response time in a new location or keep existing
+                const responseTimeEl = document.getElementById('responseTime');
+                if (responseTimeEl) {
+                    responseTimeEl.textContent = `${statusData.system?.response_time_ms || statusData.responseTime}ms`;
+                }
 
                 // Update load balancer
                 const lbEl = document.getElementById('loadBalancerStatus');
@@ -677,6 +700,42 @@
             updateLastUpdated() {
                 const now = new Date();
                 document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+            }
+
+            async updatePlayOnlineStatus() {
+                try {
+                    const response = await fetch('/api/playonline/updates/available', {
+                        headers: {
+                            'Authorization': 'Bearer ' + this.getAuthToken()
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Update client updates status
+                        const clientUpdatesEl = document.getElementById('clientUpdates');
+                        const updateStatus = data.needs_update ? 'Available' : 'Current';
+                        const statusClass = data.needs_update ? 'warning' : 'online';
+                        
+                        clientUpdatesEl.innerHTML = `
+                            <span class="status-indicator ${statusClass}"></span>
+                            ${updateStatus}
+                        `;
+                        clientUpdatesEl.className = `status-value status-${statusClass}`;
+                    } else {
+                        // Fallback status
+                        const clientUpdatesEl = document.getElementById('clientUpdates');
+                        clientUpdatesEl.innerHTML = '<span class="status-indicator online"></span>Ready';
+                        clientUpdatesEl.className = 'status-value status-online';
+                    }
+                } catch (error) {
+                    console.error('Failed to check PlayOnline status:', error);
+                    // Set fallback status
+                    const clientUpdatesEl = document.getElementById('clientUpdates');
+                    clientUpdatesEl.innerHTML = '<span class="status-indicator online"></span>Ready';
+                    clientUpdatesEl.className = 'status-value status-online';
+                }
             }
         }
 

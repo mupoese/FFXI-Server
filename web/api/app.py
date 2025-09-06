@@ -1033,12 +1033,408 @@ def get_gm_audit_log():
         logger.error(f"Failed to get audit log: {e}")
         return jsonify({'error': str(e)}), 500
 
+# PlayOnline Client Management Endpoints
+@app.route('/api/playonline/manifest/<version>', methods=['GET'])
+@require_auth
+def get_client_manifest(version):
+    """Get client file manifest for version validation"""
+    try:
+        query = """
+        SELECT file_hash, file_path, file_size, file_category, file_extension
+        FROM client_manifest 
+        WHERE version_id = %s
+        ORDER BY file_category, file_path
+        """
+        
+        manifest_entries = execute_query(query, (version,))
+        
+        # Get version information
+        version_query = """
+        SELECT version_id, version_name, total_files, total_size_bytes, release_date
+        FROM client_versions 
+        WHERE version_id = %s
+        """
+        version_info = execute_query(version_query, (version,))
+        
+        return jsonify({
+            'version': version_info[0] if version_info else None,
+            'manifest': manifest_entries,
+            'total_files': len(manifest_entries),
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get client manifest: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/playonline/validate', methods=['POST'])
+@require_auth
+def validate_client_files():
+    """Validate client files against server manifest"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'files' not in data:
+            return jsonify({'error': 'Client file list required'}), 400
+        
+        client_files = data['files']
+        version = data.get('version', '1.18.15e')
+        
+        # Get server manifest for version
+        query = """
+        SELECT file_hash, file_path, file_size, file_category
+        FROM client_manifest 
+        WHERE version_id = %s
+        """
+        server_manifest = execute_query(query, (version,))
+        
+        # Create lookup dictionary
+        server_files = {entry['file_hash']: entry for entry in server_manifest}
+        
+        # Validate client files
+        valid_files = []
+        missing_files = []
+        corrupted_files = []
+        unknown_files = []
+        
+        for client_file in client_files:
+            file_hash = client_file.get('hash')
+            file_path = client_file.get('path', '')
+            file_size = client_file.get('size', 0)
+            
+            if file_hash in server_files:
+                server_file = server_files[file_hash]
+                if server_file['file_size'] == file_size:
+                    valid_files.append({
+                        'hash': file_hash,
+                        'path': file_path,
+                        'status': 'valid'
+                    })
+                else:
+                    corrupted_files.append({
+                        'hash': file_hash,
+                        'path': file_path,
+                        'expected_size': server_file['file_size'],
+                        'actual_size': file_size,
+                        'status': 'size_mismatch'
+                    })
+            else:
+                unknown_files.append({
+                    'hash': file_hash,
+                    'path': file_path,
+                    'status': 'unknown'
+                })
+        
+        # Find missing files (files in server manifest but not in client)
+        client_hashes = {f['hash'] for f in client_files}
+        for server_hash, server_file in server_files.items():
+            if server_hash not in client_hashes:
+                missing_files.append({
+                    'hash': server_hash,
+                    'path': server_file['file_path'],
+                    'size': server_file['file_size'],
+                    'category': server_file['file_category'],
+                    'status': 'missing'
+                })
+        
+        # Calculate update priority
+        priority_order = {'executable': 1, 'data': 2, 'graphics': 3, 'audio': 4, 'documentation': 5}
+        missing_files.sort(key=lambda x: (priority_order.get(x['category'], 6), x['size']))
+        
+        validation_result = {
+            'version': version,
+            'validation_status': 'clean' if not missing_files and not corrupted_files else 'needs_update',
+            'statistics': {
+                'valid_files': len(valid_files),
+                'missing_files': len(missing_files),
+                'corrupted_files': len(corrupted_files),
+                'unknown_files': len(unknown_files),
+                'total_checked': len(client_files)
+            },
+            'files': {
+                'valid': valid_files[:10],  # Limit response size
+                'missing': missing_files[:50],  # Show priority files first
+                'corrupted': corrupted_files,
+                'unknown': unknown_files[:10]
+            },
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        
+        return jsonify(validation_result)
+        
+    except Exception as e:
+        logger.error(f"Failed to validate client files: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/playonline/file/<file_hash>', methods=['GET'])
+@require_auth
+def serve_client_file(file_hash):
+    """Serve individual files for client updates"""
+    try:
+        # Get file information from manifest
+        query = """
+        SELECT file_path, file_size, file_category, file_extension
+        FROM client_manifest 
+        WHERE file_hash = %s
+        """
+        file_info = execute_query(query, (file_hash,))
+        
+        if not file_info:
+            return jsonify({'error': 'File not found in manifest'}), 404
+        
+        file_data = file_info[0]
+        
+        # In a production environment, this would serve the actual file
+        # For now, return file information and download URL
+        download_url = f"/downloads/playonline/{file_hash}"
+        
+        # Log the download request
+        player_id = request.args.get('player_id')
+        client_ip = request.remote_addr
+        
+        if player_id:
+            download_query = """
+            INSERT INTO client_file_downloads (file_hash, player_id, client_ip, download_status)
+            VALUES (%s, %s, %s, 'started')
+            """
+            execute_query(download_query, (file_hash, player_id, client_ip))
+        
+        return jsonify({
+            'file_hash': file_hash,
+            'file_path': file_data['file_path'],
+            'file_size': file_data['file_size'],
+            'file_category': file_data['file_category'],
+            'download_url': download_url,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to serve client file: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/playonline/updates/available', methods=['GET'])
+@require_auth
+def get_available_updates():
+    """Get available client updates"""
+    try:
+        player_id = request.args.get('player_id')
+        current_version = request.args.get('version', '1.18.15e')
+        language = request.args.get('language', 'EN')
+        
+        # Get latest version
+        latest_version_query = """
+        SELECT version_id, version_name, total_files, total_size_bytes
+        FROM client_versions 
+        WHERE is_active = TRUE
+        ORDER BY release_date DESC 
+        LIMIT 1
+        """
+        latest_version = execute_query(latest_version_query)
+        
+        if not latest_version:
+            return jsonify({'error': 'No versions available'}), 404
+        
+        latest = latest_version[0]
+        
+        # Check if update is needed
+        needs_update = current_version != latest['version_id']
+        
+        # Get update statistics
+        stats_query = """
+        SELECT 
+            file_category,
+            COUNT(*) as file_count,
+            SUM(file_size) as total_size
+        FROM client_manifest 
+        WHERE version_id = %s
+        GROUP BY file_category
+        ORDER BY total_size DESC
+        """
+        
+        category_stats = execute_query(stats_query, (latest['version_id'],))
+        
+        # Get language-specific content
+        lang_query = """
+        SELECT COUNT(*) as lang_files, SUM(file_size) as lang_size
+        FROM client_manifest 
+        WHERE version_id = %s AND file_path LIKE %s
+        """
+        
+        lang_pattern = f'%/EU/{language}/%'
+        lang_stats = execute_query(lang_query, (latest['version_id'], lang_pattern))
+        
+        result = {
+            'current_version': current_version,
+            'latest_version': latest['version_id'],
+            'needs_update': needs_update,
+            'update_info': {
+                'version_name': latest['version_name'],
+                'total_files': latest['total_files'],
+                'total_size_mb': round(latest['total_size_bytes'] / (1024 * 1024), 2),
+                'categories': [
+                    {
+                        'category': stat['file_category'],
+                        'files': stat['file_count'],
+                        'size_mb': round(stat['total_size'] / (1024 * 1024), 2)
+                    } for stat in category_stats
+                ]
+            },
+            'language_support': {
+                'language': language,
+                'files_available': lang_stats[0]['lang_files'] if lang_stats else 0,
+                'size_mb': round(lang_stats[0]['lang_size'] / (1024 * 1024), 2) if lang_stats and lang_stats[0]['lang_size'] else 0
+            },
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Failed to get available updates: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/playonline/downloads/stats', methods=['GET'])
+@require_auth
+def get_download_statistics():
+    """Get PlayOnline download statistics"""
+    try:
+        # Daily download stats
+        daily_stats_query = """
+        SELECT 
+            DATE(download_start) as date,
+            COUNT(*) as downloads,
+            COUNT(DISTINCT player_id) as unique_players,
+            SUM(bytes_downloaded) / (1024 * 1024) as mb_downloaded
+        FROM client_file_downloads 
+        WHERE download_start >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY DATE(download_start)
+        ORDER BY date DESC
+        LIMIT 30
+        """
+        
+        daily_stats = execute_query(daily_stats_query)
+        
+        # File category popularity
+        category_stats_query = """
+        SELECT 
+            cm.file_category,
+            COUNT(cfd.download_id) as download_count,
+            AVG(cm.file_size) / (1024 * 1024) as avg_size_mb
+        FROM client_file_downloads cfd
+        JOIN client_manifest cm ON cfd.file_hash = cm.file_hash
+        WHERE cfd.download_start >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY cm.file_category
+        ORDER BY download_count DESC
+        """
+        
+        category_stats = execute_query(category_stats_query)
+        
+        # Most downloaded files
+        popular_files_query = """
+        SELECT 
+            cm.file_path,
+            cm.file_category,
+            cm.file_size / (1024 * 1024) as size_mb,
+            COUNT(cfd.download_id) as download_count
+        FROM client_file_downloads cfd
+        JOIN client_manifest cm ON cfd.file_hash = cm.file_hash
+        WHERE cfd.download_start >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY cfd.file_hash
+        ORDER BY download_count DESC
+        LIMIT 10
+        """
+        
+        popular_files = execute_query(popular_files_query)
+        
+        # Current active downloads
+        active_downloads_query = """
+        SELECT COUNT(*) as active_count
+        FROM client_file_downloads 
+        WHERE download_status = 'started'
+        AND download_start >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        """
+        
+        active_downloads = execute_query(active_downloads_query)
+        
+        return jsonify({
+            'daily_stats': daily_stats,
+            'category_popularity': category_stats,
+            'popular_files': popular_files,
+            'active_downloads': active_downloads[0]['active_count'] if active_downloads else 0,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get download statistics: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/playonline/languages', methods=['GET'])
+@require_auth
+def get_supported_languages():
+    """Get supported languages and localization content"""
+    try:
+        # Get language statistics from manifest
+        lang_stats_query = """
+        SELECT 
+            CASE 
+                WHEN file_path LIKE '%/EU/DE/%' THEN 'DE'
+                WHEN file_path LIKE '%/EU/EN/%' THEN 'EN'
+                WHEN file_path LIKE '%/EU/FR/%' THEN 'FR'
+                ELSE 'US'
+            END as language_code,
+            COUNT(*) as file_count,
+            SUM(file_size) as total_size,
+            file_category
+        FROM client_manifest 
+        GROUP BY language_code, file_category
+        ORDER BY language_code, file_category
+        """
+        
+        lang_data = execute_query(lang_stats_query)
+        
+        # Organize by language
+        languages = {}
+        for entry in lang_data:
+            lang = entry['language_code']
+            if lang not in languages:
+                languages[lang] = {
+                    'language_code': lang,
+                    'language_name': {
+                        'DE': 'German',
+                        'EN': 'English', 
+                        'FR': 'French',
+                        'US': 'US English'
+                    }.get(lang, lang),
+                    'categories': {},
+                    'total_files': 0,
+                    'total_size_mb': 0
+                }
+            
+            languages[lang]['categories'][entry['file_category']] = {
+                'files': entry['file_count'],
+                'size_mb': round(entry['total_size'] / (1024 * 1024), 2)
+            }
+            languages[lang]['total_files'] += entry['file_count']
+            languages[lang]['total_size_mb'] += round(entry['total_size'] / (1024 * 1024), 2)
+        
+        return jsonify({
+            'supported_languages': list(languages.values()),
+            'default_language': 'EN',
+            'multi_language_support': True,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get language support: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # Main application
 if __name__ == '__main__':
     logger.info("Starting FFXI Server Management API")
     logger.info(f"API will be available on port {Config.API_PORT}")
     logger.info(f"Database connection: {Config.DB_CONFIG['host']}:{Config.DB_CONFIG['port']}")
     logger.info(f"Network bonding enabled: {Config.BONDING_CONFIG['enabled']}")
+    logger.info("PlayOnline client management endpoints enabled")
     
     app.run(
         host='0.0.0.0',

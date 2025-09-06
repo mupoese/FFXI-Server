@@ -53,7 +53,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
     else
     {
         LPTSTR msgBuf = (LPTSTR)LocalAlloc(LPTR, 30);
-        sprintf(msgBuf, "Unknown error: %u", dw);
+        sprintf_s(msgBuf, 30, "Unknown error: %u", dw);
         return msgBuf;
     }
 }
@@ -295,7 +295,7 @@ LONG WINAPI WheatyExceptionReport::WheatyUnhandledExceptionFilter(
 
     SYSTEMTIME systime;
     GetLocalTime(&systime);
-    sprintf(m_szDumpFileName, "%s\\%s_%u-%u_%u-%u-%u.dmp",
+    sprintf_s(m_szDumpFileName, sizeof(m_szDumpFileName), "%s\\%s_%u-%u_%u-%u-%u.dmp",
         crash_folder_path, pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     _stprintf(m_szLogFileName, _T("%s\\%s_%u-%u_%u-%u-%u.log"),
@@ -1584,9 +1584,9 @@ size_t countOverride)
                 else
                     length = strlen((char*)pAddress);
                 if (length > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), (char*)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (int)(bufferSize - 6), (char*)pAddress);
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", (DWORD)length, (char*)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", (int)length, (char*)pAddress);
                 break;
             }
             case btStdString:

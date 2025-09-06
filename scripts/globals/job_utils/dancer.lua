@@ -524,3 +524,110 @@ xi.job_utils.dancer.useWaltzAbility = function(player, target, ability, action)
 
     return amtCured
 end
+
+-----------------------------------
+-- Enhanced Flourish Abilities
+-----------------------------------
+
+xi.job_utils.dancer.useStrikingFlourishAbility = function(player, target, ability, action)
+    local numMoves = player:getStatusEffect(xi.effect.FINISHING_MOVE_1):getPower()
+    local usedMoves = 2
+    local power = math.min(numMoves - usedMoves + 1, 3) -- Power 1-3 based on moves used
+    
+    -- Job Point bonus increases double attack rate
+    local jpBonus = player:getJobPointLevel(xi.jp.FLOURISH_III_EFFECT) or 0
+    local finalPower = power + math.floor(jpBonus / 2)
+    
+    player:addStatusEffect(xi.effect.STRIKING_FLOURISH, finalPower, 0, 60)
+    setFinishingMoves(player, numMoves - usedMoves)
+    
+    return finalPower
+end
+
+-- Enhanced step mechanics with improved accuracy and debuff potency
+xi.job_utils.dancer.useEnhancedStep = function(player, target, ability, action, stepEffect, baseAccuracy)
+    local hitType = xi.msg.basic.JA_MISS
+    local stepDurationGift = player:getJobPointLevel(xi.jp.STEP_DURATION)
+    local stepAccuracyGift = player:getJobPointLevel(xi.jp.STEP_ACCURACY)
+    local debuffStacks = 1
+    local debuffDuration = 60 + stepDurationGift
+    
+    -- Enhanced accuracy calculation
+    local accuracy = baseAccuracy + stepAccuracyGift + player:getMod(xi.mod.STEP_ACCURACY)
+    
+    -- Only remove TP if the player doesn't have Trance
+    if not player:hasStatusEffect(xi.effect.TRANCE) then
+        player:delTP(100 + player:getMod(xi.mod.STEP_TP_CONSUMED))
+    end
+    
+    if math.random() <= xi.weaponskills.getHitRate(player, target, accuracy) then
+        local maxSteps = player:getMainJob() == xi.job.DNC and 10 or 5
+        local debuffEffect = target:getStatusEffect(stepEffect)
+        local origDebuffStacks = 0
+        hitType = xi.msg.basic.JA_ENFEEB_IS
+        
+        -- Apply Finishing Moves with enhanced calculation
+        local fmEffect = player:getStatusEffect(xi.effect.FINISHING_MOVE_1)
+        local addedMoves = getStepFinishingMovesBase(player)
+        
+        -- Enhanced finishing move generation
+        if player:hasStatusEffect(xi.effect.TRANCE) then
+            addedMoves = addedMoves + 1 -- Trance grants extra finishing move
+        end
+        
+        if fmEffect then
+            addedMoves = addedMoves + fmEffect:getPower()
+        end
+        
+        setFinishingMoves(player, math.min(addedMoves, getMaxFinishingMoves(player)))
+        
+        -- Presto handling with enhanced effect
+        if player:hasStatusEffect(xi.effect.PRESTO) then
+            debuffStacks = debuffStacks + 4
+            
+            -- Job Point enhancement: Presto increases step potency
+            local jpPrestoBonus = player:getJobPointLevel(xi.jp.PRESTO_EFFECT) or 0
+            debuffStacks = debuffStacks + jpPrestoBonus
+            
+            player:delStatusEffect(xi.effect.PRESTO)
+        end
+        
+        -- Handle enhanced target debuffs
+        if debuffEffect then
+            origDebuffStacks = debuffEffect:getPower()
+            debuffStacks = debuffStacks + origDebuffStacks
+            debuffDuration = debuffEffect:getDuration()
+            
+            debuffStacks = math.min(debuffStacks, maxSteps)
+            debuffDuration = math.min(debuffEffect:getDuration() + 30 + stepDurationGift, 120 + stepDurationGift)
+            
+            if maxSteps >= origDebuffStacks then
+                target:delStatusEffectSilent(stepEffect)
+            end
+        end
+        
+        if maxSteps >= origDebuffStacks then
+            target:addStatusEffect(stepEffect, debuffStacks, 0, debuffDuration)
+        else
+            ability:setMsg(xi.msg.basic.JA_NO_EFFECT)
+        end
+    else
+        ability:setMsg(xi.msg.basic.JA_MISS)
+    end
+    
+    action:setAnimation(target:getID(), getStepAnimation(player:getWeaponSkillType(xi.slot.MAIN)))
+    
+    -- Enhanced Trust handling
+    if player:getObjType() == xi.objType.TRUST then
+        local name = string.lower(player:getName())
+        if name == 'uka_totlihn' or name == 'mumor' or name == 'mumor_ii' then
+            action:setAnimation(target:getID(), getStepAnimation(xi.skill.CLUB))
+        elseif name == 'mayakov' then
+            action:setAnimation(target:getID(), getStepAnimation(xi.skill.SWORD))
+        end
+    end
+    
+    action:speceffect(target:getID(), hitType)
+    
+    return debuffStacks
+end

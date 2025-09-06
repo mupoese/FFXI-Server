@@ -17,6 +17,7 @@ fi
 # Check OS (for addding user)
 if [ -f /etc/os-release ]
 then
+    # shellcheck source=/etc/os-release
     . /etc/os-release
     OS=$ID
     OS_LIKE=$ID_LIKE

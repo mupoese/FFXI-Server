@@ -151,7 +151,8 @@ test_docker_build() {
     cd "$PROJECT_ROOT"
     
     # Build the image with detailed output
-    local build_start=$(date +%s)
+    local build_start
+    build_start=$(date +%s)
     
     if ! docker build \
         --progress=plain \
@@ -162,7 +163,8 @@ test_docker_build() {
         return 1
     fi
     
-    local build_end=$(date +%s)
+    local build_end
+    build_end=$(date +%s)
     local build_duration=$((build_end - build_start))
     
     # Verify image was created
@@ -172,7 +174,8 @@ test_docker_build() {
     fi
     
     # Get image size
-    local image_size=$(docker images "$TEST_IMAGE" --format "{{.Size}}")
+    local image_size
+    image_size=$(docker images "$TEST_IMAGE" --format "{{.Size}}")
     
     log_success "Docker build completed in ${build_duration}s, image size: $image_size"
     return 0
@@ -335,10 +338,12 @@ test_performance_basics() {
     log "Testing basic performance characteristics..."
     
     # Test build cache efficiency
-    local cache_start=$(date +%s)
+    local cache_start
+    cache_start=$(date +%s)
     
     if docker build --cache-from "$TEST_IMAGE" -t "${TEST_IMAGE}-cache" . >/dev/null 2>&1; then
-        local cache_end=$(date +%s)
+        local cache_end
+        cache_end=$(date +%s)
         local cache_duration=$((cache_end - cache_start))
         log_success "Build cache test completed in ${cache_duration}s"
     else
@@ -346,7 +351,8 @@ test_performance_basics() {
     fi
     
     # Check image layers
-    local layer_count=$(docker history "$TEST_IMAGE" --format "{{.ID}}" | wc -l)
+    local layer_count
+    layer_count=$(docker history "$TEST_IMAGE" --format "{{.ID}}" | wc -l)
     log "Image has $layer_count layers"
     
     if [[ $layer_count -gt 50 ]]; then

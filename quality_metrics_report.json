@@ -1,0 +1,80 @@
+{
+  "timestamp": 1757181090.3086379,
+  "quality_score": 4.7,
+  "snapshot": {
+    "timestamp": 1757181090.3086379,
+    "total_files": 16927,
+    "total_lines": 1347082,
+    "total_functions": 2488,
+    "complexity_score": 27.0,
+    "coverage_percentage": 75.0,
+    "technical_debt_hours": 52.55166181706458,
+    "maintainability_index": 0,
+    "duplication_percentage": 18.10332363412915,
+    "security_issues": 2,
+    "performance_issues": 36,
+    "bug_risk_score": 7.666666666666667
+  },
+  "alerts": [
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "complexity_score",
+      "value": 27.0,
+      "threshold_type": "critical",
+      "severity": "critical",
+      "message": "Cyclomatic Complexity is 27.0, exceeding critical threshold of 20.0"
+    },
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "maintainability_index",
+      "value": 0,
+      "threshold_type": "critical",
+      "severity": "critical",
+      "message": "Maintainability Index is 0.0, exceeding critical threshold of 10.0"
+    },
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "duplication_percentage",
+      "value": 18.10332363412915,
+      "threshold_type": "critical",
+      "severity": "critical",
+      "message": "Code Duplication is 18.1, exceeding critical threshold of 10.0"
+    },
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "technical_debt_hours",
+      "value": 52.55166181706458,
+      "threshold_type": "critical",
+      "severity": "critical",
+      "message": "Technical Debt is 52.6, exceeding critical threshold of 48.0"
+    },
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "performance_issues",
+      "value": 36,
+      "threshold_type": "critical",
+      "severity": "critical",
+      "message": "Performance Issues is 36.0, exceeding critical threshold of 20"
+    },
+    {
+      "timestamp": 1757181090.3086379,
+      "metric_name": "bug_risk_score",
+      "value": 7.666666666666667,
+      "threshold_type": "warning",
+      "severity": "warning",
+      "message": "Bug Risk Score is 7.7, exceeding warning threshold of 7.0"
+    }
+  ],
+  "trends": {
+    "error": "Insufficient data for trend analysis"
+  },
+  "recommendations": [
+    "\u26a0\ufe0f Address 5 critical quality issues immediately",
+    "\ud83d\udd27 Refactor high-complexity functions to improve maintainability",
+    "\ud83d\udcb0 Address technical debt (52.6 hours estimated)",
+    "\ud83d\udd12 Fix 2 security issues",
+    "\ud83d\ude80 Optimize 36 performance anti-patterns",
+    "\ud83d\udccb Reduce code duplication (18.1%)",
+    "\ud83d\udd28 Improve code maintainability through refactoring"
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-06T20:56:07.719617",
+  "timestamp": "2025-09-06T21:55:29.952666",
   "jobs": {
     "warrior": {
       "current_percentage": 47.0,
@@ -106,17 +106,14 @@
       ]
     },
     "paladin": {
-      "current_percentage": 20.0,
+      "current_percentage": 25.0,
       "abilities_implemented": 0,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 20,
       "lua_functions": 0,
-      "lua_bindings": 12,
-      "missing_features": [
-        "Missing Holy Circle implementation",
-        "Missing Shield Bash implementation"
-      ],
+      "lua_bindings": 26,
+      "missing_features": [],
       "enhancement_priorities": [
         "Expand Lua function implementation",
         "Complete job ability database entries",
@@ -331,17 +328,14 @@
       ]
     },
     "scholar": {
-      "current_percentage": 20.0,
+      "current_percentage": 25.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 40,
       "lua_functions": 0,
-      "lua_bindings": 2,
-      "missing_features": [
-        "Missing Sublimation implementation",
-        "Missing Tabula Rasa implementation"
-      ],
+      "lua_bindings": 5,
+      "missing_features": [],
       "enhancement_priorities": [
         "Expand Lua function implementation",
         "Complete job ability database entries",
@@ -386,18 +380,10 @@
   "enhancement_plan": {
     "total_jobs": 22,
     "jobs_at_100_percent": 0,
-    "average_completeness": 35.1,
+    "average_completeness": 35.5,
     "highest_priority_jobs": [
       [
-        "paladin",
-        20.0
-      ],
-      [
         "dark_knight",
-        20.0
-      ],
-      [
-        "scholar",
         20.0
       ],
       [
@@ -411,6 +397,14 @@
       [
         "ninja",
         24.5
+      ],
+      [
+        "paladin",
+        25.0
+      ],
+      [
+        "scholar",
+        25.0
       ],
       [
         "white_mage",
@@ -434,12 +428,12 @@
         "phase": 1,
         "name": "Critical Jobs (<50% Complete)",
         "jobs": [
-          "paladin",
           "dark_knight",
-          "scholar",
           "summoner",
           "red_mage",
           "ninja",
+          "paladin",
+          "scholar",
           "white_mage",
           "black_mage",
           "bard",

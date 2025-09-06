@@ -1,6 +1,45 @@
 Tools
 ========================
 
+## 🗂️ Organized Tool Structure
+
+The tools directory is organized into specialized subdirectories for better maintainability and discoverability:
+
+### 📁 Directory Structure
+
+```
+tools/
+├── admin/           # Administration and management tools
+├── analysis/        # Analysis and validation tools
+├── database/        # Database tools and utilities
+├── development/     # Development productivity and code generation
+├── launchers/       # Game launcher and client management
+├── monitoring/      # Performance monitoring and profiling
+├── streaming/       # Streaming and asset management
+├── testing/         # Testing frameworks and validation
+├── validation/      # Validation and quality assurance
+├── ai-gm/          # AI-GM system tools (moved from root)
+├── build/          # Build and CI/CD tools
+└── [legacy tools]   # Remaining tools being organized
+```
+
+## 🎯 Quick Access
+
+### Core Administrative Tools
+- **Admin Dashboard**: `python admin/admin_dashboard.py` - Real-time monitoring
+- **Web Interface**: `python admin/web_admin.py` - Web-based administration
+- **Server Announcements**: `python admin/announce.py "message"` - Broadcast messages
+
+### Analysis and Quality
+- **Job Completeness**: `python analysis/job_completeness_analyzer.py` - Job system analysis
+- **Quality Metrics**: `python analysis/quality_metrics_dashboard.py` - Quality dashboard
+- **Security Testing**: `python analysis/comprehensive_security_test.py` - Security validation
+
+### Development Tools
+- **Function Indexing**: `python development/generate_function_index.py` - Code analysis
+- **Documentation**: `python development/generate_cpp_docs.py` - Generate docs
+- **Changelog**: `python development/generate_changelog.py` - Version tracking
+
 ## Database Tool
 `python dbtool.py`  
 `python dbtool.py backup` - creates a whole database backup in `../sql/backups/`  

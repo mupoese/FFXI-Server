@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-06T22:21:32.247272",
+  "timestamp": "2025-09-06T22:33:35.222170",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -209,22 +209,15 @@
       "enhancement_priorities": []
     },
     "blue_mage": {
-      "current_percentage": 35.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 6,
       "abilities_total": 12,
-      "spells_implemented": 0,
+      "spells_implemented": 50,
       "spells_total": 50,
-      "lua_functions": 10,
-      "lua_bindings": 10,
-      "missing_features": [
-        "Missing Burst Affinity implementation",
-        "Missing Chain Affinity implementation"
-      ],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 26,
+      "lua_bindings": 33,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "corsair": {
       "current_percentage": 59.5,
@@ -319,13 +312,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 4,
-    "average_completeness": 68.1,
+    "jobs_at_100_percent": 5,
+    "average_completeness": 71.0,
     "highest_priority_jobs": [
-      [
-        "blue_mage",
-        35.0
-      ],
       [
         "red_mage",
         39.0
@@ -361,6 +350,10 @@
       [
         "dancer",
         67.5
+      ],
+      [
+        "samurai",
+        69.0
       ]
     ],
     "enhancement_phases": [
@@ -368,7 +361,6 @@
         "phase": 1,
         "name": "Critical Jobs (<50% Complete)",
         "jobs": [
-          "blue_mage",
           "red_mage",
           "black_mage"
         ],

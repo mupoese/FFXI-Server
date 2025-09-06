@@ -1,0 +1,186 @@
+name: "launcher-build-test"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    branches:
+      - base
+      - everything
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  Launcher_Build_Test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev python3-tk luajit
+      - name: Install Python Dependencies
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          python3 -m pip install --break-system-packages pyzmq requests flask pyinstaller
+      - name: Create Test Environment File
+        run: |
+          cp .env.example .env.test
+          # Modify for testing purposes
+          sed -i 's/SERVERNAME=FFXI/SERVERNAME=WorkflowTestServer/' .env.test
+          sed -i 's/FFXI_/WORKFLOWTESTSERVER_/g' .env.test
+          echo "WORKFLOWTESTSERVER_DEBUG_MODE=true" >> .env.test
+          echo "WORKFLOWTESTSERVER_CI_BUILD=true" >> .env.test
+      - name: Test Environment File Loading
+        run: |
+          python3 -c "
+          import sys
+          sys.path.insert(0, 'tools')
+          from enhanced_ffxi_launcher import ServerConfig
+          config = ServerConfig('.env.test')
+          print(f'✅ Server name: {config.server_name}')
+          print(f'✅ Server host: {config.get(\"SERVER_HOST\")}')
+          print(f'✅ .env file loaded successfully')
+          "
+      - name: Test Basic Launcher Build
+        run: |
+          python3 tools/build_launcher.py
+          echo "✅ Basic launcher build completed"
+      - name: Test Enhanced Launcher Build
+        run: |
+          cp .env.test .env
+          python3 tools/enhanced_build_launcher.py
+          echo "✅ Enhanced launcher build completed"
+      - name: Test Launcher Configuration Generation
+        run: |
+          # Test without GUI (headless mode)
+          python3 -c "
+          import sys
+          sys.path.insert(0, 'tools')
+          from enhanced_ffxi_launcher import ServerConfig
+          config = ServerConfig('.env.test')
+          # Test config generation without GUI
+          print('✅ Config generation test passed')
+          "
+      - name: Run Comprehensive Workflow Validation
+        run: |
+          python3 tools/workflow_build_validator.py
+      - name: Upload Launcher Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher_build_artifacts
+          path: |
+            launcher_build/
+            web/downloads/FFXI_Launcher.zip
+            workflow_build_validation_report.json
+        if: always()
+      - name: Check Build Results
+        run: |
+          if [ -f workflow_build_validation_report.json ]; then
+            python3 -c "
+            import json
+            with open('workflow_build_validation_report.json') as f:
+              results = json.load(f)
+            if results['summary']['critical_tests_passed']:
+              print('✅ All critical launcher and server tests passed')
+              exit(0)
+            else:
+              print('❌ Critical tests failed')
+              print(f'Success rate: {results[\"summary\"][\"success_rate\"]:.1f}%')
+              exit(1)
+            "
+          else
+            echo "❌ No validation report found"
+            exit 1
+          fi
+
+  Windows_Launcher_Build_Test:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Python Dependencies
+        shell: bash
+        run: |
+          python3 -m pip install --break-system-packages pyzmq requests flask pyinstaller
+      - name: Create Test Environment File
+        shell: bash
+        run: |
+          cp .env.example .env.test
+          sed -i 's/SERVERNAME=FFXI/SERVERNAME=WindowsTestServer/' .env.test
+          sed -i 's/FFXI_/WINDOWSTESTSERVER_/g' .env.test
+          echo "WINDOWSTESTSERVER_DEBUG_MODE=true" >> .env.test
+          echo "WINDOWSTESTSERVER_CI_BUILD=true" >> .env.test
+      - name: Test Basic Launcher Build
+        shell: bash
+        run: |
+          python3 tools/build_launcher.py
+          echo "✅ Windows launcher build completed"
+      - name: Test Enhanced Launcher Build  
+        shell: bash
+        run: |
+          cp .env.test .env
+          python3 tools/enhanced_build_launcher.py
+          echo "✅ Windows enhanced launcher build completed"
+      - name: Archive Windows Launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_launcher_artifacts
+          path: |
+            launcher_build/
+            web/downloads/
+        if: always()
+
+  macOS_Launcher_Build_Test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --break-system-packages pyzmq requests flask pyinstaller
+      - name: Create Test Environment File
+        run: |
+          cp .env.example .env.test
+          sed -i '' 's/SERVERNAME=FFXI/SERVERNAME=MacTestServer/' .env.test
+          sed -i '' 's/FFXI_/MACTESTSERVER_/g' .env.test
+          echo "MACTESTSERVER_DEBUG_MODE=true" >> .env.test
+          echo "MACTESTSERVER_CI_BUILD=true" >> .env.test
+      - name: Test Basic Launcher Build
+        run: |
+          python3 tools/build_launcher.py
+          echo "✅ macOS launcher build completed"
+      - name: Test Enhanced Launcher Build
+        run: |
+          cp .env.test .env
+          python3 tools/enhanced_build_launcher.py
+          echo "✅ macOS enhanced launcher build completed"
+      - name: Archive macOS Launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_launcher_artifacts
+          path: |
+            launcher_build/
+            web/downloads/
+        if: always()

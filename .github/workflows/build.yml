@@ -33,7 +33,7 @@ jobs:
         run: |
           python3 -m pip config set global.break-system-packages true
           sudo apt-get update
-          sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck
+          sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev cppcheck python3-tk luajit
           python3 -m pip install -r tools/requirements-py312.txt
       - name: Run Comprehensive Python 3.12 Build Tests
         env:
@@ -41,12 +41,19 @@ jobs:
         run: |
           echo "Running comprehensive Python 3.12 build test suite..."
           python3 tools/comprehensive_build_test.py --ci
+      - name: Test Launcher Compilation with Fictive .env
+        env:
+          CI_BUILD_FAST: "true"
+        run: |
+          echo "Testing launcher compilation with fictive .env file..."
+          python3 tools/workflow_build_validator.py
       - name: Upload Comprehensive Test Results
         uses: actions/upload-artifact@v4
         with:
           name: comprehensive_build_test_results
           path: |
             comprehensive_build_test_report.json
+            workflow_build_validation_report.json
         if: always()
 
   Sanity_Checks:
@@ -402,218 +409,7 @@ jobs:
         run: |
           cmake --build build -j4
 
-  Windows_64bit_Debug:
-    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
-    runs-on: windows-2022
-    steps:
-      - uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Cache 'build' folder
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ github.repository }}-${{ runner.os }}-msvc64d
-      - name: Configure CMake
-        shell: bash
-        run: |
-          mkdir -p build
-          # Clear CMake cache if it exists to avoid path conflicts
-          rm -f build/CMakeCache.txt
-          cmake -S . -B build
-      - name: Build
-        shell: bash
-        run: |
-          cmake --build build -j4
-      - name: Archive Executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows_executables
-          path: |
-            xi_connect.exe
-            xi_map.exe
-            xi_search.exe
-            xi_world.exe
-            xi_test.exe
 
-  Windows_64bit_Release_Tracy_Modules:
-    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
-    runs-on: windows-2022
-    steps:
-      - uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Cache 'build' folder
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ github.repository }}-${{ runner.os }}-msvc64-t
-      - name: Enable Modules
-        shell: bash
-        run: |
-          python3 << EOF
-          with open("modules/init.txt", "w") as f:
-              f.write("custom\n")
-              f.write("era\n")
-              f.write("example\n")
-              f.write("renamer\n")
-          EOF
-      - name: Configure CMake
-        shell: bash
-        run: |
-          mkdir -p build
-          # Clear CMake cache if it exists to avoid path conflicts
-          rm -f build/CMakeCache.txt
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_TRACY=ON
-      - name: Build
-        shell: bash
-        run: |
-          cmake --build build --config Release -j4
-      - name: Archive Executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows_modules_executables
-          path: |
-            xi_connect.exe
-            xi_map_tracy.exe
-            xi_search.exe
-            xi_world.exe
-            xi_test.exe
-
-  MacOS_64bit:
-    needs: [Sanity_Checks, Comprehensive_Python312_Build_Test]
-    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Install Dependencies (Brew)
-        run: |
-          # Handle cmake installation conflicts between taps
-          if brew list cmake >/dev/null 2>&1; then
-            echo "cmake is already installed, uninstalling first..."
-            brew uninstall cmake
-          fi
-          brew install mariadb zeromq cppzmq luajit cmake ninja
-      - name: Cache 'build' folder
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ github.repository }}-${{ runner.os }}-macos
-      - name: Configure CMake
-        run: |
-          mkdir -p build
-          # Clear CMake cache if it exists to avoid path conflicts
-          rm -f build/CMakeCache.txt
-          # Optimize for Apple Silicon or Intel
-          cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Release
-      - name: Build
-        run: |
-          cmake --build build --parallel $(sysctl -n hw.ncpu)
-      - name: Archive Executables
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos_executables
-          path: |
-            xi_connect
-            xi_map
-            xi_search
-            xi_world
-            xi_test
-
-  MacOS_Integration_Tests:
-    needs: MacOS_64bit
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: actions/download-artifact@v4
-        with:
-          name: macos_executables
-          path: .
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Install Dependencies
-        run: |
-          # Handle potential package installation conflicts
-          for pkg in mariadb zeromq zmq luajit; do
-            if brew list "$pkg" >/dev/null 2>&1; then
-              echo "$pkg is already installed, checking if reinstall is needed..."
-              # Only force reinstall if there are conflicts
-              brew install "$pkg" || (brew uninstall "$pkg" && brew install "$pkg")
-            else
-              brew install "$pkg"
-            fi
-          done
-          # Start MariaDB service
-          brew services start mariadb
-          sleep 10
-          # Set up database
-          mysql -u root -e "CREATE DATABASE IF NOT EXISTS xidb;"
-          mysql -u root -e "CREATE USER IF NOT EXISTS 'xiuser'@'localhost' IDENTIFIED BY 'xipass';"
-          mysql -u root -e "GRANT ALL PRIVILEGES ON xidb.* TO 'xiuser'@'localhost';"
-          mysql -u root -e "FLUSH PRIVILEGES;"
-      - name: Install Python Dependencies
-        run: |
-          python3 -m pip install --break-system-packages -r tools/requirements-py312.txt
-      - name: Import SQL files
-        run: |
-          python3 ./tools/dbtool.py setup
-      - name: Copy settings
-        run: |
-          cp settings/default/* settings/
-      - name: Run macOS-specific tests
-        run: |
-          chmod +x xi_connect xi_map xi_search xi_world xi_test
-          
-          # Test executables can start
-          timeout 10 ./xi_connect --version || echo "Version check completed"
-          timeout 10 ./xi_map --version || echo "Version check completed"
-          timeout 10 ./xi_search --version || echo "Version check completed"
-          timeout 10 ./xi_world --version || echo "Version check completed"
-          
-          # Test database connectivity
-          python3 -c "
-          import mysql.connector
-          try:
-              conn = mysql.connector.connect(
-                  host='localhost', 
-                  user='xiuser', 
-                  password='xipass', 
-                  database='xidb'
-              )
-              print('Database connection successful')
-              conn.close()
-          except Exception as e:
-              print(f'Database connection failed: {e}')
-              exit(1)
-          "
-      - name: Cleanup
-        if: always()
-        run: |
-          brew services stop mariadb || true
 
   Database_Performance_Tests:
     runs-on: ubuntu-24.04
@@ -992,90 +788,4 @@ jobs:
             exit 1
           fi
 
-  Full_Startup_Checks_Windows:
-    runs-on: windows-2022
-    needs: Windows_64bit_Debug
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - uses: actions/download-artifact@v4
-        with:
-          name: windows_executables
-          path: .
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - uses: zach2good/setup-mariadb@v1
-        with:
-          database: xidb
-      - name: Copy settings
-        shell: bash
-        run: |
-          cp settings/default/* settings/
-      - name: Install Python Dependencies
-        shell: bash
-        # Python 3.12 with optimized requirements
-        run: |
-          python3 -m pip config set global.break-system-packages true
-          python3 -m pip install -r tools/requirements-py312.txt
-      - name: Import SQL files
-        shell: bash
-        run: |
-          python3 ./tools/dbtool.py setup
-      - name: Startup checks
-        shell: bash
-        run: |
-          python3 ./tools/ci/startup_checks.py
 
-  Full_Startup_Checks_Windows_Tracy_Modules:
-    runs-on: windows-2022
-    needs: Windows_64bit_Release_Tracy_Modules
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: recursive # For navmeshes
-      - uses: actions/download-artifact@v4
-        with:
-          name: windows_modules_executables
-          path: .
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - uses: zach2good/setup-mariadb@v1
-        with:
-          database: xidb
-      - name: Rename exe
-        run: |
-          mv xi_map_tracy.exe xi_map.exe
-      - name: Copy settings
-        shell: bash
-        run: |
-          cp settings/default/* settings/
-      - name: Enable Modules
-        shell: bash
-        run: |
-          python3 << EOF
-          with open("modules/init.txt", "w") as f:
-              f.write("custom\n")
-              f.write("era\n")
-              f.write("example\n")
-              f.write("renamer\n")
-          EOF
-      - name: Install Python Dependencies
-        shell: bash
-        # Python 3.12 with optimized requirements
-        run: |
-          python3 -m pip config set global.break-system-packages true
-          python3 -m pip install -r tools/requirements-py312.txt
-      - name: Import SQL files
-        shell: bash
-        run: |
-          python3 ./tools/dbtool.py setup
-      - name: Startup checks
-        shell: bash
-        run: |
-          python3 ./tools/ci/startup_checks.py

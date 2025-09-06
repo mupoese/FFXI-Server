@@ -266,15 +266,17 @@ VSVersionInfo(
     
     # Run PyInstaller
     try:
+        # Use direct script path instead of spec file to avoid command line conflicts
         cmd = [
-            'pyinstaller',
+            sys.executable, '-m', 'PyInstaller',
             '--onefile',
             '--windowed',
+            '--name', f'{server_name}_Launcher',
             '--version-file', str(version_file),
             '--distpath', str(output_dir / 'dist'),
             '--workpath', str(output_dir / 'work'),
             '--specpath', str(output_dir),
-            str(spec_file)
+            str(launcher_file)
         ]
         
         print(f"Building {server_name} Launcher executable...")
@@ -282,7 +284,13 @@ VSVersionInfo(
         
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         print("Build successful!")
-        return output_dir / 'dist' / f'{server_name}_Launcher.exe'
+        
+        # Check for the executable (Windows vs Linux/macOS)
+        exe_path = output_dir / 'dist' / f'{server_name}_Launcher.exe'
+        if not exe_path.exists():
+            exe_path = output_dir / 'dist' / f'{server_name}_Launcher'
+        
+        return exe_path if exe_path.exists() else None
         
     except subprocess.CalledProcessError as e:
         print(f"Build failed: {e}")

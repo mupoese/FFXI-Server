@@ -109,23 +109,27 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Install Python dependencies including launcher build tools
 COPY tools/requirements.txt /tmp/requirements.txt
-RUN pip3 install --break-system-packages --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+RUN pip3 install --break-system-packages --no-cache-dir -r /tmp/requirements.txt \
+    && pip3 install --break-system-packages --no-cache-dir pyinstaller pyzmq requests flask \
+    && rm /tmp/requirements.txt
 
-# Create application directory structure
-RUN mkdir -p $FFXI_HOME/{bin,settings,logs,sql,scripts,tools,res} \
+# Create application directory structure including web directory for launcher downloads
+RUN mkdir -p $FFXI_HOME/{bin,settings,logs,sql,scripts,tools,res,web/downloads,launcher_build} \
     && chown -R $FFXI_USER:$FFXI_USER $FFXI_HOME
 
 # Copy built binaries and dependencies from build stage
 COPY --from=build-stage --chown=$FFXI_USER:$FFXI_USER /opt/ffxi $FFXI_HOME/
 
-# Copy additional runtime files
+# Copy additional runtime files including web directory
 COPY --chown=$FFXI_USER:$FFXI_USER settings/ $FFXI_HOME/settings/
 COPY --chown=$FFXI_USER:$FFXI_USER scripts/ $FFXI_HOME/scripts/
 COPY --chown=$FFXI_USER:$FFXI_USER sql/ $FFXI_HOME/sql/
 COPY --chown=$FFXI_USER:$FFXI_USER tools/ $FFXI_HOME/tools/
 COPY --chown=$FFXI_USER:$FFXI_USER res/ $FFXI_HOME/res/
+COPY --chown=$FFXI_USER:$FFXI_USER web/ $FFXI_HOME/web/
+COPY --chown=$FFXI_USER:$FFXI_USER .env.example $FFXI_HOME/.env.example
 COPY --chown=$FFXI_USER:$FFXI_USER docker/scripts/entrypoint.sh $FFXI_HOME/entrypoint.sh
 COPY --chown=$FFXI_USER:$FFXI_USER docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -137,8 +141,8 @@ RUN chmod +x $FFXI_HOME/entrypoint.sh \
        fi \
     && chown -R $FFXI_USER:$FFXI_USER $FFXI_HOME
 
-# Expose standard FFXI ports
-EXPOSE 54001/tcp 54002/tcp 54230/tcp 54230/udp 54231/tcp 51220/tcp 54003/tcp 8088/tcp
+# Expose standard FFXI ports and launcher web server
+EXPOSE 54001/tcp 54002/tcp 54230/tcp 54230/udp 54231/tcp 51220/tcp 54003/tcp 8088/tcp 8089/tcp
 
 # Set up health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

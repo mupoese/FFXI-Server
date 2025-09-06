@@ -74,9 +74,11 @@ services:
       - "${FFXI_SEARCH_PORT:-54002}:54002/tcp"        # Search Server
       - "${FFXI_ZMQ_PORT:-54003}:54003/tcp"           # ZMQ
       - "${FFXI_HTTP_PORT:-8088}:8088/tcp"            # HTTP Management
+      - "${FFXI_LAUNCHER_PORT:-8089}:8089/tcp"        # Launcher Web Server
     volumes:
       - ffxi_logs:/opt/ffxi/logs
       - ffxi_settings:/opt/ffxi/settings
+      - ffxi_launcher:/opt/ffxi/web/downloads
       - ../res:/opt/ffxi/res:ro
     networks:
       - ffxi-network
@@ -314,6 +316,8 @@ volumes:
   ffxi_logs:
     driver: local
   ffxi_settings:
+    driver: local
+  ffxi_launcher:
     driver: local
   ffxi_redis:
     driver: local

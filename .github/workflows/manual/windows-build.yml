@@ -1,0 +1,254 @@
+name: "Windows Manual Build"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'Debug'
+        type: choice
+        options:
+        - Debug
+        - Release
+      enable_tracy:
+        description: 'Enable Tracy profiling'
+        required: false
+        default: false
+        type: boolean
+      enable_modules:
+        description: 'Enable modules'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  Windows_64bit_Debug:
+    runs-on: windows-2022
+    steps:
+      - uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Cache 'build' folder
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ github.repository }}-${{ runner.os }}-msvc64d
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
+          cmake -S . -B build
+      - name: Build
+        shell: bash
+        run: |
+          cmake --build build -j4
+      - name: Archive Executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_executables_${{ inputs.build_type }}
+          path: |
+            xi_connect.exe
+            xi_map.exe
+            xi_search.exe
+            xi_world.exe
+            xi_test.exe
+
+  Windows_64bit_Release_Tracy_Modules:
+    runs-on: windows-2022
+    if: inputs.enable_tracy == true || inputs.enable_modules == true
+    steps:
+      - uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Cache 'build' folder
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ github.repository }}-${{ runner.os }}-msvc64-t
+      - name: Enable Modules
+        if: inputs.enable_modules == true
+        shell: bash
+        run: |
+          python3 << EOF
+          with open("modules/init.txt", "w") as f:
+              f.write("custom\n")
+              f.write("era\n")
+              f.write("example\n")
+              f.write("renamer\n")
+          EOF
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir -p build
+          # Clear CMake cache if it exists to avoid path conflicts
+          rm -f build/CMakeCache.txt
+          TRACY_FLAG=""
+          if [ "${{ inputs.enable_tracy }}" == "true" ]; then
+            TRACY_FLAG="-DENABLE_TRACY=ON"
+          fi
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release $TRACY_FLAG
+      - name: Build
+        shell: bash
+        run: |
+          cmake --build build --config Release -j4
+      - name: Archive Executables
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_modules_executables_${{ inputs.build_type }}
+          path: |
+            xi_connect.exe
+            xi_map_tracy.exe
+            xi_search.exe
+            xi_world.exe
+            xi_test.exe
+
+  Windows_Launcher_Build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Python Dependencies
+        shell: bash
+        run: |
+          python3 -m pip install --break-system-packages pyzmq requests flask pyinstaller
+      - name: Create Test Environment File
+        shell: bash
+        run: |
+          cp .env.example .env.test
+          sed -i 's/SERVERNAME=FFXI/SERVERNAME=WindowsManualServer/' .env.test
+          sed -i 's/FFXI_/WINDOWSMANUALSERVER_/g' .env.test
+          echo "WINDOWSMANUALSERVER_DEBUG_MODE=true" >> .env.test
+          echo "WINDOWSMANUALSERVER_MANUAL_BUILD=true" >> .env.test
+      - name: Test Basic Launcher Build
+        shell: bash
+        run: |
+          python3 tools/build_launcher.py
+          echo "✅ Windows launcher build completed"
+      - name: Test Enhanced Launcher Build  
+        shell: bash
+        run: |
+          cp .env.test .env
+          python3 tools/enhanced_build_launcher.py
+          echo "✅ Windows enhanced launcher build completed"
+      - name: Archive Windows Launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_launcher_manual_build
+          path: |
+            launcher_build/
+            web/downloads/
+        if: always()
+
+  Full_Startup_Checks_Windows:
+    runs-on: windows-2022
+    needs: Windows_64bit_Debug
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows_executables_${{ inputs.build_type }}
+          path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - uses: zach2good/setup-mariadb@v1
+        with:
+          database: xidb
+      - name: Copy settings
+        shell: bash
+        run: |
+          cp settings/default/* settings/
+      - name: Install Python Dependencies
+        shell: bash
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          python3 -m pip install -r tools/requirements-py312.txt
+      - name: Import SQL files
+        shell: bash
+        run: |
+          python3 ./tools/dbtool.py setup
+      - name: Startup checks
+        shell: bash
+        run: |
+          python3 ./tools/ci/startup_checks.py
+
+  Full_Startup_Checks_Windows_Tracy_Modules:
+    runs-on: windows-2022
+    needs: Windows_64bit_Release_Tracy_Modules
+    if: inputs.enable_tracy == true || inputs.enable_modules == true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive # For navmeshes
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows_modules_executables_${{ inputs.build_type }}
+          path: .
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - uses: zach2good/setup-mariadb@v1
+        with:
+          database: xidb
+      - name: Rename exe
+        run: |
+          mv xi_map_tracy.exe xi_map.exe
+      - name: Copy settings
+        shell: bash
+        run: |
+          cp settings/default/* settings/
+      - name: Enable Modules
+        if: inputs.enable_modules == true
+        shell: bash
+        run: |
+          python3 << EOF
+          with open("modules/init.txt", "w") as f:
+              f.write("custom\n")
+              f.write("era\n")
+              f.write("example\n")
+              f.write("renamer\n")
+          EOF
+      - name: Install Python Dependencies
+        shell: bash
+        run: |
+          python3 -m pip config set global.break-system-packages true
+          python3 -m pip install -r tools/requirements-py312.txt
+      - name: Import SQL files
+        shell: bash
+        run: |
+          python3 ./tools/dbtool.py setup
+      - name: Startup checks
+        shell: bash
+        run: |
+          python3 ./tools/ci/startup_checks.py

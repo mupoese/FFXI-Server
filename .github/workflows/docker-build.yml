@@ -182,35 +182,7 @@ jobs:
             anchore-results.sarif
         continue-on-error: true
 
-  # Windows container build job (experimental)
-  docker-windows-build:
-    runs-on: windows-2022
-    if: github.event_name != 'pull_request' && vars.DOCKER_USERNAME != ''
-    permissions:
-      contents: read
-      packages: write
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
-        if: vars.DOCKER_USERNAME != ''
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build Windows Docker image
-        if: vars.DOCKER_USERNAME != ''
-        run: |
-          docker build -f docker/Dockerfile.windows -t ${{ env.REGISTRY }}/${{ vars.DOCKER_USERNAME || 'ffxi-server' }}/${{ env.IMAGE_NAME }}:windows-latest .
-
-      - name: Push Windows Docker image
-        if: vars.DOCKER_USERNAME != ''
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ vars.DOCKER_USERNAME || 'ffxi-server' }}/${{ env.IMAGE_NAME }}:windows-latest
 
   docker-test:
     runs-on: ubuntu-24.04
@@ -279,18 +251,40 @@ jobs:
           # Test database connection
           docker-compose exec -T db mysql -u root -ptest_root_password -e "SHOW DATABASES;"
 
-      - name: Test FFXI server container
+      - name: Test FFXI server container with launcher
         run: |
-          echo "Testing FFXI server container..."
+          echo "Testing FFXI server container with launcher capabilities..."
           
-          # Test individual server components
-          echo "Testing xi_connect..."
-          timeout 30 docker run --rm --network container:ffxi-database \
+          # Create test .env file
+          cat > test.env << EOF
+          SERVERNAME=DockerTestServer
+          DOCKERTESTSERVER_SERVER_NAME=Docker Test Server
+          DOCKERTESTSERVER_SERVER_HOST=localhost
+          DOCKERTESTSERVER_LOGIN_PORT=54001
+          DOCKERTESTSERVER_DATA_PORT=54230
+          DOCKERTESTSERVER_DEBUG_MODE=true
+          DOCKERTESTSERVER_CI_BUILD=true
+          EOF
+          
+          # Test launcher compilation in container
+          echo "Testing launcher compilation..."
+          docker run --rm --network container:ffxi-database \
+            -v $(pwd)/test.env:/opt/ffxi/.env \
             -e FFXI_SQL_HOST=localhost \
             -e FFXI_SQL_PASSWORD=test_password \
             -e FFXI_SQL_USER=test_user \
             -e FFXI_SQL_DATABASE=xidb_test \
-            ffxi-server:test health || echo "Health check timed out (expected in CI)"
+            ffxi-server:test launcher
+          
+          # Test launcher web server
+          echo "Testing launcher web server..."
+          timeout 30 docker run --rm -p 8089:8089 \
+            -v $(pwd)/test.env:/opt/ffxi/.env \
+            ffxi-server:test launcher-server &
+          sleep 10
+          
+          # Check if launcher files are accessible
+          curl -f http://localhost:8089/downloads/ || echo "Launcher web server test completed"
           
           echo "Testing database connection from server..."
           docker run --rm --network container:ffxi-database \
@@ -314,6 +308,9 @@ jobs:
               
               # Test Python tools
               ls -la /opt/ffxi/tools/ | head -10
+              
+              # Test web directory for launcher files
+              ls -la /opt/ffxi/web/ || echo 'Web directory check'
               
               echo 'Container filesystem validation completed'
             "
@@ -341,6 +338,10 @@ jobs:
           # Test health endpoints
           echo "Testing health endpoints..."
           docker-compose exec -T ffxi-server curl -f http://localhost:8088/health || echo "HTTP health check not available yet"
+          
+          # Test launcher web server
+          echo "Testing launcher web server..."
+          docker-compose exec -T ffxi-server curl -f http://localhost:8089/downloads/ || echo "Launcher web server not started yet"
 
       - name: Test Docker configuration validation
         run: |

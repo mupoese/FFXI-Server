@@ -172,6 +172,7 @@ echo "Database: $FFXI_SQL_HOST:$FFXI_SQL_PORT/$FFXI_SQL_DATABASE"
 echo "Login Ports: 54001 (VIEW), 54230 (DATA), 54231 (AUTH), 51220 (CONFIG)"
 echo "Game Ports: 54230 (MAP), 54002 (SEARCH), 54003 (ZMQ)"
 echo "HTTP Port: 8088"
+echo "Launcher Web Server Port: 8089"
 
 # Execute the main command based on argument
 case "$1" in
@@ -190,6 +191,50 @@ case "$1" in
     "world"|"xi_world")
         echo "Starting xi_world server..."
         exec /opt/ffxi/bin/xi_world "${@:2}"
+        ;;
+    "launcher"|"build-launcher")
+        echo "Building launcher with current .env configuration..."
+        cd /opt/ffxi
+        if [ -f ".env" ]; then
+            echo "Using existing .env file for launcher build..."
+            python3 tools/enhanced_build_launcher.py
+        else
+            echo "No .env file found, using .env.example as template..."
+            cp .env.example .env
+            python3 tools/enhanced_build_launcher.py
+        fi
+        echo "Launcher build completed. Files available in web/downloads/"
+        ;;
+    "launcher-server"|"serve-launcher")
+        echo "Starting launcher web server..."
+        cd /opt/ffxi/web
+        python3 -m http.server 8089 --bind 0.0.0.0 &
+        echo "Launcher web server started on port 8089"
+        echo "Download URL: http://localhost:8089/downloads/"
+        wait
+        ;;
+    "all-with-launcher"|"full")
+        echo "Starting all FFXI server components with launcher web server..."
+        
+        # Build launcher first if .env exists
+        if [ -f "/opt/ffxi/.env" ]; then
+            echo "Building launcher with current configuration..."
+            cd /opt/ffxi
+            python3 tools/enhanced_build_launcher.py
+        fi
+        
+        # Start launcher web server
+        cd /opt/ffxi/web
+        python3 -m http.server 8089 --bind 0.0.0.0 &
+        echo "Launcher web server started on port 8089"
+        
+        # Start all FFXI servers in background except the last one
+        /opt/ffxi/bin/xi_connect --log /opt/ffxi/logs/xi_connect.log &
+        /opt/ffxi/bin/xi_search --log /opt/ffxi/logs/xi_search.log &
+        /opt/ffxi/bin/xi_world --log /opt/ffxi/logs/xi_world.log &
+        
+        # Start map server in foreground (will keep container running)
+        exec /opt/ffxi/bin/xi_map --log /opt/ffxi/logs/xi_map.log
         ;;
     "all"|"")
         echo "Starting all FFXI server components..."
@@ -218,15 +263,18 @@ case "$1" in
         exit 0
         ;;
     *)
-        echo "Usage: $0 {connect|map|search|world|all|test|bash|health}"
-        echo "  connect  - Start only xi_connect server"
-        echo "  map      - Start only xi_map server"
-        echo "  search   - Start only xi_search server"
-        echo "  world    - Start only xi_world server"
-        echo "  all      - Start all server components (default)"
-        echo "  test     - Run server tests"
-        echo "  bash     - Start interactive shell"
-        echo "  health   - Perform health check"
+        echo "Usage: $0 {connect|map|search|world|all|launcher|launcher-server|all-with-launcher|test|bash|health}"
+        echo "  connect           - Start only xi_connect server"
+        echo "  map               - Start only xi_map server"
+        echo "  search            - Start only xi_search server"
+        echo "  world             - Start only xi_world server"
+        echo "  all               - Start all server components (default)"
+        echo "  launcher          - Build launcher with current .env configuration"
+        echo "  launcher-server   - Start launcher web server on port 8089"
+        echo "  all-with-launcher - Start all servers and launcher web server"
+        echo "  test              - Run server tests"
+        echo "  bash              - Start interactive shell"
+        echo "  health            - Perform health check"
         exec "$@"
         ;;
 esac

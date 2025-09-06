@@ -2,7 +2,18 @@
 
 ## Overview
 
-The Final Fantasy XI Server implements a comprehensive Game Master (GM) account system with 6 privilege levels (0-5) providing administrative control over server operations, player management, and content administration. This system includes 197+ GM commands, special abilities, and comprehensive audit tracking.
+The Final Fantasy XI Server implements a comprehensive Game Master (GM) account system with **ADMIN DASHBOARD EXCLUSIVE** promotion control. GM privileges can only be granted through the web admin dashboard by the server owner, ensuring maximum security and preventing unauthorized privilege escalation.
+
+## Security Model
+
+### ⚠️ CRITICAL SECURITY CHANGE ⚠️
+**GM promotions are now EXCLUSIVELY controlled through the web admin dashboard. In-game promotion commands have been disabled for security.**
+
+### Server Owner Authority
+- **Only the server owner** can promote or demote GMs through the admin dashboard
+- Server owner account is **permanently protected** at Level 5 and cannot be demoted
+- All GM privilege changes are logged in the audit system
+- Database triggers prevent unauthorized privilege modifications
 
 ## GM Level System
 
@@ -16,6 +27,36 @@ The Final Fantasy XI Server implements a comprehensive Game Master (GM) account 
 | **3** | Senior GM | Advanced administrative capabilities | Server management |
 | **4** | Lead GM | High-level administrative control | System operations |
 | **5** | Super Admin | Full server control and dangerous operations | All commands |
+
+### Promotion Security
+
+#### Admin Dashboard Exclusive Control
+```javascript
+// GM promotion endpoint - requires server owner authentication
+POST /api/gm/promote
+{
+    "login": "target_username",
+    "gmlevel": 3
+}
+
+// Only server owner can execute this endpoint
+// All actions are logged in audit_gm table
+```
+
+#### Database Protection
+```sql
+-- Triggers prevent unauthorized changes
+CREATE TRIGGER prevent_unauthorized_gmlevel_update
+BEFORE UPDATE ON chars
+FOR EACH ROW
+BEGIN
+    -- Prevent server owner demotion
+    IF account_login = server_owner AND NEW.gmlevel < 5 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Server owner cannot be demoted below GM level 5';
+    END IF;
+END
+```
 
 ### Database Structure
 
@@ -36,7 +77,7 @@ CREATE TABLE accounts (
 UPDATE chars SET gmlevel = ? WHERE charid = ? LIMIT 1;
 ```
 
-#### Audit Table
+#### Enhanced Audit Table
 ```sql
 CREATE TABLE audit_gm (
   date_time datetime NOT NULL,
@@ -46,6 +87,48 @@ CREATE TABLE audit_gm (
   PRIMARY KEY (date_time, gm_name)
 );
 ```
+
+## Admin Dashboard GM Management
+
+### Accessing GM Management
+1. Log into the web admin dashboard as server owner
+2. Navigate to the "👑 GM Management" tab
+3. Only server owner accounts have access to this section
+
+### Promoting a GM
+1. Click "➕ Promote New GM" button
+2. Enter the target username
+3. Select GM level (1-5)
+4. Confirm the promotion
+
+### Managing Existing GMs
+- **Edit GM Level**: Modify an existing GM's privilege level
+- **Revoke Privileges**: Remove GM status from an account
+- **View Audit Log**: Review all GM-related actions
+
+### Security Features
+- **Server Owner Protection**: Owner account cannot be modified or demoted
+- **Audit Logging**: All GM actions are logged with timestamps
+- **Database Triggers**: Prevent unauthorized database modifications
+- **Session Authentication**: Admin dashboard requires secure authentication
+
+## Disabled In-Game Commands
+
+### Promote Command Disabled
+```lua
+-- scripts/commands/promote.lua
+commandObj.onTrigger = function(player, target, level)
+    -- GM promotion is now restricted to admin dashboard only
+    player:printToPlayer('GM promotion is now restricted to the web admin dashboard for security.')
+    player:printToPlayer('Contact the server owner to request GM privileges through the admin panel.')
+    
+    -- Log the attempt for security audit
+    printf('[SECURITY] %s attempted to use disabled promote command', player:getName())
+end
+```
+
+### Security Audit
+All attempts to use the disabled promote command are logged for security monitoring.
 
 ## Core GM Functions
 
@@ -57,12 +140,8 @@ if level >= 3 then
     -- Authorized for advanced operations
 end
 
--- Set GM level (requires higher privilege)
-player:setGMLevel(newLevel)
-
--- Visual GM indicator management
-player:setVisibleGMLevel(visibleLevel)  -- 0-7 for client display
-local visible = player:getVisibleGMLevel()
+-- GM level changes now only through admin dashboard
+-- setGMLevel() function restricted to admin API calls
 ```
 
 ### Character Entity Implementation
@@ -71,10 +150,7 @@ class CCharEntity {
     uint8 m_GMlevel;    // GM privilege level (0-5)
     
     uint8 getGMLevel() const { return m_GMlevel; }
-    void setGMLevel(uint8 level) { 
-        m_GMlevel = level;
-        charutils::SaveCharGMLevel(this);
-    }
+    // setGMLevel() now restricted to admin dashboard calls
 };
 ```
 
@@ -83,7 +159,7 @@ class CCharEntity {
 ### 1. Player Management (Permission 1-3)
 | Command | Permission | Description |
 |---------|------------|-------------|
-| `promote` | 1 | Change player GM level |
+| ~~`promote`~~ | ~~1~~ | **DISABLED - Admin Dashboard Only** |
 | `bring` | 1 | Teleport player to GM |
 | `goto` | 1 | Teleport GM to player |
 | `jail` | 1 | Confine player to GM jail |
@@ -98,6 +174,225 @@ class CCharEntity {
 | `additem` | 1 | Give items to players |
 | `addquest` | 1 | Grant quest progress |
 | `addmission` | 1 | Grant mission progress |
+
+## Implementation Guide
+
+### Setting Up Server Owner Exclusive Control
+
+#### 1. Environment Configuration
+```bash
+# Set server owner username (default: admin)
+export FFXI_SERVER_OWNER="your_server_owner_username"
+
+# Set secure API secret key
+export FFXI_API_SECRET_KEY="your_secure_secret_key_here"
+```
+
+#### 2. Database Security Installation
+```bash
+# Install database security triggers
+mysql -u root -p xidb < sql/gm_security_triggers.sql
+
+# Verify triggers are installed
+mysql -u root -p xidb -e "SHOW TRIGGERS WHERE Trigger like '%gm%';"
+```
+
+#### 3. Web Admin Dashboard Setup
+```bash
+# Start the admin API
+cd web/api
+python3 app.py
+
+# Access admin dashboard
+# http://localhost:5000/admin.html
+```
+
+#### 4. Server Owner Initial Setup
+1. Access the admin dashboard with server owner credentials
+2. Navigate to "👑 GM Management" tab
+3. Verify server owner account shows as "Protected"
+4. Test GM promotion functionality
+
+### Security Verification
+
+#### Check Disabled Promote Command
+```bash
+# Test in-game that promote command is disabled
+# Character should receive security message
+!promote testuser 1
+```
+
+#### Verify Database Protection
+```sql
+-- This should fail with error message
+UPDATE accounts SET priv = 5 WHERE login = 'regular_user';
+
+-- This should fail with error message  
+UPDATE chars SET gmlevel = 5 WHERE charname = 'regular_character';
+```
+
+#### Audit Log Verification
+```sql
+-- Check audit log for security events
+SELECT * FROM audit_gm 
+WHERE command LIKE '%SECURITY%' 
+ORDER BY date_time DESC 
+LIMIT 10;
+```
+
+### Emergency Procedures
+
+#### Server Owner Password Reset
+```bash
+# Reset server owner password if needed
+mysql -u root -p xidb -e "
+UPDATE accounts 
+SET password = SHA1('new_password_here') 
+WHERE login = 'admin';"
+```
+
+#### Emergency GM Revocation
+```bash
+# Revoke all GM privileges except server owner
+mysql -u root -p xidb -e "
+UPDATE chars c 
+JOIN accounts a ON c.accid = a.id 
+SET c.gmlevel = 0 
+WHERE a.login != 'admin';"
+```
+
+#### Restore In-Game Promote (Emergency Only)
+```lua
+-- Only if admin dashboard is compromised
+-- Edit scripts/commands/promote.lua to restore original functionality
+-- NOT RECOMMENDED - defeats security purpose
+```
+
+## API Endpoints
+
+### GM Management API
+
+#### Get GM Accounts
+```http
+GET /api/gm/accounts
+Authorization: Bearer {server_owner_token}
+
+Response:
+{
+    "gm_accounts": [...],
+    "server_owner": "admin",
+    "timestamp": "2024-08-31T01:15:23Z"
+}
+```
+
+#### Promote GM
+```http
+POST /api/gm/promote
+Authorization: Bearer {server_owner_token}
+Content-Type: application/json
+
+{
+    "login": "target_username",
+    "gmlevel": 3
+}
+
+Response:
+{
+    "success": true,
+    "message": "Successfully promoted target_username to GM level 3",
+    "timestamp": "2024-08-31T01:15:23Z"
+}
+```
+
+#### Revoke GM
+```http
+POST /api/gm/revoke
+Authorization: Bearer {server_owner_token}
+Content-Type: application/json
+
+{
+    "login": "target_username"
+}
+
+Response:
+{
+    "success": true,
+    "message": "Successfully revoked GM privileges for target_username",
+    "timestamp": "2024-08-31T01:15:23Z"
+}
+```
+
+#### Audit Log
+```http
+GET /api/gm/audit?limit=50
+Authorization: Bearer {server_owner_token}
+
+Response:
+{
+    "audit_logs": [...],
+    "count": 50,
+    "timestamp": "2024-08-31T01:15:23Z"
+}
+```
+
+## Best Practices
+
+### Security Recommendations
+1. **Unique Server Owner**: Use a unique username, not 'admin'
+2. **Strong Password**: Use a strong password for the server owner account
+3. **Secure API Key**: Generate a random, secure API secret key
+4. **Regular Audits**: Review audit logs regularly for suspicious activity
+5. **Backup Access**: Maintain database access for emergency procedures
+6. **HTTPS Only**: Use HTTPS for admin dashboard access in production
+
+### GM Management Workflow
+1. **Request Process**: Establish a formal GM application process
+2. **Approval Process**: Server owner reviews and approves all GM requests
+3. **Trial Period**: Consider trial periods for new GMs
+4. **Regular Reviews**: Periodically review GM performance and necessity
+5. **Privilege Escalation**: Start GMs at lower levels and promote based on performance
+
+### Monitoring and Maintenance
+1. **Daily Audit Review**: Check audit logs daily for unauthorized attempts
+2. **Weekly GM Review**: Review active GM accounts weekly
+3. **Monthly Security Check**: Verify security triggers and protections monthly
+4. **Quarterly Access Review**: Full review of all GM privileges quarterly
+
+## Troubleshooting
+
+### Common Issues
+
+#### "Only the server owner can promote GMs"
+- **Cause**: User is not authenticated as server owner
+- **Solution**: Verify server owner username and authentication
+
+#### "Server owner cannot be demoted"
+- **Cause**: Attempt to demote server owner account
+- **Solution**: This is by design for security - server owner is protected
+
+#### "Invalid or expired token"
+- **Cause**: Authentication token has expired
+- **Solution**: Re-authenticate through admin dashboard
+
+#### Database trigger errors
+- **Cause**: Direct database modification blocked by security triggers
+- **Solution**: Use admin dashboard for all GM management
+
+### Debug Commands
+
+```bash
+# Check server owner configuration
+echo $FFXI_SERVER_OWNER
+
+# Test API authentication
+curl -H "Authorization: Bearer $TOKEN" http://localhost:5000/api/gm/accounts
+
+# Check database triggers
+mysql -u root -p xidb -e "SHOW TRIGGERS WHERE Trigger LIKE '%gm%';"
+
+# View recent audit logs
+mysql -u root -p xidb -e "SELECT * FROM audit_gm ORDER BY date_time DESC LIMIT 10;"
+```
 | `addspell` | 1 | Teach spells to players |
 | `addkeyitem` | 1 | Grant key items |
 | `completemission` | 1 | Complete missions |

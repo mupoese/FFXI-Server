@@ -519,10 +519,11 @@
 
     <nav class="nav-tabs">
         <div class="nav-tabs-content">
-            <div class="tab active" data-tab="dashboard">📊 Dashboard</div>
+            <div class="tab" data-tab="dashboard">📊 Dashboard</div>
             <div class="tab" data-tab="monitoring">📈 Monitoring</div>
             <div class="tab" data-tab="servers">🖥️ Servers</div>
             <div class="tab" data-tab="players">👥 Players</div>
+            <div class="tab" data-tab="gm-management">👑 GM Management</div>
             <div class="tab" data-tab="database">🗄️ Database</div>
             <div class="tab" data-tab="network">🌐 Network</div>
             <div class="tab" data-tab="logs">📝 Logs</div>
@@ -925,6 +926,130 @@
                                 <button class="btn btn-warning">⚠️ Warn</button>
                                 <button class="btn btn-danger">🚫 Kick</button>
                             </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GM Management Tab -->
+        <div id="gm-management" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>👑 GM Management (Server Owner Exclusive)</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-secondary" onclick="refreshGMAccounts()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="showGMAuditLog()">📋 Audit Log</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>👑 Total GMs</h3>
+                    <div class="metric-value" id="totalGMCount">5</div>
+                    <div class="metric-change">Active GM accounts</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🛡️ Security Status</h3>
+                    <div class="metric-value" style="font-size: 1.5rem;">✅</div>
+                    <div class="metric-change positive">Admin dashboard only</div>
+                </div>
+                <div class="metric-card">
+                    <h3>📊 Promotion Log</h3>
+                    <div class="metric-value" id="promotionCount">12</div>
+                    <div class="metric-change">Recent promotions</div>
+                </div>
+                <div class="metric-card">
+                    <h3>🔒 Server Owner</h3>
+                    <div class="metric-value" style="font-size: 1.2rem;" id="serverOwner">admin</div>
+                    <div class="metric-change">Level 5 protected</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🎯 Current GM Accounts</h3>
+                    <button class="btn btn-success" onclick="showPromoteModal()">➕ Promote New GM</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Character</th>
+                            <th>GM Level</th>
+                            <th>Account Privilege</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gmAccountsTableBody">
+                        <tr>
+                            <td><strong>admin</strong> 👑</td>
+                            <td>ServerOwner</td>
+                            <td><span class="status-badge" style="background: #8b4513;">Level 5</span></td>
+                            <td><span class="status-badge" style="background: #8b4513;">Owner</span></td>
+                            <td><span class="status-badge online">Protected</span></td>
+                            <td>
+                                <span style="color: var(--text-muted);">Cannot modify owner</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>gamemaster1</td>
+                            <td>GMChar1</td>
+                            <td><span class="status-badge" style="background: var(--primary-color);">Level 3</span></td>
+                            <td><span class="status-badge" style="background: var(--primary-color);">Admin</span></td>
+                            <td><span class="status-badge online">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="editGMLevel('gamemaster1', 3)">✏️ Edit</button>
+                                <button class="btn btn-danger" onclick="revokeGM('gamemaster1')">🚫 Revoke</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>moderator1</td>
+                            <td>ModChar1</td>
+                            <td><span class="status-badge" style="background: var(--accent-color);">Level 1</span></td>
+                            <td><span class="status-badge" style="background: var(--accent-color);">Moderator</span></td>
+                            <td><span class="status-badge online">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="editGMLevel('moderator1', 1)">✏️ Edit</button>
+                                <button class="btn btn-danger" onclick="revokeGM('moderator1')">🚫 Revoke</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📋 Recent GM Actions</h3>
+                    <button class="btn btn-primary" onclick="refreshGMAudit()">🔄 Refresh</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>GM</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gmAuditTableBody">
+                        <tr>
+                            <td>2024-08-31 01:15:23</td>
+                            <td>admin</td>
+                            <td><span class="status-badge" style="background: var(--accent-color);">ADMIN_PROMOTE</span></td>
+                            <td>Promoted gamemaster1 to level 3</td>
+                        </tr>
+                        <tr>
+                            <td>2024-08-31 00:45:12</td>
+                            <td>admin</td>
+                            <td><span class="status-badge" style="background: var(--info-color);">ADMIN_PROMOTE</span></td>
+                            <td>Promoted moderator1 to level 1</td>
+                        </tr>
+                        <tr>
+                            <td>2024-08-30 22:30:45</td>
+                            <td>admin</td>
+                            <td><span class="status-badge" style="background: var(--danger-color);">ADMIN_REVOKE</span></td>
+                            <td>Revoked GM privileges for oldgm</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1383,6 +1508,208 @@
 
         function saveSettings() {
             showNotification('Settings saved successfully', 'success');
+        }
+
+        // GM Management Functions
+        function refreshGMAccounts() {
+            fetch('/api/gm/accounts', {
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.gm_accounts) {
+                    updateGMAccountsTable(data.gm_accounts);
+                    document.getElementById('serverOwner').textContent = data.server_owner;
+                    document.getElementById('totalGMCount').textContent = data.gm_accounts.length;
+                }
+                showNotification('GM accounts refreshed', 'success');
+            })
+            .catch(error => {
+                console.error('Error fetching GM accounts:', error);
+                showNotification('Failed to refresh GM accounts', 'error');
+            });
+        }
+
+        function updateGMAccountsTable(accounts) {
+            const tbody = document.getElementById('gmAccountsTableBody');
+            tbody.innerHTML = '';
+            
+            accounts.forEach(account => {
+                const row = document.createElement('tr');
+                const isOwner = account.is_owner === 1;
+                const levelColor = getLevelColor(account.gmlevel);
+                
+                row.innerHTML = `
+                    <td>${account.login}${isOwner ? ' 👑' : ''}</td>
+                    <td>${account.charname || account.login}</td>
+                    <td><span class="status-badge" style="background: ${levelColor};">Level ${account.gmlevel}</span></td>
+                    <td><span class="status-badge" style="background: ${levelColor};">${getPrivName(account.account_priv)}</span></td>
+                    <td><span class="status-badge online">${isOwner ? 'Protected' : 'Active'}</span></td>
+                    <td>
+                        ${isOwner ? 
+                            '<span style="color: var(--text-muted);">Cannot modify owner</span>' :
+                            `<button class="btn btn-secondary" onclick="editGMLevel('${account.login}', ${account.gmlevel})">✏️ Edit</button>
+                             <button class="btn btn-danger" onclick="revokeGM('${account.login}')">🚫 Revoke</button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getLevelColor(level) {
+            const colors = {
+                0: '#666666',
+                1: '#27ae60',
+                2: '#3498db',
+                3: '#4a90e2',
+                4: '#9b59b6',
+                5: '#8b4513'
+            };
+            return colors[level] || '#666666';
+        }
+
+        function getPrivName(priv) {
+            const names = {
+                1: 'User',
+                2: 'Moderator',
+                3: 'Admin',
+                4: 'Super Admin',
+                5: 'Owner'
+            };
+            return names[priv] || 'Unknown';
+        }
+
+        function showPromoteModal() {
+            const login = prompt('Enter username to promote to GM:');
+            if (!login) return;
+            
+            const level = prompt('Enter GM level (1-5):');
+            if (!level || level < 1 || level > 5) {
+                showNotification('Invalid GM level. Must be 1-5', 'error');
+                return;
+            }
+            
+            promoteGM(login, parseInt(level));
+        }
+
+        function promoteGM(login, level) {
+            fetch('/api/gm/promote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                },
+                body: JSON.stringify({
+                    login: login,
+                    gmlevel: level
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    refreshGMAccounts();
+                    refreshGMAudit();
+                } else {
+                    showNotification(data.error || 'Failed to promote GM', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error promoting GM:', error);
+                showNotification('Failed to promote GM', 'error');
+            });
+        }
+
+        function editGMLevel(login, currentLevel) {
+            const newLevel = prompt(`Change GM level for ${login} (current: ${currentLevel}):`, currentLevel);
+            if (newLevel === null) return;
+            
+            const level = parseInt(newLevel);
+            if (level < 0 || level > 5) {
+                showNotification('Invalid GM level. Must be 0-5', 'error');
+                return;
+            }
+            
+            promoteGM(login, level);
+        }
+
+        function revokeGM(login) {
+            if (!confirm(`Are you sure you want to revoke GM privileges for ${login}?`)) {
+                return;
+            }
+            
+            fetch('/api/gm/revoke', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                },
+                body: JSON.stringify({
+                    login: login
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    refreshGMAccounts();
+                    refreshGMAudit();
+                } else {
+                    showNotification(data.error || 'Failed to revoke GM', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error revoking GM:', error);
+                showNotification('Failed to revoke GM', 'error');
+            });
+        }
+
+        function refreshGMAudit() {
+            fetch('/api/gm/audit', {
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.audit_logs) {
+                    updateGMAuditTable(data.audit_logs);
+                    document.getElementById('promotionCount').textContent = data.count;
+                }
+                showNotification('GM audit log refreshed', 'success');
+            })
+            .catch(error => {
+                console.error('Error fetching GM audit:', error);
+                showNotification('Failed to refresh audit log', 'error');
+            });
+        }
+
+        function updateGMAuditTable(logs) {
+            const tbody = document.getElementById('gmAuditTableBody');
+            tbody.innerHTML = '';
+            
+            logs.slice(0, 10).forEach(log => {
+                const row = document.createElement('tr');
+                const actionColor = log.command.includes('REVOKE') ? 'var(--danger-color)' : 
+                                   log.command.includes('PROMOTE') ? 'var(--accent-color)' : 'var(--info-color)';
+                
+                row.innerHTML = `
+                    <td>${new Date(log.date_time).toLocaleString()}</td>
+                    <td>${log.gm_name}</td>
+                    <td><span class="status-badge" style="background: ${actionColor};">${log.command}</span></td>
+                    <td>${log.full_string}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showGMAuditLog() {
+            window.dashboard.switchTab('gm-management');
+            refreshGMAudit();
+            showNotification('Viewing GM audit log', 'info');
         }
 
         // Initialize dashboard

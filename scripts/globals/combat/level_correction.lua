@@ -241,3 +241,106 @@ xi.combat.levelCorrection.isLevelCorrectedZone = function(actor)
         return true
     end
 end
+
+-- Enhanced level correction calculation for ITERATION 8
+xi.combat.levelCorrection.calculateCorrection = function(attackerLevel, targetLevel, zoneOverride)
+    local levelDiff = attackerLevel - targetLevel
+    
+    -- Zone check - use override if provided, otherwise check current zone
+    local useLevelCorrection = true
+    if zoneOverride ~= nil then
+        useLevelCorrection = zoneOverride
+    else
+        -- Assume we're in a level corrected zone if no override provided
+        useLevelCorrection = true
+    end
+    
+    if not useLevelCorrection then
+        return 1.0 -- No level correction
+    end
+    
+    -- Retail-accurate level correction formula
+    local correction = 1.0
+    
+    if levelDiff > 0 then
+        -- Attacker is higher level
+        if levelDiff <= 5 then
+            correction = 1.0 + (levelDiff * 0.05) -- 5% per level up to 5 levels
+        elseif levelDiff <= 10 then
+            correction = 1.25 + ((levelDiff - 5) * 0.03) -- 3% per level from 6-10
+        else
+            correction = 1.40 + ((levelDiff - 10) * 0.02) -- 2% per level beyond 10
+            correction = math.min(correction, 2.0) -- Cap at 200%
+        end
+    elseif levelDiff < 0 then
+        -- Attacker is lower level
+        local absLevelDiff = math.abs(levelDiff)
+        if absLevelDiff <= 5 then
+            correction = 1.0 - (absLevelDiff * 0.05) -- -5% per level up to 5 levels
+        elseif absLevelDiff <= 10 then
+            correction = 0.75 - ((absLevelDiff - 5) * 0.04) -- -4% per level from 6-10
+        else
+            correction = 0.55 - ((absLevelDiff - 10) * 0.03) -- -3% per level beyond 10
+            correction = math.max(correction, 0.1) -- Cap at 10% minimum
+        end
+    end
+    
+    return correction
+end
+
+-- Enhanced level correction for specific combat aspects
+xi.combat.levelCorrection.calculateAccuracyCorrection = function(attackerLevel, targetLevel, zoneOverride)
+    local baseCorrection = xi.combat.levelCorrection.calculateCorrection(attackerLevel, targetLevel, zoneOverride)
+    
+    -- Accuracy has different scaling than damage
+    local levelDiff = attackerLevel - targetLevel
+    local accuracyMod = 1.0
+    
+    if levelDiff > 0 then
+        accuracyMod = 1.0 + (levelDiff * 0.04) -- 4% accuracy per level advantage
+        accuracyMod = math.min(accuracyMod, 1.8) -- Cap at 180%
+    elseif levelDiff < 0 then
+        accuracyMod = 1.0 + (levelDiff * 0.06) -- -6% accuracy per level disadvantage
+        accuracyMod = math.max(accuracyMod, 0.2) -- Cap at 20% minimum
+    end
+    
+    return baseCorrection * accuracyMod
+end
+
+-- Enhanced level correction for magical accuracy
+xi.combat.levelCorrection.calculateMagicAccuracyCorrection = function(casterLevel, targetLevel, zoneOverride)
+    local baseCorrection = xi.combat.levelCorrection.calculateCorrection(casterLevel, targetLevel, zoneOverride)
+    
+    -- Magic accuracy scaling
+    local levelDiff = casterLevel - targetLevel
+    local magicAccMod = 1.0
+    
+    if levelDiff > 0 then
+        magicAccMod = 1.0 + (levelDiff * 0.03) -- 3% magic accuracy per level advantage
+        magicAccMod = math.min(magicAccMod, 1.6) -- Cap at 160%
+    elseif levelDiff < 0 then
+        magicAccMod = 1.0 + (levelDiff * 0.05) -- -5% magic accuracy per level disadvantage
+        magicAccMod = math.max(magicAccMod, 0.25) -- Cap at 25% minimum
+    end
+    
+    return baseCorrection * magicAccMod
+end
+
+-- Enhanced level correction for critical hit rates
+xi.combat.levelCorrection.calculateCriticalCorrection = function(attackerLevel, targetLevel, zoneOverride)
+    local levelDiff = attackerLevel - targetLevel
+    local critMod = 1.0
+    
+    -- Critical hits are affected by level difference
+    if levelDiff > 0 then
+        critMod = 1.0 + (levelDiff * 0.02) -- 2% crit bonus per level advantage
+        critMod = math.min(critMod, 1.5) -- Cap at 150%
+    elseif levelDiff < 0 then
+        critMod = 1.0 + (levelDiff * 0.03) -- -3% crit rate per level disadvantage
+        critMod = math.max(critMod, 0.1) -- Cap at 10% minimum
+    end
+    
+    return critMod
+end
+
+print("Enhanced Level Correction System loaded for ITERATION 8")

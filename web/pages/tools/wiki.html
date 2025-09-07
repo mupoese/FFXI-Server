@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFXI Wiki - MediaWiki Integration</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <style>
+        .wiki-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .wiki-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-medium);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .wiki-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .wiki-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .status-card {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border-color: var(--primary-color);
+        }
+
+        .status-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-pending { background-color: var(--warning-color); }
+        .status-available { background-color: var(--accent-color); }
+        .status-error { background-color: var(--danger-color); }
+
+        .mediawiki-info {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .mediawiki-info h2 {
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-item {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .installation-section {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .installation-section h3 {
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: var(--text-light);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .wiki-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .wiki-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wiki-btn.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .wiki-btn.primary:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .wiki-btn.secondary {
+            background: var(--bg-medium);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .wiki-btn.secondary:hover {
+            background: var(--border-color);
+        }
+
+        .external-wiki {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .external-wiki h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .wiki-container {
+                padding: 1rem;
+            }
+
+            .wiki-status {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+
+            .wiki-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+            <div class="nav-links">
+                <div class="nav-section">
+                    <span class="nav-label">Information</span>
+                    <a href="../information/play-now.html">Play Now</a>
+                    <a href="../information/server-info.html">Server Info</a>
+                    <a href="../information/addons.html">Addons</a>
+                    <a href="../information/rules.html">Rules</a>
+                    <a href="../information/news.html">News</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-label">Tools</span>
+                    <a href="players.html">Players</a>
+                    <a href="seeking.html">Seeking</a>
+                    <a href="items.html">Items</a>
+                    <a href="bazaar.html">Bazaar</a>
+                    <a href="bcnm.html">BCNM Ranking</a>
+                    <a href="wiki.html" class="active">Wiki</a>
+                    <a href="yells.html">Yells</a>
+                </div>
+                <div class="nav-section">
+                    <a href="../../admin.html">Admin</a>
+                    <a href="../../festival_calendar.html">Festivals</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="wiki-container">
+        <header class="wiki-header">
+            <h1>📚 FFXI Wiki System</h1>
+            <p>Comprehensive knowledge base powered by MediaWiki</p>
+        </header>
+
+        <section class="wiki-status">
+            <div class="status-card">
+                <h3>
+                    <span class="status-indicator status-pending"></span>
+                    MediaWiki Status
+                </h3>
+                <p>MediaWiki installation pending. This powerful wiki software will provide comprehensive documentation for the FFXI server community.</p>
+                <div class="wiki-actions">
+                    <button class="wiki-btn secondary" onclick="checkMediaWikiStatus()">Check Status</button>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>
+                    <span class="status-indicator status-available"></span>
+                    Wiki Content
+                </h3>
+                <p>Ready to host FFXI guides, item databases, quest walkthroughs, and community-contributed content.</p>
+                <div class="wiki-actions">
+                    <a href="#content-preview" class="wiki-btn secondary">Preview Content</a>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h3>
+                    <span class="status-indicator status-available"></span>
+                    Community Access
+                </h3>
+                <p>User registration and contribution system ready for community-driven wiki development.</p>
+                <div class="wiki-actions">
+                    <button class="wiki-btn secondary" onclick="showContributionInfo()">Learn More</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="mediawiki-info">
+            <h2>🔧 MediaWiki Integration</h2>
+            <p>This FFXI server uses MediaWiki, the industry-standard wiki software that powers Wikipedia and thousands of community wikis worldwide.</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>🚀 Powerful Features</h4>
+                    <p>Advanced editing, templates, categories, and multimedia support for comprehensive FFXI documentation.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>👥 Community Collaboration</h4>
+                    <p>Multi-user editing with revision tracking, discussion pages, and moderation tools.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📱 Mobile Responsive</h4>
+                    <p>Fully responsive design that works perfectly on desktop, tablet, and mobile devices.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔍 Advanced Search</h4>
+                    <p>Elasticsearch integration for fast, accurate search across all wiki content.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎨 Customizable</h4>
+                    <p>FFXI-themed skin and extensions tailored for the Final Fantasy XI community.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📊 Analytics</h4>
+                    <p>Comprehensive analytics and usage statistics for content optimization.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="installation-section">
+            <h3>📋 MediaWiki Setup Instructions</h3>
+            <p>To set up MediaWiki for your FFXI server, follow these installation steps:</p>
+
+            <h4>🐳 Docker Installation (Recommended)</h4>
+            <div class="code-block">
+                <pre># Clone MediaWiki Docker setup
+git clone https://github.com/wikimedia/mediawiki-docker-dev.git wiki
+cd wiki
+
+# Create docker-compose.yml for FFXI wiki
+cat > docker-compose.yml << 'EOF'
+version: '3.8'
+services:
+  mediawiki:
+    image: mediawiki:1.41
+    container_name: ffxi-wiki
+    ports:
+      - "8080:80"
+    environment:
+      - MEDIAWIKI_DB_TYPE=mysql
+      - MEDIAWIKI_DB_HOST=wiki-db
+      - MEDIAWIKI_DB_NAME=ffxi_wiki
+      - MEDIAWIKI_DB_USER=wiki_user
+      - MEDIAWIKI_DB_PASSWORD=secure_password
+      - MEDIAWIKI_SITE_NAME=FFXI Server Wiki
+      - MEDIAWIKI_SITE_LANG=en
+    volumes:
+      - wiki_data:/var/www/html
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+    depends_on:
+      - wiki-db
+
+  wiki-db:
+    image: mariadb:10.11
+    container_name: ffxi-wiki-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=ffxi_wiki
+      - MYSQL_USER=wiki_user
+      - MYSQL_PASSWORD=secure_password
+    volumes:
+      - wiki_db:/var/lib/mysql
+
+volumes:
+  wiki_data:
+  wiki_db:
+EOF
+
+# Start the wiki
+docker-compose up -d</pre>
+            </div>
+
+            <h4>🔧 FFXI-Specific Configuration</h4>
+            <div class="code-block">
+                <pre># Add to LocalSettings.php for FFXI customization
+$wgSitename = "FFXI Server Wiki";
+$wgMetaNamespace = "FFXI";
+
+# FFXI-themed skin
+$wgDefaultSkin = "vector-2022";
+$wgLogos = [
+    '1x' => "$wgResourceBasePath/logo.png",
+    'icon' => "$wgResourceBasePath/favicon.ico",
+];
+
+# Enable useful extensions
+wfLoadExtension( 'Cite' );
+wfLoadExtension( 'WikiEditor' );
+wfLoadExtension( 'SyntaxHighlight_GeSHi' );
+wfLoadExtension( 'TemplateData' );
+wfLoadExtension( 'VisualEditor' );
+
+# FFXI-specific namespaces
+$wgExtraNamespaces[100] = "Quest";
+$wgExtraNamespaces[101] = "Quest_talk";
+$wgExtraNamespaces[102] = "Item";
+$wgExtraNamespaces[103] = "Item_talk";
+$wgExtraNamespaces[104] = "NPC";
+$wgExtraNamespaces[105] = "NPC_talk";
+
+# Database integration for live server data
+$wgFFXIServerDB = [
+    'host' => 'localhost',
+    'database' => 'tpzdb',
+    'username' => 'wiki_reader',
+    'password' => 'secure_password'
+];</pre>
+            </div>
+        </section>
+
+        <section class="external-wiki">
+            <h3>🌐 External Wiki Access</h3>
+            <p>Once MediaWiki is configured, it will be accessible at:</p>
+            <div class="wiki-actions">
+                <a href="http://localhost:8080" class="wiki-btn primary" target="_blank">
+                    📚 Access Wiki (localhost:8080)
+                </a>
+                <button class="wiki-btn secondary" onclick="copyWikiUrl()">
+                    📋 Copy URL
+                </button>
+            </div>
+            <p><small>Note: MediaWiki must be installed and configured first. See setup instructions above.</small></p>
+        </section>
+
+        <section id="content-preview" class="installation-section">
+            <h3>📖 Planned Wiki Content</h3>
+            <p>The FFXI wiki will include comprehensive documentation:</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>📜 Quest Guides</h4>
+                    <p>Complete walkthroughs for missions, quests, and storylines with maps and rewards.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>⚔️ Combat Mechanics</h4>
+                    <p>Detailed information about jobs, abilities, spells, and combat strategies.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📦 Item Database</h4>
+                    <p>Comprehensive item listings with stats, sources, and crafting recipes.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🗺️ Zone Information</h4>
+                    <p>Maps, NPC locations, mob spawns, and zone-specific content.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎯 Event Documentation</h4>
+                    <p>Festival guides, special events, and seasonal content information.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🛠️ Server Features</h4>
+                    <p>Custom server mechanics, modifications, and enhanced features.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function checkMediaWikiStatus() {
+            const statusCard = document.querySelector('.status-card');
+            const indicator = statusCard.querySelector('.status-indicator');
+            const button = statusCard.querySelector('.wiki-btn');
+            
+            button.textContent = 'Checking...';
+            button.disabled = true;
+            
+            // Simulate status check
+            setTimeout(() => {
+                fetch('http://localhost:8080/api.php?action=query&meta=siteinfo&format=json')
+                    .then(response => response.ok ? response.json() : Promise.reject())
+                    .then(data => {
+                        indicator.className = 'status-indicator status-available';
+                        statusCard.querySelector('p').textContent = 'MediaWiki is running and ready for FFXI content!';
+                        button.textContent = '✅ Online';
+                        button.onclick = () => window.open('http://localhost:8080', '_blank');
+                    })
+                    .catch(() => {
+                        indicator.className = 'status-indicator status-error';
+                        statusCard.querySelector('p').textContent = 'MediaWiki not detected. Please install using the instructions below.';
+                        button.textContent = '❌ Offline';
+                        button.disabled = false;
+                        button.onclick = () => checkMediaWikiStatus();
+                    });
+            }, 1000);
+        }
+
+        function showContributionInfo() {
+            const info = `Wiki Contribution Guidelines:
+
+📝 Content Creation:
+• Create comprehensive guides for quests and mechanics
+• Add detailed item information with sources
+• Document server-specific features and modifications
+• Include screenshots and maps when possible
+
+🤝 Community Standards:
+• Follow FFXI wiki formatting conventions
+• Verify information accuracy before publishing
+• Collaborate with other contributors
+• Respect copyright and fair use guidelines
+
+🎯 Priority Content:
+• Quest walkthroughs with step-by-step instructions
+• Job guides and ability information
+• Zone maps and NPC locations
+• Crafting recipes and item sources
+• Event and festival documentation
+
+Join our Discord for wiki coordination and guidelines!`;
+
+            alert(info);
+        }
+
+        function copyWikiUrl() {
+            const url = 'http://localhost:8080';
+            navigator.clipboard.writeText(url).then(() => {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(() => {
+                prompt('Copy this URL:', url);
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-check MediaWiki status on page load
+            setTimeout(checkMediaWikiStatus, 1000);
+        });
+    </script>
+</body>
+</html>

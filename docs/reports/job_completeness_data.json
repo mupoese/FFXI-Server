@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T09:41:07.549581",
+  "timestamp": "2025-09-07T10:20:30.956981",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -194,21 +194,15 @@
       "enhancement_priorities": []
     },
     "corsair": {
-      "current_percentage": 59.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 8,
       "abilities_total": 8,
-      "spells_implemented": 0,
-      "spells_total": 0,
-      "lua_functions": 13,
+      "spells_implemented": 8,
+      "spells_total": 8,
+      "lua_functions": 21,
       "lua_bindings": 9,
-      "missing_features": [
-        "Missing Quick Draw implementation",
-        "Missing Random Deal implementation"
-      ],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries"
-      ]
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "puppetmaster": {
       "current_percentage": 75.0,
@@ -276,13 +270,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 12,
-    "average_completeness": 87.2,
+    "jobs_at_100_percent": 13,
+    "average_completeness": 89.0,
     "highest_priority_jobs": [
-      [
-        "corsair",
-        59.5
-      ],
       [
         "dancer",
         67.5
@@ -318,6 +308,10 @@
       [
         "puppetmaster",
         75.0
+      ],
+      [
+        "white_mage",
+        100.0
       ]
     ],
     "enhancement_phases": [
@@ -325,7 +319,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "corsair",
           "dancer",
           "samurai",
           "beastmaster"

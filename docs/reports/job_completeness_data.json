@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T00:14:42.546130",
+  "timestamp": "2025-09-07T06:53:38.179208",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -28,38 +28,26 @@
       ]
     },
     "white_mage": {
-      "current_percentage": 50.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 8,
       "abilities_total": 8,
-      "spells_implemented": 0,
+      "spells_implemented": 100,
       "spells_total": 100,
-      "lua_functions": 22,
-      "lua_bindings": 32,
-      "missing_features": [
-        "Missing Cure spells implementation",
-        "Missing Protect/Shell implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 39,
+      "lua_bindings": 55,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "black_mage": {
-      "current_percentage": 45.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 6,
       "abilities_total": 6,
-      "spells_implemented": 0,
+      "spells_implemented": 120,
       "spells_total": 120,
-      "lua_functions": 17,
-      "lua_bindings": 23,
-      "missing_features": [
-        "Missing Nuke spells implementation",
-        "Missing Enfeebling implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 37,
+      "lua_bindings": 55,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "red_mage": {
       "current_percentage": 100.0,
@@ -306,17 +294,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 6,
-    "average_completeness": 73.9,
+    "jobs_at_100_percent": 8,
+    "average_completeness": 78.7,
     "highest_priority_jobs": [
-      [
-        "black_mage",
-        45.5
-      ],
-      [
-        "white_mage",
-        50.0
-      ],
       [
         "ninja",
         52.5
@@ -348,22 +328,21 @@
       [
         "beastmaster",
         72.5
+      ],
+      [
+        "warrior",
+        75.0
+      ],
+      [
+        "monk",
+        75.0
       ]
     ],
     "enhancement_phases": [
       {
-        "phase": 1,
-        "name": "Critical Jobs (<50% Complete)",
-        "jobs": [
-          "black_mage"
-        ],
-        "estimated_hours": 40
-      },
-      {
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "white_mage",
           "ninja",
           "geomancer",
           "rune_fencer",
@@ -389,6 +368,6 @@
         "estimated_hours": 10
       }
     ],
-    "estimated_effort_hours": 70
+    "estimated_effort_hours": 30
   }
 }

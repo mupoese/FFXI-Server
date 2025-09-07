@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaar - FFXI Server</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="../information/play-now.html">Play Now</a>
+                        <a href="../information/server-info.html">Server Info</a>
+                        <a href="../information/addons.html">Addons</a>
+                        <a href="../information/rules.html">Rules</a>
+                        <a href="../information/news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="players.html">Players</a>
+                        <a href="seeking.html">Seeking</a>
+                        <a href="items.html">Items</a>
+                        <a href="bazaar.html" class="active">Bazaar</a>
+                        <a href="bcnm.html">BCNM Ranking</a>
+                        <a href="yells.html">Yells</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>🏪 Player Bazaars</h1>
+                <p>Browse items for sale by players across the server</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="bazaarSearch" placeholder="Search items in bazaars..." class="search-input">
+                    <button onclick="searchBazaars()" class="btn btn-primary">🔍 Search</button>
+                </div>
+                
+                <div class="search-filters">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="weapon">Weapons</option>
+                        <option value="armor">Armor</option>
+                        <option value="usable">Usable Items</option>
+                        <option value="crystal">Crystals</option>
+                        <option value="ingredient">Ingredients</option>
+                    </select>
+                    
+                    <select id="priceFilter" class="filter-select">
+                        <option value="">Any Price</option>
+                        <option value="0-1000">Under 1K</option>
+                        <option value="1000-10000">1K - 10K</option>
+                        <option value="10000-100000">10K - 100K</option>
+                        <option value="100000-1000000">100K - 1M</option>
+                        <option value="1000000+">Over 1M</option>
+                    </select>
+                    
+                    <select id="serverFilter" class="filter-select">
+                        <option value="">All Servers</option>
+                        <option value="asura">Asura</option>
+                        <option value="bahamut">Bahamut</option>
+                        <option value="phoenix">Phoenix</option>
+                    </select>
+                    
+                    <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <h3>Active Bazaars</h3>
+                    <div class="stat-value" id="activeBazaars">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Items for Sale</h3>
+                    <div class="stat-value" id="totalItems">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Price</h3>
+                    <div class="stat-value" id="avgPrice">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Recent Sales</h3>
+                    <div class="stat-value" id="recentSales">Loading...</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h2>🔍 Quick Browse</h2>
+                <div class="action-grid">
+                    <div class="action-card" onclick="filterByCategory('weapon')">
+                        <div class="action-icon">⚔️</div>
+                        <h3>Weapons</h3>
+                        <p>Browse weapons for sale</p>
+                    </div>
+                    <div class="action-card" onclick="filterByCategory('armor')">
+                        <div class="action-icon">🛡️</div>
+                        <h3>Armor</h3>
+                        <p>Find protective gear</p>
+                    </div>
+                    <div class="action-card" onclick="filterByPrice('0-10000')">
+                        <div class="action-icon">💰</div>
+                        <h3>Budget Items</h3>
+                        <p>Under 10K gil</p>
+                    </div>
+                    <div class="action-card" onclick="showTopSellers()">
+                        <div class="action-icon">👥</div>
+                        <h3>Top Sellers</h3>
+                        <p>Most active merchants</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>Bazaar Listings</h2>
+                    <div class="result-count" id="resultCount">0 items found</div>
+                    <div class="sort-options">
+                        <select id="sortBy" onchange="sortResults()" class="sort-select">
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="name">Item Name</option>
+                            <option value="seller">Seller Name</option>
+                            <option value="date">Recently Listed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Searching bazaars...</p>
+                </div>
+
+                <div class="bazaar-grid" id="bazaarGrid">
+                    <!-- Bazaar items will be populated here -->
+                </div>
+
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button class="btn btn-secondary" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+
+            <div class="price-history">
+                <h2>📈 Recent Price History</h2>
+                <div class="price-chart" id="priceChart">
+                    <div class="chart-placeholder">
+                        <p>Select an item to view price history</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 FFXI Server. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let bazaarItems = [];
+        let currentSort = 'price_asc';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBazaarStats();
+            loadRecentListings();
+            
+            // Check for item filter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemFilter = urlParams.get('item');
+            const playerFilter = urlParams.get('player');
+            
+            if (itemFilter) {
+                document.getElementById('bazaarSearch').value = itemFilter;
+                searchBazaars();
+            } else if (playerFilter) {
+                searchPlayerBazaar(playerFilter);
+            }
+        });
+
+        async function loadBazaarStats() {
+            try {
+                const response = await fetch('/api/bazaar/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('activeBazaars').textContent = data.active_bazaars || 0;
+                    document.getElementById('totalItems').textContent = data.total_items || 0;
+                    document.getElementById('avgPrice').textContent = formatGil(data.average_price || 0);
+                    document.getElementById('recentSales').textContent = data.recent_sales || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load bazaar stats:', error);
+            }
+        }
+
+        async function loadRecentListings() {
+            try {
+                const response = await fetch('/api/bazaar/recent');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayBazaarItems(data.items || []);
+                }
+            } catch (error) {
+                console.error('Failed to load recent listings:', error);
+                displayBazaarItems([]);
+            }
+        }
+
+        async function searchBazaars() {
+            const query = document.getElementById('bazaarSearch').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const priceFilter = document.getElementById('priceFilter').value;
+            const serverFilter = document.getElementById('serverFilter').value;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const bazaarGrid = document.getElementById('bazaarGrid');
+            
+            loadingIndicator.style.display = 'block';
+            bazaarGrid.innerHTML = '';
+
+            try {
+                const params = new URLSearchParams({
+                    q: query,
+                    category: categoryFilter,
+                    price: priceFilter,
+                    server: serverFilter,
+                    page: currentPage,
+                    sort: currentSort
+                });
+
+                const response = await fetch(`/api/bazaar/search?${params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    bazaarItems = data.items || [];
+                    totalPages = data.total_pages || 1;
+                    
+                    displayBazaarItems(bazaarItems);
+                    updatePagination();
+                } else {
+                    throw new Error('Search failed');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                displayBazaarItems([]);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function displayBazaarItems(itemsData) {
+            const grid = document.getElementById('bazaarGrid');
+            const resultCount = document.getElementById('resultCount');
+            
+            resultCount.textContent = `${itemsData.length} items found`;
+
+            if (itemsData.length === 0) {
+                grid.innerHTML = '<div class="no-results">No bazaar items found matching your criteria.</div>';
+                return;
+            }
+
+            grid.innerHTML = itemsData.map(item => `
+                <div class="bazaar-item-card">
+                    <div class="item-header">
+                        <div class="item-icon">
+                            <img src="/assets/icons/items/${item.icon || 'default'}.png" 
+                                 alt="${item.name}" 
+                                 onerror="this.src='/assets/icons/items/default.png'">
+                        </div>
+                        <div class="item-details">
+                            <h3 class="item-name">${item.name}</h3>
+                            <div class="item-category">${getCategoryIcon(item.category)} ${item.category}</div>
+                        </div>
+                        <div class="item-price">${formatGil(item.price)}</div>
+                    </div>
+                    
+                    <div class="seller-info">
+                        <div class="seller-details">
+                            <span class="seller-label">Seller:</span>
+                            <span class="seller-name" onclick="viewPlayerBazaar('${item.seller}')">${item.seller}</span>
+                        </div>
+                        <div class="location-info">
+                            <span class="location-label">Location:</span>
+                            <span class="location-name">${item.zone || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    
+                    ${item.quantity > 1 ? `
+                        <div class="quantity-info">
+                            <span class="quantity-label">Quantity:</span>
+                            <span class="quantity-value">${item.quantity}</span>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="item-actions">
+                        <button class="btn btn-small btn-primary" onclick="viewItemDetails(${item.item_id})">
+                            View Item
+                        </button>
+                        <button class="btn btn-small btn-secondary" onclick="checkPriceHistory(${item.item_id})">
+                            📈 Price History
+                        </button>
+                        <button class="btn btn-small btn-success" onclick="findSeller('${item.seller}')">
+                            📍 Find Seller
+                        </button>
+                    </div>
+                    
+                    <div class="listing-meta">
+                        <span class="listing-time">Listed ${formatTime(item.listed_time)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(category) {
+            document.getElementById('categoryFilter').value = category;
+            currentPage = 1;
+            searchBazaars();
+        }
+
+        function filterByPrice(priceRange) {
+            document.getElementById('priceFilter').value = priceRange;
+            currentPage = 1;
+            searchBazaars();
+        }
+
+        function sortResults() {
+            currentSort = document.getElementById('sortBy').value;
+            searchBazaars();
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                searchBazaars();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                searchBazaars();
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('bazaarSearch').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            document.getElementById('serverFilter').value = '';
+            currentPage = 1;
+            loadRecentListings();
+        }
+
+        function viewItemDetails(itemId) {
+            window.location.href = `items.html?id=${itemId}`;
+        }
+
+        function viewPlayerBazaar(playerName) {
+            window.location.href = `bazaar.html?player=${encodeURIComponent(playerName)}`;
+        }
+
+        function searchPlayerBazaar(playerName) {
+            document.getElementById('bazaarSearch').value = `seller:${playerName}`;
+            searchBazaars();
+        }
+
+        function checkPriceHistory(itemId) {
+            loadPriceHistory(itemId);
+        }
+
+        async function loadPriceHistory(itemId) {
+            try {
+                const response = await fetch(`/api/bazaar/price-history/${itemId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPriceHistory(data);
+                }
+            } catch (error) {
+                console.error('Failed to load price history:', error);
+            }
+        }
+
+        function displayPriceHistory(data) {
+            const chart = document.getElementById('priceChart');
+            if (data.history && data.history.length > 0) {
+                chart.innerHTML = `
+                    <h4>${data.item_name} - Price History</h4>
+                    <div class="price-timeline">
+                        ${data.history.map(entry => `
+                            <div class="price-entry">
+                                <span class="price-date">${formatDate(entry.date)}</span>
+                                <span class="price-value">${formatGil(entry.price)}</span>
+                                <span class="price-seller">${entry.seller}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                chart.innerHTML = '<p>No price history available for this item.</p>';
+            }
+        }
+
+        function findSeller(sellerName) {
+            window.location.href = `players.html?search=${encodeURIComponent(sellerName)}`;
+        }
+
+        function showTopSellers() {
+            Utils.showNotification('Top sellers feature coming soon!', 'info');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'weapon': '⚔️',
+                'armor': '🛡️',
+                'usable': '💊',
+                'currency': '🪙',
+                'crystal': '💎',
+                'ingredient': '🌿',
+                'furnishing': '🏠'
+            };
+            return icons[category] || '📦';
+        }
+
+        function formatGil(gil) {
+            if (gil >= 1000000) {
+                return (gil / 1000000).toFixed(1) + 'M gil';
+            } else if (gil >= 1000) {
+                return (gil / 1000).toFixed(1) + 'K gil';
+            }
+            return gil + ' gil';
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffDays > 0) {
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            } else if (diffHours > 0) {
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            } else {
+                return 'Recently';
+            }
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleDateString();
+        }
+
+        // Enter key search
+        document.getElementById('bazaarSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBazaars();
+            }
+        });
+    </script>
+
+    <style>
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-card {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .bazaar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .bazaar-item-card {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .bazaar-item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-icon img {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .item-category {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .seller-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .seller-name {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .seller-name:hover {
+            text-decoration: underline;
+        }
+
+        .quantity-info {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .listing-meta {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            text-align: right;
+        }
+
+        .listing-time {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .price-history {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .price-history h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .price-timeline {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .price-entry {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            padding: 0.8rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .price-date {
+            color: var(--text-muted);
+        }
+
+        .price-value {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .price-seller {
+            color: var(--primary-color);
+        }
+    </style>
+</body>
+</html>

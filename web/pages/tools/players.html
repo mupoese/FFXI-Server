@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players - FFXI Server</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="../information/play-now.html">Play Now</a>
+                        <a href="../information/server-info.html">Server Info</a>
+                        <a href="../information/addons.html">Addons</a>
+                        <a href="../information/rules.html">Rules</a>
+                        <a href="../information/news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="players.html" class="active">Players</a>
+                        <a href="seeking.html">Seeking</a>
+                        <a href="items.html">Items</a>
+                        <a href="bazaar.html">Bazaar</a>
+                        <a href="bcnm.html">BCNM Ranking</a>
+                        <a href="yells.html">Yells</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>👥 Player Search</h1>
+                <p>Find and view information about players on the server</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="playerSearch" placeholder="Search by character name..." class="search-input">
+                    <button onclick="searchPlayers()" class="btn btn-primary">🔍 Search</button>
+                </div>
+                
+                <div class="search-filters">
+                    <select id="jobFilter" class="filter-select">
+                        <option value="">All Jobs</option>
+                        <option value="WAR">Warrior</option>
+                        <option value="MNK">Monk</option>
+                        <option value="WHM">White Mage</option>
+                        <option value="BLM">Black Mage</option>
+                        <option value="RDM">Red Mage</option>
+                        <option value="THF">Thief</option>
+                        <option value="PLD">Paladin</option>
+                        <option value="DRK">Dark Knight</option>
+                        <option value="BST">Beastmaster</option>
+                        <option value="BRD">Bard</option>
+                        <option value="RNG">Ranger</option>
+                        <option value="SAM">Samurai</option>
+                        <option value="NIN">Ninja</option>
+                        <option value="DRG">Dragoon</option>
+                        <option value="SMN">Summoner</option>
+                    </select>
+                    
+                    <select id="levelFilter" class="filter-select">
+                        <option value="">All Levels</option>
+                        <option value="1-30">1-30</option>
+                        <option value="31-50">31-50</option>
+                        <option value="51-70">51-70</option>
+                        <option value="71-75">71-75</option>
+                    </select>
+                    
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="online">Online Only</option>
+                        <option value="offline">Recently Seen</option>
+                    </select>
+                    
+                    <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <h3>Players Online</h3>
+                    <div class="stat-value" id="playersOnline">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Registered</h3>
+                    <div class="stat-value" id="totalPlayers">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Peak Today</h3>
+                    <div class="stat-value" id="peakToday">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active This Week</h3>
+                    <div class="stat-value" id="activeWeek">Loading...</div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>Search Results</h2>
+                    <div class="result-count" id="resultCount">0 players found</div>
+                </div>
+                
+                <div class="loading" id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Searching players...</p>
+                </div>
+
+                <div class="players-grid" id="playersGrid">
+                    <!-- Player cards will be populated here -->
+                </div>
+
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button class="btn btn-secondary" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+
+            <div class="top-players-section">
+                <h2>🏆 Top Players</h2>
+                <div class="top-lists">
+                    <div class="top-list">
+                        <h3>Highest Level</h3>
+                        <div class="top-items" id="topLevels">Loading...</div>
+                    </div>
+                    <div class="top-list">
+                        <h3>Most Gil</h3>
+                        <div class="top-items" id="topGil">Loading...</div>
+                    </div>
+                    <div class="top-list">
+                        <h3>Most Fame</h3>
+                        <div class="top-items" id="topFame">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 FFXI Server. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let players = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPlayerStats();
+            loadTopPlayers();
+            loadRecentPlayers();
+        });
+
+        async function loadPlayerStats() {
+            try {
+                const response = await fetch('/api/players/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('playersOnline').textContent = data.online || 0;
+                    document.getElementById('totalPlayers').textContent = data.total || 0;
+                    document.getElementById('peakToday').textContent = data.peak_today || 0;
+                    document.getElementById('activeWeek').textContent = data.active_week || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load player stats:', error);
+            }
+        }
+
+        async function loadTopPlayers() {
+            try {
+                const response = await fetch('/api/players/top');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Top levels
+                    if (data.top_levels) {
+                        document.getElementById('topLevels').innerHTML = data.top_levels
+                            .map(player => `
+                                <div class="top-item">
+                                    <span class="player-name">${player.charname}</span>
+                                    <span class="player-value">Lv.${player.level} ${player.job}</span>
+                                </div>
+                            `).join('');
+                    }
+                    
+                    // Top gil
+                    if (data.top_gil) {
+                        document.getElementById('topGil').innerHTML = data.top_gil
+                            .map(player => `
+                                <div class="top-item">
+                                    <span class="player-name">${player.charname}</span>
+                                    <span class="player-value">${formatGil(player.gil)}</span>
+                                </div>
+                            `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load top players:', error);
+            }
+        }
+
+        async function loadRecentPlayers() {
+            try {
+                const response = await fetch('/api/players/recent');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPlayers(data.players || []);
+                }
+            } catch (error) {
+                console.error('Failed to load recent players:', error);
+                displayPlayers([]);
+            }
+        }
+
+        async function searchPlayers() {
+            const query = document.getElementById('playerSearch').value;
+            const jobFilter = document.getElementById('jobFilter').value;
+            const levelFilter = document.getElementById('levelFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const playersGrid = document.getElementById('playersGrid');
+            
+            loadingIndicator.style.display = 'block';
+            playersGrid.innerHTML = '';
+
+            try {
+                const params = new URLSearchParams({
+                    q: query,
+                    job: jobFilter,
+                    level: levelFilter,
+                    status: statusFilter,
+                    page: currentPage
+                });
+
+                const response = await fetch(`/api/players/search?${params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    players = data.players || [];
+                    totalPages = data.total_pages || 1;
+                    
+                    displayPlayers(players);
+                    updatePagination();
+                } else {
+                    throw new Error('Search failed');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                displayPlayers([]);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function displayPlayers(playersData) {
+            const grid = document.getElementById('playersGrid');
+            const resultCount = document.getElementById('resultCount');
+            
+            resultCount.textContent = `${playersData.length} players found`;
+
+            if (playersData.length === 0) {
+                grid.innerHTML = '<div class="no-results">No players found matching your criteria.</div>';
+                return;
+            }
+
+            grid.innerHTML = playersData.map(player => `
+                <div class="player-card">
+                    <div class="player-header">
+                        <h3 class="player-name">${player.charname}</h3>
+                        <div class="player-status ${player.online ? 'online' : 'offline'}">
+                            ${player.online ? '🟢 Online' : '🔴 Offline'}
+                        </div>
+                    </div>
+                    
+                    <div class="player-info">
+                        <div class="info-row">
+                            <span class="info-label">Level:</span>
+                            <span class="info-value">${player.level}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Job:</span>
+                            <span class="info-value">${player.mjob}/${player.sjob}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Zone:</span>
+                            <span class="info-value">${player.zone_name || 'Unknown'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Nation:</span>
+                            <span class="info-value">${getNationName(player.nation)}</span>
+                        </div>
+                        ${player.online ? '' : `
+                            <div class="info-row">
+                                <span class="info-label">Last Seen:</span>
+                                <span class="info-value">${formatLastSeen(player.last_seen)}</span>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <div class="player-actions">
+                        <button class="btn btn-small btn-primary" onclick="viewPlayerDetails('${player.charname}')">
+                            View Details
+                        </button>
+                        ${player.bazaar_active ? `
+                            <button class="btn btn-small btn-secondary" onclick="viewBazaar('${player.charname}')">
+                                🏪 Bazaar
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                searchPlayers();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                searchPlayers();
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('playerSearch').value = '';
+            document.getElementById('jobFilter').value = '';
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            currentPage = 1;
+            loadRecentPlayers();
+        }
+
+        function viewPlayerDetails(charname) {
+            // In real implementation, this would open a detailed player view
+            alert(`Viewing details for ${charname}`);
+        }
+
+        function viewBazaar(charname) {
+            window.location.href = `bazaar.html?player=${encodeURIComponent(charname)}`;
+        }
+
+        function getNationName(nationId) {
+            const nations = {
+                0: 'San d\'Oria',
+                1: 'Bastok',
+                2: 'Windurst'
+            };
+            return nations[nationId] || 'Unknown';
+        }
+
+        function formatGil(gil) {
+            if (gil >= 1000000) {
+                return (gil / 1000000).toFixed(1) + 'M';
+            } else if (gil >= 1000) {
+                return (gil / 1000).toFixed(1) + 'K';
+            }
+            return gil.toString();
+        }
+
+        function formatLastSeen(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffDays > 0) {
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            } else if (diffHours > 0) {
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            } else {
+                return 'Recently';
+            }
+        }
+
+        // Enter key search
+        document.getElementById('playerSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchPlayers();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Information - FFXI Server</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="play-now.html">Play Now</a>
+                        <a href="server-info.html" class="active">Server Info</a>
+                        <a href="addons.html">Addons</a>
+                        <a href="rules.html">Rules</a>
+                        <a href="news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="../tools/players.html">Players</a>
+                        <a href="../tools/seeking.html">Seeking</a>
+                        <a href="../tools/items.html">Items</a>
+                        <a href="../tools/bazaar.html">Bazaar</a>
+                        <a href="../tools/bcnm.html">BCNM Ranking</a>
+                        <a href="../tools/yells.html">Yells</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📊 Server Information</h1>
+                <p>Everything you need to know about our FFXI server</p>
+            </div>
+
+            <div class="info-grid">
+                <section class="server-specs">
+                    <h2>🖥️ Server Specifications</h2>
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <h3>Server Type</h3>
+                            <p>Private Final Fantasy XI Server</p>
+                        </div>
+                        <div class="spec-item">
+                            <h3>Experience Rate</h3>
+                            <p id="expRate">Loading...</p>
+                        </div>
+                        <div class="spec-item">
+                            <h3>Level Cap</h3>
+                            <p id="levelCap">Loading...</p>
+                        </div>
+                        <div class="spec-item">
+                            <h3>Available Jobs</h3>
+                            <p>All 15 Classic Jobs</p>
+                        </div>
+                        <div class="spec-item">
+                            <h3>Server Location</h3>
+                            <p id="serverLocation">Loading...</p>
+                        </div>
+                        <div class="spec-item">
+                            <h3>Max Players</h3>
+                            <p id="maxPlayers">Loading...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="current-status">
+                    <h2>📈 Live Server Status</h2>
+                    <div class="status-dashboard">
+                        <div class="status-card">
+                            <div class="status-icon online">🟢</div>
+                            <div class="status-info">
+                                <h3>Server Status</h3>
+                                <p id="serverStatus">Online</p>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">👥</div>
+                            <div class="status-info">
+                                <h3>Players Online</h3>
+                                <p id="playersOnline">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">⏰</div>
+                            <div class="status-info">
+                                <h3>Server Uptime</h3>
+                                <p id="serverUptime">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">🏆</div>
+                            <div class="status-info">
+                                <h3>Peak Today</h3>
+                                <p id="peakToday">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="features-section">
+                <h2>✨ Server Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚔️</div>
+                        <h3>All Content Available</h3>
+                        <ul>
+                            <li>Original storylines (Nations, Rise of Zilart, Chains of Promathia)</li>
+                            <li>All classic battlefields and missions</li>
+                            <li>Traditional job system with all 15 jobs</li>
+                            <li>Complete magic and ability systems</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Quality of Life</h3>
+                        <ul>
+                            <li>Enhanced experience rates for faster progression</li>
+                            <li>Improved drop rates on select items</li>
+                            <li>Reduced camping times for notorious monsters</li>
+                            <li>Modern client support (Windower/Ashita)</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Community Features</h3>
+                        <ul>
+                            <li>Active player community</li>
+                            <li>Regular events and celebrations</li>
+                            <li>Player vs Player battlefields</li>
+                            <li>Linkshell and social systems</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Technical Excellence</h3>
+                        <ul>
+                            <li>High-performance server infrastructure</li>
+                            <li>Real-time monitoring and analytics</li>
+                            <li>Regular backups and data protection</li>
+                            <li>99.9% uptime guarantee</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="expansion-content">
+                <h2>📦 Available Content</h2>
+                <div class="expansions-grid">
+                    <div class="expansion-card">
+                        <h3>🏛️ Original FFXI</h3>
+                        <p>The complete base game experience with all three starting nations, jobs, and storylines.</p>
+                        <div class="content-list">
+                            <span class="content-tag">San d'Oria</span>
+                            <span class="content-tag">Bastok</span>
+                            <span class="content-tag">Windurst</span>
+                            <span class="content-tag">Jeuno</span>
+                        </div>
+                    </div>
+                    <div class="expansion-card">
+                        <h3>🌟 Rise of the Zilart</h3>
+                        <p>Explore the mysteries of ancient Vana'diel and uncover the truth behind the Crystal War.</p>
+                        <div class="content-list">
+                            <span class="content-tag">Sky</span>
+                            <span class="content-tag">Dynamis</span>
+                            <span class="content-tag">Zilart Missions</span>
+                        </div>
+                    </div>
+                    <div class="expansion-card">
+                        <h3>⛓️ Chains of Promathia</h3>
+                        <p>Delve into the darkest chapters of Vana'diel's history and face ultimate challenges.</p>
+                        <div class="content-list">
+                            <span class="content-tag">Sea</span>
+                            <span class="content-tag">Limbus</span>
+                            <span class="content-tag">CoP Missions</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="server-timeline">
+                <h2>📅 Server Timeline</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Launch</div>
+                        <div class="timeline-content">
+                            <h3>Server Launch</h3>
+                            <p>Official server opening with full base game content</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Month 1</div>
+                        <div class="timeline-content">
+                            <h3>Rise of the Zilart</h3>
+                            <p>First expansion content including Sky and Dynamis</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Month 3</div>
+                        <div class="timeline-content">
+                            <h3>Chains of Promathia</h3>
+                            <p>Advanced content including Sea access and Limbus</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Ongoing</div>
+                        <div class="timeline-content">
+                            <h3>Regular Events</h3>
+                            <p>Seasonal festivals, special events, and community activities</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="technical-info">
+                <h2>🔧 Technical Information</h2>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <h3>Connection Details</h3>
+                        <div class="connection-info">
+                            <div class="info-row">
+                                <span class="info-label">Login Server:</span>
+                                <span class="info-value" id="loginServer">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Login Port:</span>
+                                <span class="info-value" id="loginPort">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Data Port:</span>
+                                <span class="info-value" id="dataPort">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Search Port:</span>
+                                <span class="info-value" id="searchPort">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tech-card">
+                        <h3>System Requirements</h3>
+                        <ul>
+                            <li>FFXI Client (PlayOnline/Steam version)</li>
+                            <li>Windows 7 or newer</li>
+                            <li>2GB RAM minimum</li>
+                            <li>Windower or Ashita (recommended)</li>
+                            <li>Stable internet connection</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 FFXI Server. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="rules.html">Rules</a>
+                    <a href="privacy-policy.html">Privacy Policy</a>
+                    <a href="staff-conduct.html">Staff Conduct</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Load server information
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServerInfo();
+            loadServerStatus();
+            
+            // Auto-refresh status every 30 seconds
+            setInterval(loadServerStatus, 30000);
+        });
+
+        async function loadServerInfo() {
+            try {
+                const response = await fetch('/api/server/info');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update server specs
+                    document.getElementById('expRate').textContent = `${data.exp_rate || 1}x Experience`;
+                    document.getElementById('levelCap').textContent = `Level ${data.level_cap || 75}`;
+                    document.getElementById('serverLocation').textContent = data.location || 'Global';
+                    document.getElementById('maxPlayers').textContent = data.max_players || 'Unlimited';
+                    
+                    // Update connection details
+                    document.getElementById('loginServer').textContent = data.server_host || 'server.example.com';
+                    document.getElementById('loginPort').textContent = data.login_port || '54001';
+                    document.getElementById('dataPort').textContent = data.data_port || '54230';
+                    document.getElementById('searchPort').textContent = data.search_port || '54002';
+                }
+            } catch (error) {
+                console.error('Failed to load server info:', error);
+                // Set fallback values
+                document.getElementById('expRate').textContent = '1x Experience';
+                document.getElementById('levelCap').textContent = 'Level 75';
+                document.getElementById('serverLocation').textContent = 'Global';
+                document.getElementById('maxPlayers').textContent = '500';
+                document.getElementById('loginServer').textContent = 'ffxi.example.com';
+                document.getElementById('loginPort').textContent = '54001';
+                document.getElementById('dataPort').textContent = '54230';
+                document.getElementById('searchPort').textContent = '54002';
+            }
+        }
+
+        async function loadServerStatus() {
+            try {
+                const response = await fetch('/api/server/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('serverStatus').textContent = data.status || 'Online';
+                    document.getElementById('playersOnline').textContent = data.players_online || '0';
+                    document.getElementById('serverUptime').textContent = data.uptime || 'Unknown';
+                    document.getElementById('peakToday').textContent = data.peak_today || '0';
+                }
+            } catch (error) {
+                console.error('Failed to load server status:', error);
+                document.getElementById('serverStatus').textContent = 'Unknown';
+                document.getElementById('playersOnline').textContent = 'N/A';
+                document.getElementById('serverUptime').textContent = 'N/A';
+                document.getElementById('peakToday').textContent = 'N/A';
+            }
+        }
+    </script>
+
+    <style>
+        .info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .server-specs {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .server-specs h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .spec-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .spec-item h3 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .spec-item p {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .current-status {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .current-status h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-dashboard {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .status-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .status-info h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .status-info p {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .features-section {
+            margin-bottom: 3rem;
+        }
+
+        .features-section h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-color);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            color: var(--text-muted);
+        }
+
+        .feature-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-card li::before {
+            content: '✓';
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .expansion-content, .server-timeline, .technical-info {
+            margin-bottom: 3rem;
+        }
+
+        .expansion-content h2, .server-timeline h2, .technical-info h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .expansions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .expansion-card {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .expansion-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .expansion-card p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .content-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .content-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .timeline-date {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .timeline-content {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .timeline-content h3 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content p {
+            color: var(--text-muted);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .tech-card {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tech-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .connection-info {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .tech-card ul {
+            list-style: none;
+            color: var(--text-muted);
+        }
+
+        .tech-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .tech-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .timeline-date {
+                text-align: center;
+            }
+        }
+    </style>
+</body>
+</html>

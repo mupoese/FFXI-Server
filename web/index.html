@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LandSandBoat FFXI Server - Welcome to Vana'diel</title>
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    <style>
+    <link rel="stylesheet" href="assets/css/main.css">
         * {
             margin: 0;
             padding: 0;
@@ -736,20 +736,34 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span style="font-size: 2rem;">🎮</span>
-                <h1>LandSandBoat</h1>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🎮 FFXI Server</a>
+            <div class="nav-links">
+                <div class="nav-section">
+                    <span class="nav-label">Information</span>
+                    <a href="pages/information/play-now.html">Play Now</a>
+                    <a href="pages/information/server-info.html">Server Info</a>
+                    <a href="pages/information/addons.html">Addons</a>
+                    <a href="pages/information/rules.html">Rules</a>
+                    <a href="pages/information/news.html">News</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-label">Tools</span>
+                    <a href="pages/tools/players.html">Players</a>
+                    <a href="pages/tools/seeking.html">Seeking</a>
+                    <a href="pages/tools/items.html">Items</a>
+                    <a href="pages/tools/bazaar.html">Bazaar</a>
+                    <a href="pages/tools/bcnm.html">BCNM Ranking</a>
+                    <a href="pages/tools/yells.html">Yells</a>
+                </div>
+                <div class="nav-section">
+                    <a href="admin.html">Admin</a>
+                    <a href="festival_calendar.html">Festivals</a>
+                </div>
             </div>
-            <nav class="nav">
-                <a href="admin.html">Admin Panel</a>
-                <a href="#download">Download</a>
-                <a href="#documentation">Docs</a>
-                <a href="https://github.com/LandSandBoat/server" target="_blank">GitHub</a>
-            </nav>
         </div>
-    </header>
+    </nav>
 
     <main class="main-content">
         <section class="hero">
@@ -973,7 +987,7 @@ FFXI_CLIENT_PATH=C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XI</code></p
         </div>
     </footer>
 
-    <script>
+    <script src="assets/js/main.js"></script>
         // Global configuration - will be updated from server
         let serverConfig = {
             serverName: 'FFXI',  // Default, will be updated from API

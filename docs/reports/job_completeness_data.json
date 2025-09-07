@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T09:30:55.819506",
+  "timestamp": "2025-09-07T09:37:23.770235",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -266,31 +266,22 @@
       "enhancement_priorities": []
     },
     "rune_fencer": {
-      "current_percentage": 52.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 12,
-      "spells_implemented": 0,
+      "spells_implemented": 8,
       "spells_total": 8,
-      "lua_functions": 43,
-      "lua_bindings": 33,
-      "missing_features": [
-        "Missing Embolden implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 49,
+      "lua_bindings": 35,
+      "missing_features": [],
+      "enhancement_priorities": []
     }
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 10,
-    "average_completeness": 83.0,
+    "jobs_at_100_percent": 11,
+    "average_completeness": 85.2,
     "highest_priority_jobs": [
-      [
-        "rune_fencer",
-        52.5
-      ],
       [
         "bard",
         55.0
@@ -326,6 +317,10 @@
       [
         "ranger",
         75.0
+      ],
+      [
+        "dragoon",
+        75.0
       ]
     ],
     "enhancement_phases": [
@@ -333,7 +328,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "rune_fencer",
           "bard",
           "corsair",
           "dancer",

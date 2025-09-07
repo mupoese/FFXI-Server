@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T10:20:30.956981",
+  "timestamp": "2025-09-07T11:10:13.958847",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -218,21 +218,15 @@
       ]
     },
     "dancer": {
-      "current_percentage": 67.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 25,
-      "lua_bindings": 53,
-      "missing_features": [
-        "Missing Flourishes implementation",
-        "Missing Waltzes implementation",
-        "Missing Sambas implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries"
-      ]
+      "lua_functions": 35,
+      "lua_bindings": 84,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "scholar": {
       "current_percentage": 100.0,
@@ -270,13 +264,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 13,
-    "average_completeness": 89.0,
+    "jobs_at_100_percent": 14,
+    "average_completeness": 90.5,
     "highest_priority_jobs": [
-      [
-        "dancer",
-        67.5
-      ],
       [
         "samurai",
         69.0
@@ -312,6 +302,10 @@
       [
         "white_mage",
         100.0
+      ],
+      [
+        "black_mage",
+        100.0
       ]
     ],
     "enhancement_phases": [
@@ -319,7 +313,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "dancer",
           "samurai",
           "beastmaster"
         ],

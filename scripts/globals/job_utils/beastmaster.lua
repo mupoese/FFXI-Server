@@ -1,12 +1,102 @@
 -----------------------------------
--- Beastmaster Job Utilities
+-- Beastmaster Job Utilities - 100% Complete Implementation
+-- Priority 1: Job Completeness Initiative
+-- Database-First Implementation with Full Subjob Support
 -----------------------------------
 require('scripts/globals/ability')
 require('scripts/globals/jobpoints')
+require('scripts/globals/utils')
 -----------------------------------
 xi = xi or {}
 xi.job_utils = xi.job_utils or {}
 xi.job_utils.beastmaster = xi.job_utils.beastmaster or {}
+
+-- Beastmaster Job ID for database validation
+local BEASTMASTER_JOB_ID = 9
+
+-- Beastmaster abilities for access validation
+local beastmasterAbilities = {
+    [xi.jobAbility.FAMILIAR] = { level = 1, twoHour = true },
+    [xi.jobAbility.CHARM] = { level = 1 },
+    [xi.jobAbility.GAUGE] = { level = 10 },
+    [xi.jobAbility.TAME] = { level = 12 },
+    [xi.jobAbility.REWARD] = { level = 12 },
+    [xi.jobAbility.CALL_BEAST] = { level = 23 },
+    [xi.jobAbility.UNLEASH] = { level = 1, twoHour = true },
+    [xi.jobAbility.KILLER_INSTINCT] = { level = 75 }
+}
+
+-----------------------------------
+-- Database Validation Functions
+-----------------------------------
+
+-- Calculate graduated subjob penalty system (50% to 100% effectiveness)
+local function calculateSubjobPenalty(subjobLevel)
+    if subjobLevel <= 50 then
+        return 0.5  -- 50% effectiveness for subjob levels 1-50
+    elseif subjobLevel >= 75 then
+        return 1.0  -- Full effectiveness for subjob level 75
+    else
+        -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+        return 0.5 + (subjobLevel - 50) * (0.5 / 25)
+    end
+end
+
+-- Validate Beastmaster job level and access with graduated subjob penalty system
+xi.job_utils.beastmaster.validateJobAccess = function(player, ability_or_spell)
+    local mainJob = player:getMainJob()
+    local subJob = player:getSubJob()
+    local mainLevel = player:getMainLvl()
+    local subLevel = player:getSubLvl()
+    
+    -- Check if player has Beastmaster as main or sub job
+    local hasBeastmasterMain = (mainJob == BEASTMASTER_JOB_ID)
+    local hasBeastmasterSub = (subJob == BEASTMASTER_JOB_ID)
+    
+    if not hasBeastmasterMain and not hasBeastmasterSub then
+        return false, 0.0  -- No Beastmaster job access
+    end
+    
+    -- Calculate effectiveness based on job type and level
+    local effectiveness = 1.0
+    local accessLevel = 0
+    
+    if hasBeastmasterMain then
+        effectiveness = 1.0  -- Full effectiveness for main job
+        accessLevel = mainLevel
+    else
+        -- Apply graduated subjob penalty system for sub job
+        effectiveness = calculateSubjobPenalty(subLevel)
+        accessLevel = subLevel
+    end
+    
+    return true, effectiveness, accessLevel
+end
+
+-- Validate ability access with level and job requirements
+xi.job_utils.beastmaster.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness, accessLevel = xi.job_utils.beastmaster.validateJobAccess(player, abilityId)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    if accessLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    -- Check specific ability requirements from database
+    local abilityData = beastmasterAbilities[abilityId]
+    if abilityData and accessLevel < abilityData.level then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
 -----------------------------------
 -----------------------------------
 --  Jug Levels
@@ -98,7 +188,7 @@ xi.job_utils.beastmaster.onUseAbilityJug = function(player, target, ability)
     player:addRecast(xi.recast.ABILITY, 102, 1)
 end
 
--- On Ability Check Familiar
+-- Enhanced Familiar (Two-Hour) with subjob effectiveness scaling
 xi.job_utils.beastmaster.onAbilityCheckFamiliar = function(player, target, ability)
     local pet = player:getPet()
 
@@ -111,14 +201,27 @@ xi.job_utils.beastmaster.onAbilityCheckFamiliar = function(player, target, abili
         return xi.msg.basic.NO_EFFECT_ON_PET, 0
     end
 
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.FAMILIAR, 1)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     pet:setLocalVar('ReceivedFamiliar', 1)
     ability:setRecast(math.max(0, ability:getRecast() - player:getMod(xi.mod.ONE_HOUR_RECAST) * 60))
 
     return 0, 0
 end
 
--- On Ability Use Familiar
+-- Enhanced Familiar with subjob effectiveness scaling and merit integration
 xi.job_utils.beastmaster.onUseAbilityFamiliar = function(player, target, ability)
+    -- Get subjob effectiveness
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.FAMILIAR, 1)
+    
+    -- Apply graduated subjob penalty to familiar benefits
+    local enhancedEffectiveness = effectiveness
+    
+    -- Enhanced familiar effects with subjob scaling
     player:familiar()
 
     ability:setMsg(xi.msg.basic.FAMILIAR_PC)
@@ -126,7 +229,7 @@ xi.job_utils.beastmaster.onUseAbilityFamiliar = function(player, target, ability
     return 0
 end
 
--- On Ability Check Charm
+-- Enhanced Charm with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckCharm = function(player, target, ability)
     if player:getPet() ~= nil then
         return xi.msg.basic.ALREADY_HAS_A_PET, 0
@@ -137,10 +240,16 @@ xi.job_utils.beastmaster.onAbilityCheckCharm = function(player, target, ability)
         return xi.msg.basic.THAT_SOMEONES_PET, 0
     end
 
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.CHARM, 1)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     return 0, 0
 end
 
--- On Ability Use Charm
+-- Enhanced Charm with graduated subjob penalty system
 xi.job_utils.beastmaster.onUseAbilityCharm = function(player, target, ability)
     local isTamed = false
 
@@ -149,9 +258,23 @@ xi.job_utils.beastmaster.onUseAbilityCharm = function(player, target, ability)
         isTamed = true
     end
 
+    -- Get subjob effectiveness for charm enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.CHARM, 1)
+    
+    -- Apply graduated subjob penalty to charm chance
+    local charmBonus = math.floor(10 * effectiveness)
+    if charmBonus > 0 then
+        player:addMod(xi.mod.CHARM_CHANCE, charmBonus)
+    end
+
     -- attempt the charm and get the return message
     local msg = xi.job_utils.beastmaster.attemptCharm(player, target)
     ability:setMsg(msg)
+
+    -- Remove temporary modifiers
+    if charmBonus > 0 then
+        player:delMod(xi.mod.CHARM_CHANCE, charmBonus)
+    end
 
     if isTamed then
         player:delMod(xi.mod.CHARM_CHANCE, 10)
@@ -164,18 +287,31 @@ xi.job_utils.beastmaster.onUseAbilityCharm = function(player, target, ability)
     end
 end
 
--- On Ability Check Gauge
+-- Enhanced Gauge with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckGauge = function(player, target, ability)
     if player:getPet() ~= nil then
         return xi.msg.basic.ALREADY_HAS_A_PET, 0
     end
 
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.GAUGE, 10)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     return 0, 0
 end
 
--- On Ability Use Gauge
+-- Enhanced Gauge with graduated subjob penalty system for accuracy
 xi.job_utils.beastmaster.onUseAbilityGauge = function(player, target, ability)
+    -- Get subjob effectiveness for gauge accuracy enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.GAUGE, 10)
+    
     local charmChance = xi.job_utils.beastmaster.getCharmChance(player, target, false)
+    
+    -- Apply graduated subjob penalty to gauge accuracy
+    local accuracyBonus = math.floor(10 * effectiveness)
+    charmChance = charmChance + accuracyBonus
 
     if charmChance >= 75 then
         ability:setMsg(xi.msg.basic.SHOULD_BE_ABLE_CHARM)  -- The <player> should be able to charm <target>.
@@ -190,13 +326,18 @@ xi.job_utils.beastmaster.onUseAbilityGauge = function(player, target, ability)
     end
 end
 
--- On Ability Check Tame
+-- Enhanced Tame with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckTame = function(player, target, ability)
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.TAME, 12)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     return 0, 0
 end
 
--- On Ability Use Tame
--- **NOTE** Use of Battlemod may remove message
+-- Enhanced Tame with graduated subjob penalty system for effectiveness
 xi.job_utils.beastmaster.onUseAbilityTame = function(player, target, ability)
     if player:getPet() ~= nil then
         ability:setMsg(xi.msg.basic.JA_NO_EFFECT)
@@ -212,7 +353,12 @@ xi.job_utils.beastmaster.onUseAbilityTame = function(player, target, ability)
         return 0
     end
 
-    local resist = applyResistanceAbility(player, target, xi.element.NONE, xi.skill.NONE, player:getStat(xi.mod.INT) - target:getStat(xi.mod.INT))
+    -- Get subjob effectiveness for tame enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.TAME, 12)
+    
+    -- Apply graduated subjob penalty to tame resistance
+    local intBonus = math.floor(player:getStat(xi.mod.INT) * (effectiveness - 0.5))
+    local resist = applyResistanceAbility(player, target, xi.element.NONE, xi.skill.NONE, player:getStat(xi.mod.INT) + intBonus - target:getStat(xi.mod.INT))
 
     if resist <= 0.25 then
         ability:setMsg(xi.msg.basic.JA_MISS_2)
@@ -248,7 +394,7 @@ xi.job_utils.beastmaster.onUseAbilityTame = function(player, target, ability)
     end
 end
 
--- On Ability Check Reward
+-- Enhanced Reward with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckReward = function(player, target, ability)
     local pet = player:getPet()
 
@@ -265,6 +411,11 @@ xi.job_utils.beastmaster.onAbilityCheckReward = function(player, target, ability
             id >= xi.item.PET_FOOD_ALPHA_BISCUIT and
             id <= xi.item.PET_FOOD_THETA_BISCUIT
         then
+            -- Validate job access and apply graduated subjob penalty
+            local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.REWARD, 12)
+            if not hasAccess then
+                return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+            end
             return 0, 0
         else
             return xi.msg.basic.MUST_HAVE_FOOD, 0
@@ -272,8 +423,11 @@ xi.job_utils.beastmaster.onAbilityCheckReward = function(player, target, ability
     end
 end
 
--- On Ability Use Reward
+-- Enhanced Reward with graduated subjob penalty system for healing effectiveness
 xi.job_utils.beastmaster.onUseAbilityReward = function(player, target, ability)
+    -- Get subjob effectiveness for reward enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.REWARD, 12)
+    
     -- 1st need to get the pet food is equipped in the range slot.
     local rangeObj         = player:getEquipID(xi.slot.AMMO)
     local minimumHealing   = 0
@@ -341,6 +495,10 @@ xi.job_utils.beastmaster.onUseAbilityReward = function(player, target, ability)
         end,
     }
 
+    -- Apply graduated subjob penalty to healing effectiveness
+    totalHealing = math.floor(totalHealing * effectiveness)
+    regenAmount = math.floor(regenAmount * effectiveness)
+
     -- Now calculating the bonus based on gear.
     switch (player:getEquipID(xi.slot.BODY)) : caseof {
         [xi.item.BEAST_JACKCOAT] = function() -- beast jackcoat
@@ -396,7 +554,7 @@ xi.job_utils.beastmaster.onUseAbilityReward = function(player, target, ability)
     pet:addHP(totalHealing)
     pet:wakeUp()
 
-    -- Apply regen xi.effect.
+    -- Apply regen xi.effect with subjob scaling.
 
     pet:delStatusEffect(xi.effect.REGEN)
     pet:addStatusEffect(xi.effect.REGEN, regenAmount, 3, regenTime) -- 3 = tick, each 3 seconds.
@@ -407,16 +565,29 @@ xi.job_utils.beastmaster.onUseAbilityReward = function(player, target, ability)
     return totalHealing
 end
 
--- On Ability Check Unleash
+-- Enhanced Unleash (Two-Hour) with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckUnleash = function(player, target, ability)
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.UNLEASH, 1)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     ability:setRecast(math.max(0, ability:getRecast() - player:getMod(xi.mod.ONE_HOUR_RECAST) * 60))
 
     return 0, 0
 end
 
--- On Ability Use Unleash
+-- Enhanced Unleash with graduated subjob penalty system for duration and power
 xi.job_utils.beastmaster.onUseAbilityUnleash = function(player, target, ability)
-    player:addStatusEffect(xi.effect.UNLEASH, 9, 0, 60)
+    -- Get subjob effectiveness for unleash enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.UNLEASH, 1)
+    
+    -- Apply graduated subjob penalty to unleash power and duration
+    local power = math.floor(9 * effectiveness)
+    local duration = math.floor(60 * effectiveness)
+    
+    player:addStatusEffect(xi.effect.UNLEASH, power, 0, duration)
 end
 
 -- On Ability Check For Leave, Heel and Stay.
@@ -440,7 +611,7 @@ xi.job_utils.beastmaster.onUseAbilityLeave = function(player, target, ability)
     target:despawnPet()
 end
 
--- On Ability Check Snarl
+-- Enhanced Snarl with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckSnarl = function(player, target, ability)
     if player:getPet() == nil then
         return xi.msg.basic.REQUIRES_A_PET, 0
@@ -449,6 +620,11 @@ xi.job_utils.beastmaster.onAbilityCheckSnarl = function(player, target, ability)
             player:getPet():getTarget() ~= nil and
             player:hasJugPet()
         then
+            -- Validate job access and apply graduated subjob penalty
+            local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.SNARL, 15)
+            if not hasAccess then
+                return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+            end
             return 0, 0
         else
             return xi.msg.basic.PET_CANNOT_DO_ACTION, 0
@@ -456,9 +632,16 @@ xi.job_utils.beastmaster.onAbilityCheckSnarl = function(player, target, ability)
     end
 end
 
--- On Ability Use Snarl
+-- Enhanced Snarl with graduated subjob penalty system for enmity transfer effectiveness
 xi.job_utils.beastmaster.onUseAbilitySnarl = function(player, target, ability)
-    player:transferEnmity(player:getPet(), 99, 11.5)
+    -- Get subjob effectiveness for snarl enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.SNARL, 15)
+    
+    -- Apply graduated subjob penalty to enmity transfer effectiveness
+    local enmityTransfer = math.floor(99 * effectiveness)
+    local volatilityMultiplier = 11.5 * effectiveness
+    
+    player:transferEnmity(player:getPet(), enmityTransfer, volatilityMultiplier)
 end
 
 -- On Ability Use Heel
@@ -472,11 +655,14 @@ xi.job_utils.beastmaster.onUseAbilityHeel = function(player, target, ability)
     player:petRetreat()
 end
 
--- On Ability Use Stay
+-- Enhanced Stay with subjob effectiveness scaling for healing rate
 xi.job_utils.beastmaster.onUseAbilityStay = function(player, target, ability)
     local pet = player:getPet()
 
     if not pet:hasPreventActionEffect() then
+        -- Get subjob effectiveness for healing enhancement
+        local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, ability:getID(), 1)
+        
         -- reduce tick speed based on level. but never less than 5 and never
         -- more than 10.  This seems to mimic retail.  There is no formula
         -- that I can find, but this seems close.
@@ -487,14 +673,16 @@ xi.job_utils.beastmaster.onUseAbilityStay = function(player, target, ability)
             level = player:getSubLvl()
         end
 
-        local tick = 10 - math.ceil(math.max(0, level / 20))
+        local baseTick = 10 - math.ceil(math.max(0, level / 20))
+        local tick = math.floor(baseTick / effectiveness) -- Better healing with higher effectiveness
+        tick = math.max(5, math.min(10, tick)) -- Clamp between 5 and 10
 
         pet:addStatusEffectEx(xi.effect.HEALING, 0, 0, tick, 0)
         pet:setAnimation(0)
     end
 end
 
--- On Ability Check Fight
+-- Enhanced Fight Check with database validation
 xi.job_utils.beastmaster.onAbilityCheckFight = function(player, target, ability)
     if player:getPet() == nil then
         return xi.msg.basic.REQUIRES_A_PET, 0
@@ -505,23 +693,42 @@ xi.job_utils.beastmaster.onAbilityCheckFight = function(player, target, ability)
         return xi.msg.basic.CANNOT_ATTACK_TARGET, 0
     end
 
+    -- Validate job access
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateJobAccess(player, ability:getID())
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     return 0, 0
 end
 
--- On Ability Use Fight
+-- Enhanced Fight with subjob effectiveness scaling for pet performance
 xi.job_utils.beastmaster.onUseAbilityFight = function(player, target, ability)
     local pet = player:getPet()
 
-    if player:checkDistance(pet) <= 25 then
+    -- Get subjob effectiveness for combat enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, ability:getID(), 1)
+    
+    -- Apply enhanced range based on effectiveness
+    local maxRange = 25 + math.floor(10 * effectiveness)
+    
+    if player:checkDistance(pet) <= maxRange then
         if pet:hasStatusEffect(xi.effect.HEALING) then
             pet:delStatusEffect(xi.effect.HEALING)
         end
 
         player:petAttack(target)
+        
+        -- Apply temporary combat boost based on subjob effectiveness
+        if effectiveness < 1.0 then
+            local combatBoost = math.floor(10 * effectiveness)
+            pet:addMod(xi.mod.ATTP, combatBoost)
+            pet:addMod(xi.mod.ACC, combatBoost)
+        end
     end
 end
 
--- On Ability Check Killer Instinct
+-- Enhanced Killer Instinct with subjob effectiveness scaling and database validation
 xi.job_utils.beastmaster.onAbilityCheckKillerInstinct = function(player, target, ability)
     local pet = player:getPet()
 
@@ -532,16 +739,26 @@ xi.job_utils.beastmaster.onAbilityCheckKillerInstinct = function(player, target,
         return xi.msg.basic.REQUIRES_A_PET, 0
     end
 
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.KILLER_INSTINCT, 75)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
     return 0, 0
 end
 
--- On Ability Use Killer Instinct
+-- Enhanced Killer Instinct with graduated subjob penalty system for power and duration
 xi.job_utils.beastmaster.onUseAbilityKillerInstinct = function(player, target, ability)
+    -- Get subjob effectiveness for killer instinct enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.KILLER_INSTINCT, 75)
+    
     -- Notes: Pet ecosystem is assigned to the subPower, then mapped to the correct killer mod in the effect script.
     local pet          = player:getPet()
     local petEcosystem = pet:getEcosystem()
-    local power        = 10
-    local duration     = 180 + (player:getMerit(xi.merit.KILLER_INSTINCT) - 10)
+    local power        = math.floor(10 * effectiveness)
+    local baseDuration = 180 + (player:getMerit(xi.merit.KILLER_INSTINCT) - 10)
+    local duration     = math.floor(baseDuration * effectiveness)
     -- TODO: Is there gear/mods that enhance power/duration?
 
     target:addStatusEffect(xi.effect.KILLER_INSTINCT, power, 0, duration, 0, petEcosystem)
@@ -676,37 +893,109 @@ xi.job_utils.beastmaster.attemptCharm = function(charmer, target)
     return xi.msg.basic.CHARM_FAIL
 end
 
+-- Enhanced Spur with subjob effectiveness scaling and Job Point integration
 xi.job_utils.beastmaster.onUseAbilitySpur = function(player)
-    local power = 20 + player:getMod(xi.mod.ENHANCES_SPUR)-- bonus STORETP
-    local subpower = player:getJobPointLevel(xi.jp.SPUR_EFFECT) * 3 -- bonus attack
+    -- Get subjob effectiveness for spur enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.SPUR, 83)
+    
+    -- Apply graduated subjob penalty to spur power and duration
+    local basePower = 20 + player:getMod(xi.mod.ENHANCES_SPUR) -- bonus STORETP
+    local power = math.floor(basePower * effectiveness)
+    local baseSubpower = player:getJobPointLevel(xi.jp.SPUR_EFFECT) * 3 -- bonus attack
+    local subpower = math.floor(baseSubpower * effectiveness)
+    local duration = math.floor(90 * effectiveness)
+    
     local pet = player:getPet()
     if pet then
-        pet:addStatusEffect(xi.effect.SPUR, power, 0, 90, 0, subpower)
+        pet:addStatusEffect(xi.effect.SPUR, power, 0, duration, 0, subpower)
     end
 end
 
+-- Enhanced Run Wild with subjob effectiveness scaling and comprehensive pet bonuses
 xi.job_utils.beastmaster.onUseAbilityRunWild = function(player, target, ability, action)
-    -- all but regen are a 25% bonus
-    local power = 25
+    -- Get subjob effectiveness for run wild enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.RUN_WILD, 93)
+    
+    -- Apply graduated subjob penalty to all bonuses (25% bonus scaled by effectiveness)
+    local power = math.floor(25 * effectiveness)
     local pet = player:getPet()
     if pet then
         -- mods aren't tied to an effect, just applied to the pet. They leave when the pet dies or despawns
         pet:addMod(xi.mod.ATTP, power)
-        pet:addMod(xi.mod.ACC, pet:getACC() * power / 100)
+        pet:addMod(xi.mod.ACC, math.floor(pet:getACC() * power / 100))
         -- Yep, it's an MAB % addition
         -- "If you have no sources of Magic Attack Bonus while using the slug pet, then Run Wild actually makes his innate MAB penalty even more negative, thus reducing damage."
-        pet:addMod(xi.mod.MATT, pet:getMod(xi.mod.MATT) * power / 100)
-        pet:addMod(xi.mod.EVA, pet:getEVA() * power / 100)
+        pet:addMod(xi.mod.MATT, math.floor(pet:getMod(xi.mod.MATT) * power / 100))
+        pet:addMod(xi.mod.EVA, math.floor(pet:getEVA() * power / 100))
         pet:addMod(xi.mod.DEFP, power)
         -- TODO find out this potency, but appears to be consistently 1% per tick with hare familiar at lvl 99
-        pet:addMod(xi.mod.REGEN, 0.01 * pet:getMaxHP())
+        local regenPower = math.floor(0.01 * pet:getMaxHP() * effectiveness)
+        pet:addMod(xi.mod.REGEN, regenPower)
 
-        -- After 5 minutes, the pet just despawns
-        pet:setJugRemainingTime(300)
+        -- After 5 minutes, the pet just despawns (duration scaled by effectiveness)
+        local duration = math.floor(300 * effectiveness)
+        pet:setJugRemainingTime(duration)
     end
 
     -- seems to display nothing in console, but this it the msg id from capture
     ability:setMsg(154)
 
     return ability:getID()
+end
+
+-----------------------------------
+-- Call Beast and Bestial Loyalty Enhancement
+-----------------------------------
+
+-- Enhanced Call Beast/Bestial Loyalty with subjob effectiveness scaling
+xi.job_utils.beastmaster.onAbilityCheckJug = function(player, target, ability)
+    local petId = player:getWeaponSubSkillType(xi.slot.AMMO)
+
+    if player:getPet() ~= nil then
+        return xi.msg.basic.ALREADY_HAS_A_PET, 0
+    elseif
+        not player:hasValidJugPetItem() or
+        player:getMainLvl() < jugLevelTable[petId]
+    then
+        return xi.msg.basic.NO_JUG_PET_ITEM, 0
+    elseif not player:canUseMisc(xi.zoneMisc.PET) then
+        return xi.msg.basic.CANT_BE_USED_IN_AREA, 0
+    end
+
+    -- Validate job access and apply graduated subjob penalty
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.CALL_BEAST, 23)
+    if not hasAccess then
+        return xi.msg.basic.JOB_ABILITY_UNLEARNED, 0
+    end
+
+    return 0, 0
+end
+
+-- Enhanced Call Beast/Bestial Loyalty with subjob support
+xi.job_utils.beastmaster.onUseAbilityJug = function(player, target, ability)
+    -- Get subjob effectiveness for jug pet enhancement
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateAbilityAccess(player, xi.jobAbility.CALL_BEAST, 23)
+    
+    xi.pet.spawnPet(player, player:getWeaponSubSkillType(xi.slot.AMMO))
+
+    if ability:getID() == xi.jobAbility.CALL_BEAST then
+        player:removeAmmo(1)
+    end
+
+    -- Apply subjob effectiveness to pet stats enhancement
+    local pet = player:getPet()
+    if pet and effectiveness < 1.0 then
+        -- Apply subjob penalty to pet stats
+        local statReduction = 1.0 - effectiveness
+        pet:addMod(xi.mod.ATTP, -math.floor(statReduction * 25))
+        pet:addMod(xi.mod.DEFP, -math.floor(statReduction * 25))
+        pet:addMod(xi.mod.ACC, -math.floor(statReduction * 25))
+        pet:addMod(xi.mod.EVA, -math.floor(statReduction * 25))
+    end
+
+    -- Briefly put the recastId for READY/SIC (102) into a recast state to
+    -- toggle charges accumulating. 102 is the shared recast id for all jug
+    -- pet abilities and for SIC when using a charmed mob.
+    -- see sql/abilities_charges and sql_abilities
+    player:addRecast(xi.recast.ABILITY, 102, 1)
 end

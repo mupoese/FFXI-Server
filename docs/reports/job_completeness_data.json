@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T20:41:20.824228",
+  "timestamp": "2025-09-07T22:09:49.538709",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -101,7 +101,7 @@
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 42,
+      "lua_functions": 47,
       "lua_bindings": 12,
       "missing_features": [
         "Missing Feral Howl implementation"

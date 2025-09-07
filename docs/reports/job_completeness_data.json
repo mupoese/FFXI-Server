@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T06:53:38.179208",
+  "timestamp": "2025-09-07T07:36:21.284012",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -151,20 +151,15 @@
       ]
     },
     "ninja": {
-      "current_percentage": 52.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 8,
       "abilities_total": 8,
-      "spells_implemented": 0,
+      "spells_implemented": 37,
       "spells_total": 37,
-      "lua_functions": 21,
-      "lua_bindings": 43,
-      "missing_features": [
-        "Missing Dual Wield implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 42,
+      "lua_bindings": 76,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "dragoon": {
       "current_percentage": 75.0,
@@ -294,13 +289,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 8,
-    "average_completeness": 78.7,
+    "jobs_at_100_percent": 9,
+    "average_completeness": 80.8,
     "highest_priority_jobs": [
-      [
-        "ninja",
-        52.5
-      ],
       [
         "geomancer",
         52.5
@@ -336,6 +327,10 @@
       [
         "monk",
         75.0
+      ],
+      [
+        "thief",
+        75.0
       ]
     ],
     "enhancement_phases": [
@@ -343,7 +338,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "ninja",
           "geomancer",
           "rune_fencer",
           "bard",

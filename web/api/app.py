@@ -1550,6 +1550,195 @@ def launcher_heartbeat():
         logger.error(f"Launcher heartbeat failed: {e}")
         return jsonify({'error': str(e)}), 500
 
+# Shout, Auction, and Bazaar API Routes
+
+@app.route('/api/shout/recent', methods=['GET'])
+def get_recent_shouts():
+    """Get recent shout messages"""
+    try:
+        zone_filter = request.args.get('zone', '')
+        limit = min(int(request.args.get('limit', 50)), 100)
+        
+        # Query for recent shout messages from chat logs
+        shout_query = """
+        SELECT 
+            cl.charname as player,
+            cl.message,
+            cl.datetime as timestamp,
+            z.name as zone
+        FROM chat_message_log cl
+        LEFT JOIN zone_settings z ON cl.zoneid = z.zoneid
+        WHERE cl.type = 5  -- Shout message type
+        """ + (f"AND z.name = '{zone_filter}'" if zone_filter else "") + """
+        ORDER BY cl.datetime DESC
+        LIMIT %s
+        """
+        
+        shouts = execute_query(shout_query, (limit,))
+        
+        # Get shout statistics
+        stats_query = """
+        SELECT 
+            COUNT(*) as shouts_today,
+            COUNT(DISTINCT charname) as active_users,
+            MAX(hourly_count) as peak_activity,
+            (SELECT z.name FROM chat_message_log cl2 
+             LEFT JOIN zone_settings z ON cl2.zoneid = z.zoneid 
+             WHERE cl2.type = 5 AND DATE(cl2.datetime) = CURDATE() 
+             GROUP BY z.zoneid ORDER BY COUNT(*) DESC LIMIT 1) as most_active_zone
+        FROM (
+            SELECT charname, HOUR(datetime) as hour, COUNT(*) as hourly_count
+            FROM chat_message_log 
+            WHERE type = 5 AND DATE(datetime) = CURDATE()
+            GROUP BY charname, HOUR(datetime)
+        ) hourly_stats
+        """
+        
+        stats_result = execute_query(stats_query)
+        stats = stats_result[0] if stats_result else {}
+        
+        return jsonify({
+            'shouts': shouts or [],
+            'stats': {
+                'shouts_today': stats.get('shouts_today', 0),
+                'active_users': stats.get('active_users', 0),
+                'peak_activity': stats.get('peak_activity', 0),
+                'most_active_zone': stats.get('most_active_zone', 'N/A')
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch shout data: {e}")
+        return jsonify({'error': str(e), 'shouts': [], 'stats': {}}), 500
+
+@app.route('/api/auction/current', methods=['GET'])
+def get_current_auctions():
+    """Get current auction house listings"""
+    try:
+        category_filter = request.args.get('category', '')
+        price_min = request.args.get('price_min', 0)
+        price_max = request.args.get('price_max', 999999999)
+        limit = min(int(request.args.get('limit', 100)), 200)
+        
+        # Query for current auction house listings
+        auction_query = """
+        SELECT 
+            ah.itemid as item_id,
+            ib.name as item_name,
+            ib.category,
+            ah.stack_size,
+            ah.price as current_price,
+            ah.seller_name as seller,
+            TIMESTAMPDIFF(MINUTE, NOW(), ah.date) as time_remaining,
+            ah.buyer_name,
+            CASE WHEN ah.buyer_name IS NOT NULL THEN 1 ELSE 0 END as bid_count,
+            ah.date as end_time
+        FROM auction_house ah
+        JOIN item_basic ib ON ah.itemid = ib.itemid
+        WHERE ah.sale = 0  -- Not sold yet
+        AND ah.date > NOW()  -- Not expired
+        """ + (f"AND ib.category = '{category_filter}'" if category_filter else "") + f"""
+        AND ah.price BETWEEN {price_min} AND {price_max}
+        ORDER BY ah.date ASC
+        LIMIT %s
+        """
+        
+        auctions = execute_query(auction_query, (limit,))
+        
+        # Get auction statistics
+        auction_stats_query = """
+        SELECT 
+            COUNT(*) as active_auctions,
+            SUM(price) as total_value,
+            AVG(price) as average_price,
+            SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, NOW(), date) < 60 THEN 1 ELSE 0 END) as ending_soon
+        FROM auction_house 
+        WHERE sale = 0 AND date > NOW()
+        """
+        
+        stats_result = execute_query(auction_stats_query)
+        stats = stats_result[0] if stats_result else {}
+        
+        return jsonify({
+            'auctions': auctions or [],
+            'stats': {
+                'active_auctions': stats.get('active_auctions', 0),
+                'total_value': stats.get('total_value', 0),
+                'average_price': stats.get('average_price', 0),
+                'ending_soon': stats.get('ending_soon', 0)
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch auction data: {e}")
+        return jsonify({'error': str(e), 'auctions': [], 'stats': {}}), 500
+
+@app.route('/api/bazaar/monitor', methods=['GET'])
+def get_bazaar_monitor():
+    """Get live bazaar monitoring data"""
+    try:
+        zone_filter = request.args.get('zone', '')
+        online_only = request.args.get('online_only', '') == 'true'
+        limit = min(int(request.args.get('limit', 100)), 200)
+        
+        # Query for bazaar items with seller information
+        bazaar_query = """
+        SELECT 
+            db.itemid as item_id,
+            ib.name as item_name,
+            ib.category,
+            db.quantity,
+            db.price,
+            c.charname as seller,
+            zs.name as zone,
+            CASE WHEN c.pos_zone > 0 THEN 1 ELSE 0 END as online,
+            db.slot,
+            c.pos_zone
+        FROM delivery_box db
+        JOIN chars c ON db.charid = c.charid
+        JOIN item_basic ib ON db.itemid = ib.itemid
+        LEFT JOIN zone_settings zs ON c.pos_zone = zs.zoneid
+        WHERE db.box = 1  -- Bazaar box
+        AND db.quantity > 0
+        AND db.price > 0
+        """ + (f"AND zs.name = '{zone_filter}'" if zone_filter else "") + """
+        """ + ("AND c.pos_zone > 0" if online_only else "") + """
+        ORDER BY db.price ASC, c.charname ASC
+        LIMIT %s
+        """
+        
+        bazaar_items = execute_query(bazaar_query, (limit,))
+        
+        # Get bazaar statistics
+        bazaar_stats_query = """
+        SELECT 
+            COUNT(DISTINCT c.charid) as active_bazaars,
+            COUNT(*) as total_items,
+            COUNT(DISTINCT CASE WHEN c.pos_zone > 0 THEN c.charid END) as online_sellers,
+            COUNT(DISTINCT zs.zoneid) as active_zones
+        FROM delivery_box db
+        JOIN chars c ON db.charid = c.charid
+        LEFT JOIN zone_settings zs ON c.pos_zone = zs.zoneid
+        WHERE db.box = 1 AND db.quantity > 0 AND db.price > 0
+        """
+        
+        stats_result = execute_query(bazaar_stats_query)
+        stats = stats_result[0] if stats_result else {}
+        
+        return jsonify({
+            'items': bazaar_items or [],
+            'stats': {
+                'active_bazaars': stats.get('active_bazaars', 0),
+                'total_items': stats.get('total_items', 0),
+                'online_sellers': stats.get('online_sellers', 0),
+                'active_zones': stats.get('active_zones', 0)
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch bazaar data: {e}")
+        return jsonify({'error': str(e), 'items': [], 'stats': {}}), 500
+
 # Main application
 if __name__ == '__main__':
     logger.info(f"Starting {Config.SERVER_NAME} Server Management API")

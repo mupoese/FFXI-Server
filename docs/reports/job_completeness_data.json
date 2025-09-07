@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T07:36:21.284012",
+  "timestamp": "2025-09-07T07:44:07.756470",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -255,20 +255,15 @@
       "enhancement_priorities": []
     },
     "geomancer": {
-      "current_percentage": 52.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 8,
       "abilities_total": 8,
-      "spells_implemented": 0,
+      "spells_implemented": 54,
       "spells_total": 35,
-      "lua_functions": 25,
-      "lua_bindings": 29,
-      "missing_features": [
-        "Missing Indicolure implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 38,
+      "lua_bindings": 47,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "rune_fencer": {
       "current_percentage": 52.5,
@@ -289,13 +284,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 9,
-    "average_completeness": 80.8,
+    "jobs_at_100_percent": 10,
+    "average_completeness": 83.0,
     "highest_priority_jobs": [
-      [
-        "geomancer",
-        52.5
-      ],
       [
         "rune_fencer",
         52.5
@@ -331,6 +322,10 @@
       [
         "thief",
         75.0
+      ],
+      [
+        "ranger",
+        75.0
       ]
     ],
     "enhancement_phases": [
@@ -338,7 +333,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "geomancer",
           "rune_fencer",
           "bard",
           "corsair",

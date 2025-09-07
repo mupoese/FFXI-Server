@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status & Online Players - FFXI Server</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+            <div class="nav-links">
+                <div class="nav-section">
+                    <span class="nav-label">Information</span>
+                    <a href="../information/play-now.html">Play Now</a>
+                    <a href="../information/server-info.html">Server Info</a>
+                    <a href="../information/addons.html">Addons</a>
+                    <a href="../information/rules.html">Rules</a>
+                    <a href="../information/news.html">News</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-label">Tools</span>
+                    <a href="players.html">Players</a>
+                    <a href="seeking.html">Seeking</a>
+                    <a href="items.html">Items</a>
+                    <a href="bazaar.html">Bazaar</a>
+                    <a href="bcnm.html">BCNM Ranking</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="shout.html">Shout</a>
+                    <a href="server-status.html" class="active">Server Status</a>
+                </div>
+                <div class="nav-section">
+                    <a href="../../admin.html">Admin</a>
+                    <a href="../../festival_calendar.html">Festivals</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-container">
+        <header class="page-header">
+            <h1>🌐 Server Status & Online Players</h1>
+            <p>Real-time server monitoring and player activity</p>
+        </header>
+
+        <!-- Server Status Overview -->
+        <div class="status-overview">
+            <div class="server-health-card">
+                <div class="health-indicator" id="serverHealthIndicator">
+                    <div class="pulse-dot"></div>
+                    <span class="status-text" id="serverStatusText">ONLINE</span>
+                </div>
+                <div class="server-info">
+                    <h2 id="serverName">FFXI Server</h2>
+                    <p class="uptime" id="serverUptime">Uptime: Loading...</p>
+                </div>
+                <div class="last-updated">
+                    <span id="lastUpdated">Last updated: Never</span>
+                    <button class="btn btn-small btn-primary" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Server Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="playersOnline">-</div>
+                    <div class="stat-label">Players Online</div>
+                    <div class="stat-sublabel" id="peakToday">Peak Today: -</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="activeZones">-</div>
+                    <div class="stat-label">Active Zones</div>
+                    <div class="stat-sublabel" id="avgLevel">Avg Level: -</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="cpuUsage">-</div>
+                    <div class="stat-label">CPU Usage</div>
+                    <div class="stat-sublabel" id="responseTime">Response: - ms</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💾</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="memoryUsage">-</div>
+                    <div class="stat-label">Memory Usage</div>
+                    <div class="stat-sublabel" id="diskUsage">Disk: -%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Status -->
+        <div class="card">
+            <h2>🔧 Service Status</h2>
+            <div class="services-grid">
+                <div class="service-item" id="databaseService">
+                    <div class="service-indicator"></div>
+                    <span class="service-name">Database</span>
+                    <span class="service-status">Unknown</span>
+                </div>
+                <div class="service-item" id="loginService">
+                    <div class="service-indicator"></div>
+                    <span class="service-name">Login Server</span>
+                    <span class="service-status">Unknown</span>
+                </div>
+                <div class="service-item" id="mapService">
+                    <div class="service-indicator"></div>
+                    <span class="service-name">Map Server</span>
+                    <span class="service-status">Unknown</span>
+                </div>
+                <div class="service-item" id="searchService">
+                    <div class="service-indicator"></div>
+                    <span class="service-name">Search Server</span>
+                    <span class="service-status">Unknown</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone Distribution -->
+        <div class="card">
+            <h2>🗺️ Zone Distribution</h2>
+            <div class="zone-list" id="zoneDistribution">
+                <div class="loading-zones">Loading zone data...</div>
+            </div>
+        </div>
+
+        <!-- Online Players Table -->
+        <div class="card">
+            <h2>👥 Players Currently Online</h2>
+            <div class="player-controls">
+                <div class="search-bar">
+                    <input type="text" id="playerSearch" placeholder="Search players..." class="search-input">
+                    <select id="jobFilter" class="filter-select">
+                        <option value="">All Jobs</option>
+                        <option value="WAR">Warrior</option>
+                        <option value="MNK">Monk</option>
+                        <option value="WHM">White Mage</option>
+                        <option value="BLM">Black Mage</option>
+                        <option value="RDM">Red Mage</option>
+                        <option value="THF">Thief</option>
+                        <option value="PLD">Paladin</option>
+                        <option value="DRK">Dark Knight</option>
+                        <option value="BST">Beastmaster</option>
+                        <option value="BRD">Bard</option>
+                        <option value="RNG">Ranger</option>
+                        <option value="SAM">Samurai</option>
+                        <option value="NIN">Ninja</option>
+                        <option value="DRG">Dragoon</option>
+                        <option value="SMN">Summoner</option>
+                        <option value="BLU">Blue Mage</option>
+                        <option value="COR">Corsair</option>
+                        <option value="PUP">Puppetmaster</option>
+                        <option value="DNC">Dancer</option>
+                        <option value="SCH">Scholar</option>
+                        <option value="GEO">Geomancer</option>
+                        <option value="RUN">Rune Fencer</option>
+                    </select>
+                    <select id="zoneFilter" class="filter-select">
+                        <option value="">All Zones</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="players-table">
+                    <thead>
+                        <tr>
+                            <th>Character</th>
+                            <th>Level</th>
+                            <th>Job</th>
+                            <th>Zone</th>
+                            <th>Position</th>
+                            <th>Online Time</th>
+                            <th>Nation</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        <tr>
+                            <td colspan="8" class="loading-row">Loading player data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let refreshInterval;
+        let playersData = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServerStatus();
+            loadOnlinePlayers();
+            
+            // Set up auto-refresh
+            refreshInterval = setInterval(() => {
+                loadServerStatus();
+                loadOnlinePlayers();
+            }, 30000); // Refresh every 30 seconds
+        });
+
+        async function loadServerStatus() {
+            try {
+                const response = await fetch('/api/server/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateServerStatus(data);
+                } else {
+                    console.error('Failed to load server status');
+                }
+            } catch (error) {
+                console.error('Error loading server status:', error);
+                showOfflineStatus();
+            }
+        }
+
+        async function loadOnlinePlayers() {
+            try {
+                const response = await fetch('/api/players/online');
+                if (response.ok) {
+                    const data = await response.json();
+                    playersData = data.players || [];
+                    updatePlayersTable();
+                    updateZoneFilters();
+                } else {
+                    console.error('Failed to load online players');
+                }
+            } catch (error) {
+                console.error('Error loading online players:', error);
+            }
+        }
+
+        function updateServerStatus(data) {
+            // Update server health indicator
+            const healthIndicator = document.getElementById('serverHealthIndicator');
+            const statusText = document.getElementById('serverStatusText');
+            
+            if (data.status === 'online') {
+                healthIndicator.className = 'health-indicator online';
+                statusText.textContent = 'ONLINE';
+            } else {
+                healthIndicator.className = 'health-indicator offline';
+                statusText.textContent = 'OFFLINE';
+            }
+
+            // Update server info
+            document.getElementById('serverName').textContent = data.server_name || 'FFXI Server';
+            document.getElementById('serverUptime').textContent = `Uptime: ${data.uptime || 'Unknown'}`;
+
+            // Update player statistics
+            document.getElementById('playersOnline').textContent = data.players?.online || 0;
+            document.getElementById('peakToday').textContent = `Peak Today: ${data.players?.peak_today || 0}`;
+            document.getElementById('activeZones').textContent = data.server_stats?.active_zones || 0;
+            document.getElementById('avgLevel').textContent = `Avg Level: ${data.server_stats?.average_level || 0}`;
+
+            // Update performance metrics
+            document.getElementById('cpuUsage').textContent = `${data.performance?.cpu_usage || 0}%`;
+            document.getElementById('responseTime').textContent = `Response: ${data.performance?.response_time_ms || 0} ms`;
+            document.getElementById('memoryUsage').textContent = `${data.performance?.memory_usage || 0}%`;
+            document.getElementById('diskUsage').textContent = `Disk: ${data.performance?.disk_usage || 0}%`;
+
+            // Update service status
+            updateServiceStatus('databaseService', data.services?.database);
+            updateServiceStatus('loginService', data.services?.login_server);
+            updateServiceStatus('mapService', data.services?.map_server);
+            updateServiceStatus('searchService', data.services?.search_server);
+
+            // Update zone distribution
+            updateZoneDistribution(data.zone_distribution || []);
+
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function updateServiceStatus(serviceId, status) {
+            const serviceElement = document.getElementById(serviceId);
+            const indicator = serviceElement.querySelector('.service-indicator');
+            const statusSpan = serviceElement.querySelector('.service-status');
+            
+            serviceElement.className = `service-item ${status}`;
+            statusSpan.textContent = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
+        }
+
+        function updateZoneDistribution(zones) {
+            const container = document.getElementById('zoneDistribution');
+            
+            if (zones.length === 0) {
+                container.innerHTML = '<div class="no-zones">No zone data available</div>';
+                return;
+            }
+
+            container.innerHTML = zones.map(zone => `
+                <div class="zone-item">
+                    <span class="zone-name">${zone.zone_name || 'Unknown Zone'}</span>
+                    <span class="zone-count">${zone.player_count} players</span>
+                </div>
+            `).join('');
+        }
+
+        function updatePlayersTable() {
+            const tableBody = document.getElementById('playersTableBody');
+            const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+            const jobFilter = document.getElementById('jobFilter').value;
+            const zoneFilter = document.getElementById('zoneFilter').value;
+
+            // Filter players
+            let filteredPlayers = playersData.filter(player => {
+                const matchesSearch = player.character.toLowerCase().includes(searchTerm);
+                const matchesJob = !jobFilter || player.job.includes(jobFilter);
+                const matchesZone = !zoneFilter || player.zone.includes(zoneFilter);
+                return matchesSearch && matchesJob && matchesZone;
+            });
+
+            if (filteredPlayers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="no-data">No players match the current filters.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = filteredPlayers.map(player => `
+                <tr class="player-row">
+                    <td class="character-cell">
+                        <div class="character-info">
+                            <span class="character-name" onclick="viewPlayer('${player.character}')">${player.character}</span>
+                            ${player.gm_level > 0 ? '<span class="gm-badge">GM</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="level-cell">${player.level}${player.subjob_level ? `/${player.subjob_level}` : ''}</td>
+                    <td class="job-cell">
+                        <span class="job-display">${player.job}</span>
+                    </td>
+                    <td class="zone-cell">
+                        <span class="zone-name">${player.zone}</span>
+                    </td>
+                    <td class="position-cell">
+                        <span class="coordinates">${player.position.x}, ${player.position.y}, ${player.position.z}</span>
+                    </td>
+                    <td class="time-cell">${player.online_time}</td>
+                    <td class="nation-cell">
+                        <span class="nation-badge ${player.nation.toLowerCase().replace(' ', '-').replace("'", "")}">${player.nation}</span>
+                    </td>
+                    <td class="status-cell">
+                        <span class="status-indicator online">🟢 Online</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateZoneFilters() {
+            const zoneFilter = document.getElementById('zoneFilter');
+            const zones = [...new Set(playersData.map(player => player.zone))].sort();
+            
+            // Clear existing options except "All Zones"
+            zoneFilter.innerHTML = '<option value="">All Zones</option>';
+            
+            zones.forEach(zone => {
+                const option = document.createElement('option');
+                option.value = zone;
+                option.textContent = zone;
+                zoneFilter.appendChild(option);
+            });
+        }
+
+        function showOfflineStatus() {
+            const healthIndicator = document.getElementById('serverHealthIndicator');
+            const statusText = document.getElementById('serverStatusText');
+            
+            healthIndicator.className = 'health-indicator offline';
+            statusText.textContent = 'OFFLINE';
+            
+            document.getElementById('serverUptime').textContent = 'Uptime: Connection lost';
+        }
+
+        function refreshData() {
+            loadServerStatus();
+            loadOnlinePlayers();
+            Utils.showNotification('Data refreshed', 'success');
+        }
+
+        function viewPlayer(playerName) {
+            window.location.href = `players.html?search=${encodeURIComponent(playerName)}`;
+        }
+
+        // Search and filter event listeners
+        document.getElementById('playerSearch').addEventListener('input', updatePlayersTable);
+        document.getElementById('jobFilter').addEventListener('change', updatePlayersTable);
+        document.getElementById('zoneFilter').addEventListener('change', updatePlayersTable);
+
+        // Cleanup interval when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+        });
+    </script>
+
+    <style>
+        .status-overview {
+            margin-bottom: 2rem;
+        }
+
+        .server-health-card {
+            background: var(--bg-medium);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pulse-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .health-indicator.online .pulse-dot {
+            background: var(--success-color);
+        }
+
+        .health-indicator.offline .pulse-dot {
+            background: var(--error-color);
+        }
+
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .server-info h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .uptime {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .last-updated {
+            text-align: right;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-sublabel {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .service-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .service-item.online .service-indicator {
+            background: var(--success-color);
+        }
+
+        .service-item.offline .service-indicator {
+            background: var(--error-color);
+        }
+
+        .service-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .service-status {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .zone-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .zone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .zone-name {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .zone-count {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .player-controls {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .players-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-medium);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .players-table th {
+            background: var(--bg-dark);
+            color: var(--primary-color);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .players-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .player-row:hover {
+            background: var(--bg-light);
+        }
+
+        .character-name {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .character-name:hover {
+            text-decoration: underline;
+        }
+
+        .gm-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .job-display {
+            font-family: monospace;
+            background: var(--bg-light);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .coordinates {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .nation-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .nation-badge.san-doria {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .nation-badge.bastok {
+            background: #f5a623;
+            color: white;
+        }
+
+        .nation-badge.windurst {
+            background: #7ed321;
+            color: white;
+        }
+
+        .status-indicator.online {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .loading-zones, .no-zones {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .loading-row, .no-data {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .server-health-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .players-table {
+                font-size: 0.9rem;
+            }
+
+            .players-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</body>
+</html>

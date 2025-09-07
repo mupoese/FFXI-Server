@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <meta content="#333333" name="theme-color">
+    <title>Addons - FFXI Server</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="play-now.html">Play Now</a>
+                        <a href="server-info.html">Server Info</a>
+                        <a href="addons.html" class="active">Addons</a>
+                        <a href="rules.html">Rules</a>
+                        <a href="news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="../tools/players.html">Players</a>
+                        <a href="../tools/seeking.html">Seeking</a>
+                        <a href="../tools/items.html">Items</a>
+                        <a href="../tools/bazaar.html">Bazaar</a>
+                        <a href="../tools/bcnm.html">BCNM Ranking</a>
+                        <a href="../tools/shout.html">Shout</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="hero-section">
+                <h1>🔧 Client Addons & Tools</h1>
+                <p>Enhance your FFXI experience with recommended addons and client modifications</p>
+            </div>
+
+            <div class="content-grid">
+                <!-- Essential Addons Section -->
+                <section class="addon-category">
+                    <h2>⭐ Essential Addons</h2>
+                    <p>These addons are highly recommended for all players to improve gameplay experience.</p>
+                    
+                    <div class="addon-grid">
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Windower 4</h3>
+                                <span class="addon-tag essential">Essential</span>
+                            </div>
+                            <p>The primary addon platform for FFXI. Required for most other addons.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Addon Framework</span>
+                                <span class="feature">✓ Lua Scripting</span>
+                                <span class="feature">✓ Plugin Support</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#windower" class="btn btn-primary">Download</a>
+                                <a href="#windower-guide" class="btn btn-secondary">Setup Guide</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Ashita v4</h3>
+                                <span class="addon-tag alternative">Alternative</span>
+                            </div>
+                            <p>Alternative addon platform with similar functionality to Windower.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Plugin System</span>
+                                <span class="feature">✓ Memory Access</span>
+                                <span class="feature">✓ Scripting Support</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#ashita" class="btn btn-primary">Download</a>
+                                <a href="#ashita-guide" class="btn btn-secondary">Setup Guide</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>TParty</h3>
+                                <span class="addon-tag essential">Essential</span>
+                            </div>
+                            <p>Enhanced party list with TP, MP, and status information.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ TP Tracking</span>
+                                <span class="feature">✓ Status Icons</span>
+                                <span class="feature">✓ Distance Display</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#tparty" class="btn btn-primary">Install</a>
+                                <a href="#tparty-config" class="btn btn-secondary">Configure</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Distance</h3>
+                                <span class="addon-tag recommended">Recommended</span>
+                            </div>
+                            <p>Displays distance to targets and party members.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Target Distance</span>
+                                <span class="feature">✓ Party Distance</span>
+                                <span class="feature">✓ Customizable Display</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#distance" class="btn btn-primary">Install</a>
+                                <a href="#distance-config" class="btn btn-secondary">Configure</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quality of Life Addons -->
+                <section class="addon-category">
+                    <h2>🎯 Quality of Life</h2>
+                    <p>Addons that improve convenience and user interface.</p>
+                    
+                    <div class="addon-grid">
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Battlemod</h3>
+                                <span class="addon-tag recommended">Recommended</span>
+                            </div>
+                            <p>Enhanced damage display and battle text customization.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Damage Numbers</span>
+                                <span class="feature">✓ Combat Text</span>
+                                <span class="feature">✓ Color Coding</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#battlemod" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>AutoExec</h3>
+                                <span class="addon-tag utility">Utility</span>
+                            </div>
+                            <p>Automatically execute commands on login or job change.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Login Scripts</span>
+                                <span class="feature">✓ Job Change Scripts</span>
+                                <span class="feature">✓ Zone Change Scripts</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#autoexec" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Find</h3>
+                                <span class="addon-tag utility">Utility</span>
+                            </div>
+                            <p>Search for items, NPCs, and other objects in your current zone.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Item Search</span>
+                                <span class="feature">✓ NPC Locator</span>
+                                <span class="feature">✓ Object Finder</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#find" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Carry</h3>
+                                <span class="addon-tag utility">Utility</span>
+                            </div>
+                            <p>Enhanced inventory management and bag information.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Inventory Display</span>
+                                <span class="feature">✓ Bag Status</span>
+                                <span class="feature">✓ Item Count</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#carry" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Combat & Performance -->
+                <section class="addon-category">
+                    <h2>⚔️ Combat & Performance</h2>
+                    <p>Addons focused on combat effectiveness and performance tracking.</p>
+                    
+                    <div class="addon-grid">
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Scoreboard</h3>
+                                <span class="addon-tag recommended">Recommended</span>
+                            </div>
+                            <p>Real-time damage meters and DPS tracking for party members.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ DPS Tracking</span>
+                                <span class="feature">✓ Party Statistics</span>
+                                <span class="feature">✓ Performance Analysis</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#scoreboard" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>Timers</h3>
+                                <span class="addon-tag utility">Utility</span>
+                            </div>
+                            <p>Track buff/debuff timers and cooldowns.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Buff Timers</span>
+                                <span class="feature">✓ Cooldown Tracking</span>
+                                <span class="feature">✓ Visual Indicators</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#timers" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>FastCS</h3>
+                                <span class="addon-tag performance">Performance</span>
+                            </div>
+                            <p>Skip cutscenes and speed up certain animations.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Skip Cutscenes</span>
+                                <span class="feature">✓ Fast Animations</span>
+                                <span class="feature">✓ Time Saving</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#fastcs" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+
+                        <div class="addon-card">
+                            <div class="addon-header">
+                                <h3>GearSwap</h3>
+                                <span class="addon-tag advanced">Advanced</span>
+                            </div>
+                            <p>Automated gear switching based on actions and situations.</p>
+                            <div class="addon-features">
+                                <span class="feature">✓ Auto Gear Change</span>
+                                <span class="feature">✓ Situation Rules</span>
+                                <span class="feature">✓ Lua Scripting</span>
+                            </div>
+                            <div class="addon-actions">
+                                <a href="#gearswap" class="btn btn-primary">Install</a>
+                                <a href="#gearswap-guide" class="btn btn-secondary">Guide</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Installation Guide -->
+                <section class="installation-guide">
+                    <h2>📋 Installation Guide</h2>
+                    
+                    <div class="guide-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Download Windower 4</h3>
+                                <p>Download the latest version of Windower 4 from the official website.</p>
+                                <a href="#windower-download" class="btn btn-primary">Download Windower</a>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Install and Configure</h3>
+                                <p>Run the installer and point it to your FFXI installation directory.</p>
+                                <code>C:\Program Files (x86)\PlayOnline\SquareEnix\FINAL FANTASY XI\</code>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Add Server Settings</h3>
+                                <p>Configure Windower to connect to our server:</p>
+                                <div class="server-config">
+                                    <pre><code>Server: your-server-address.com
+Port: 54001
+Username: your-username
+Password: your-password</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h3>Install Addons</h3>
+                                <p>Use the Windower addon manager or manually install addons to the addons folder.</p>
+                                <p>Addon path: <code>Windower4/addons/</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Addon Repositories -->
+                <section class="addon-repositories">
+                    <h2>📦 Addon Repositories</h2>
+                    
+                    <div class="repo-grid">
+                        <div class="repo-card">
+                            <h3>Official Windower Repository</h3>
+                            <p>The main source for verified and maintained addons.</p>
+                            <a href="#windower-repo" class="btn btn-primary">Visit Repository</a>
+                        </div>
+
+                        <div class="repo-card">
+                            <h3>Community Addons</h3>
+                            <p>Community-maintained addons and modifications.</p>
+                            <a href="#community-repo" class="btn btn-primary">Browse Addons</a>
+                        </div>
+
+                        <div class="repo-card">
+                            <h3>Server-Specific Addons</h3>
+                            <p>Addons specifically designed for our server features.</p>
+                            <a href="#server-repo" class="btn btn-primary">Download Pack</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Troubleshooting -->
+                <section class="troubleshooting">
+                    <h2>🔧 Troubleshooting</h2>
+                    
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <h3>Windower won't start</h3>
+                            <p>Make sure you're running as administrator and have the correct FFXI path configured.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Addons not loading</h3>
+                            <p>Check that addons are in the correct folder and enabled in the Windower settings.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Performance issues</h3>
+                            <p>Try disabling resource-intensive addons like GearSwap if experiencing lag.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h3>Connection problems</h3>
+                            <p>Verify server address and port settings. Check firewall permissions.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Server Information</h3>
+                    <p>Experience classic FFXI with modern enhancements</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="play-now.html">Play Now</a>
+                    <a href="server-info.html">Server Info</a>
+                    <a href="rules.html">Rules</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Community</h3>
+                    <a href="#discord">Discord</a>
+                    <a href="#forums">Forums</a>
+                    <a href="#wiki">Wiki</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FFXI Server. Enhanced with modern technology while preserving the classic experience.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Initialize page-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add hover effects to addon cards
+            document.querySelectorAll('.addon-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        /* Addon-specific styles */
+        .addon-category {
+            margin-bottom: 3rem;
+        }
+
+        .addon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .addon-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .addon-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+        }
+
+        .addon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .addon-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .addon-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .addon-tag.essential {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .addon-tag.recommended {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .addon-tag.alternative {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .addon-tag.utility {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .addon-tag.performance {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .addon-tag.advanced {
+            background: #e67e22;
+            color: white;
+        }
+
+        .addon-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .feature {
+            background: var(--bg-medium);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+        }
+
+        .addon-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .installation-guide .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .server-config {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .server-config pre {
+            margin: 0;
+            color: var(--accent-color);
+        }
+
+        .repo-grid, .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .repo-card, .faq-item {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .repo-card h3, .faq-item h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .addon-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .addon-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>

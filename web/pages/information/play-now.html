@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Now - FFXI Server</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="play-now.html" class="active">Play Now</a>
+                        <a href="server-info.html">Server Info</a>
+                        <a href="addons.html">Addons</a>
+                        <a href="rules.html">Rules</a>
+                        <a href="news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="../tools/players.html">Players</a>
+                        <a href="../tools/seeking.html">Seeking</a>
+                        <a href="../tools/items.html">Items</a>
+                        <a href="../tools/bazaar.html">Bazaar</a>
+                        <a href="../tools/bcnm.html">BCNM Ranking</a>
+                        <a href="../tools/shout.html">Shout</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="hero-section">
+                <h1>🚀 Start Your Adventure</h1>
+                <p>Join our FFXI server and experience the classic MMORPG with modern enhancements</p>
+            </div>
+
+            <div class="content-grid">
+                <section class="quick-start">
+                    <h2>⚡ Quick Start Guide</h2>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Download Client</h3>
+                                <p>Get the FFXI client and required expansions</p>
+                                <button class="btn btn-primary" onclick="downloadClient()">Download FFXI Client</button>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Install Launcher</h3>
+                                <p>Download our custom launcher for easy server connection</p>
+                                <button class="btn btn-primary" onclick="downloadLauncher()">Download Launcher</button>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Create Account</h3>
+                                <p>Register your account to start playing</p>
+                                <button class="btn btn-primary" onclick="createAccount()">Create Account</button>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h3>Start Playing</h3>
+                                <p>Log in and begin your adventure in Vana'diel</p>
+                                <button class="btn btn-success" onclick="launchGame()">Launch Game</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="server-status">
+                    <h2>📊 Live Server Status</h2>
+                    <div class="status-grid" id="serverStatus">
+                        <div class="status-item">
+                            <span class="status-label">Server Status</span>
+                            <span class="status-value online" id="serverOnline">Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Players Online</span>
+                            <span class="status-value" id="playersOnline">Loading...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Uptime</span>
+                            <span class="status-value" id="serverUptime">Loading...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Peak Today</span>
+                            <span class="status-value" id="peakPlayers">Loading...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="system-requirements">
+                    <h2>💻 System Requirements</h2>
+                    <div class="requirements-grid">
+                        <div class="req-category">
+                            <h3>Minimum Requirements</h3>
+                            <ul>
+                                <li>Windows 7 or newer</li>
+                                <li>2 GB RAM</li>
+                                <li>1 GB available disk space</li>
+                                <li>DirectX 9.0c compatible</li>
+                                <li>Internet connection</li>
+                            </ul>
+                        </div>
+                        <div class="req-category">
+                            <h3>Recommended</h3>
+                            <ul>
+                                <li>Windows 10/11</li>
+                                <li>4 GB RAM or more</li>
+                                <li>2 GB available disk space</li>
+                                <li>Dedicated graphics card</li>
+                                <li>Stable broadband connection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="client-support">
+                    <h2>🔧 Client Support</h2>
+                    <div class="client-options">
+                        <div class="client-option">
+                            <h3>🪟 Windower</h3>
+                            <p>Enhanced FFXI client with addon support</p>
+                            <ul>
+                                <li>Advanced addons and plugins</li>
+                                <li>UI customization</li>
+                                <li>Performance improvements</li>
+                            </ul>
+                            <button class="btn btn-secondary">Learn More</button>
+                        </div>
+                        <div class="client-option">
+                            <h3>🌸 Ashita</h3>
+                            <p>Modern FFXI enhancement framework</p>
+                            <ul>
+                                <li>Lua scripting support</li>
+                                <li>Plugin ecosystem</li>
+                                <li>Real-time debugging</li>
+                            </ul>
+                            <button class="btn btn-secondary">Learn More</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 FFXI Server. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="rules.html">Rules</a>
+                    <a href="privacy-policy.html">Privacy Policy</a>
+                    <a href="staff-conduct.html">Staff Conduct</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Page-specific functionality
+        async function loadServerStatus() {
+            try {
+                const response = await fetch('/api/server/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('playersOnline').textContent = data.players_online || 0;
+                    document.getElementById('serverUptime').textContent = data.uptime || 'Unknown';
+                    document.getElementById('peakPlayers').textContent = data.peak_today || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load server status:', error);
+                document.getElementById('playersOnline').textContent = 'N/A';
+                document.getElementById('serverUptime').textContent = 'N/A';
+                document.getElementById('peakPlayers').textContent = 'N/A';
+            }
+        }
+
+        function downloadClient() {
+            alert('Redirecting to official FFXI client download...');
+            // In real implementation, this would link to the official client
+        }
+
+        function downloadLauncher() {
+            window.location.href = '/downloads/FFXI_Launcher.zip';
+        }
+
+        function createAccount() {
+            alert('Account creation system coming soon!');
+            // In real implementation, this would open account creation
+        }
+
+        function launchGame() {
+            alert('Make sure you have the launcher installed and configured!');
+        }
+
+        // Load server status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServerStatus();
+            // Refresh every 30 seconds
+            setInterval(loadServerStatus, 30000);
+        });
+    </script>
+</body>
+</html>

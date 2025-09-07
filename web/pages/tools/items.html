@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items Database - FFXI Server</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="main-nav">
+            <div class="nav-container">
+                <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+                <div class="nav-links">
+                    <div class="nav-section">
+                        <span class="nav-label">Information</span>
+                        <a href="../information/play-now.html">Play Now</a>
+                        <a href="../information/server-info.html">Server Info</a>
+                        <a href="../information/addons.html">Addons</a>
+                        <a href="../information/rules.html">Rules</a>
+                        <a href="../information/news.html">News</a>
+                    </div>
+                    <div class="nav-section">
+                        <span class="nav-label">Tools</span>
+                        <a href="players.html">Players</a>
+                        <a href="seeking.html">Seeking</a>
+                        <a href="items.html" class="active">Items</a>
+                        <a href="bazaar.html">Bazaar</a>
+                        <a href="bcnm.html">BCNM Ranking</a>
+                        <a href="shout.html">Shout</a>
+                    </div>
+                    <div class="nav-section">
+                        <a href="../../admin.html">Admin</a>
+                        <a href="../../festival_calendar.html">Festivals</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📦 Items Database</h1>
+                <p>Search and browse all items available in the game</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="itemSearch" placeholder="Search by item name..." class="search-input">
+                    <button onclick="searchItems()" class="btn btn-primary">🔍 Search</button>
+                </div>
+                
+                <div class="search-filters">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="weapon">Weapons</option>
+                        <option value="armor">Armor</option>
+                        <option value="usable">Usable Items</option>
+                        <option value="currency">Currency</option>
+                        <option value="crystal">Crystals</option>
+                        <option value="ingredient">Ingredients</option>
+                        <option value="furnishing">Furnishing</option>
+                    </select>
+                    
+                    <select id="levelFilter" class="filter-select">
+                        <option value="">All Levels</option>
+                        <option value="1-10">Level 1-10</option>
+                        <option value="11-30">Level 11-30</option>
+                        <option value="31-50">Level 31-50</option>
+                        <option value="51-70">Level 51-70</option>
+                        <option value="71-75">Level 71-75</option>
+                    </select>
+                    
+                    <select id="jobFilter" class="filter-select">
+                        <option value="">All Jobs</option>
+                        <option value="WAR">Warrior</option>
+                        <option value="MNK">Monk</option>
+                        <option value="WHM">White Mage</option>
+                        <option value="BLM">Black Mage</option>
+                        <option value="RDM">Red Mage</option>
+                        <option value="THF">Thief</option>
+                        <option value="PLD">Paladin</option>
+                        <option value="DRK">Dark Knight</option>
+                        <option value="BST">Beastmaster</option>
+                        <option value="BRD">Bard</option>
+                        <option value="RNG">Ranger</option>
+                        <option value="SAM">Samurai</option>
+                        <option value="NIN">Ninja</option>
+                        <option value="DRG">Dragoon</option>
+                        <option value="SMN">Summoner</option>
+                    </select>
+                    
+                    <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <h3>Total Items</h3>
+                    <div class="stat-value" id="totalItems">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Weapons</h3>
+                    <div class="stat-value" id="weaponCount">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Armor Pieces</h3>
+                    <div class="stat-value" id="armorCount">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Usable Items</h3>
+                    <div class="stat-value" id="usableCount">Loading...</div>
+                </div>
+            </div>
+
+            <div class="quick-categories">
+                <h2>🗂️ Browse by Category</h2>
+                <div class="category-grid">
+                    <div class="category-card" onclick="filterByCategory('weapon')">
+                        <div class="category-icon">⚔️</div>
+                        <h3>Weapons</h3>
+                        <p>Swords, axes, staffs, and more</p>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('armor')">
+                        <div class="category-icon">🛡️</div>
+                        <h3>Armor</h3>
+                        <p>Protective gear and accessories</p>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('usable')">
+                        <div class="category-icon">💊</div>
+                        <h3>Usable Items</h3>
+                        <p>Potions, food, and consumables</p>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('currency')">
+                        <div class="category-icon">🪙</div>
+                        <h3>Currency</h3>
+                        <p>Gil, tokens, and special currencies</p>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('crystal')">
+                        <div class="category-icon">💎</div>
+                        <h3>Crystals</h3>
+                        <p>Crafting crystals and clusters</p>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('ingredient')">
+                        <div class="category-icon">🌿</div>
+                        <h3>Ingredients</h3>
+                        <p>Crafting materials and components</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>Search Results</h2>
+                    <div class="result-count" id="resultCount">0 items found</div>
+                    <div class="sort-options">
+                        <select id="sortBy" onchange="sortResults()" class="sort-select">
+                            <option value="name">Sort by Name</option>
+                            <option value="level">Sort by Level</option>
+                            <option value="price">Sort by Price</option>
+                            <option value="category">Sort by Category</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Searching items...</p>
+                </div>
+
+                <div class="items-grid" id="itemsGrid">
+                    <!-- Item cards will be populated here -->
+                </div>
+
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button class="btn btn-secondary" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+
+            <div class="featured-items">
+                <h2>✨ Featured Items</h2>
+                <div class="featured-grid" id="featuredItems">
+                    Loading featured items...
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 FFXI Server. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let items = [];
+        let currentSort = 'name';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadItemStats();
+            loadFeaturedItems();
+            loadRecentItems();
+        });
+
+        async function loadItemStats() {
+            try {
+                const response = await fetch('/api/items/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('totalItems').textContent = data.total || 0;
+                    document.getElementById('weaponCount').textContent = data.weapons || 0;
+                    document.getElementById('armorCount').textContent = data.armor || 0;
+                    document.getElementById('usableCount').textContent = data.usable || 0;
+                }
+            } catch (error) {
+                console.error('Failed to load item stats:', error);
+            }
+        }
+
+        async function loadFeaturedItems() {
+            try {
+                const response = await fetch('/api/items/featured');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayFeaturedItems(data.items || []);
+                }
+            } catch (error) {
+                console.error('Failed to load featured items:', error);
+            }
+        }
+
+        async function loadRecentItems() {
+            try {
+                const response = await fetch('/api/items/recent');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayItems(data.items || []);
+                }
+            } catch (error) {
+                console.error('Failed to load recent items:', error);
+                displayItems([]);
+            }
+        }
+
+        async function searchItems() {
+            const query = document.getElementById('itemSearch').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const levelFilter = document.getElementById('levelFilter').value;
+            const jobFilter = document.getElementById('jobFilter').value;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const itemsGrid = document.getElementById('itemsGrid');
+            
+            loadingIndicator.style.display = 'block';
+            itemsGrid.innerHTML = '';
+
+            try {
+                const params = new URLSearchParams({
+                    q: query,
+                    category: categoryFilter,
+                    level: levelFilter,
+                    job: jobFilter,
+                    page: currentPage,
+                    sort: currentSort
+                });
+
+                const response = await fetch(`/api/items/search?${params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    items = data.items || [];
+                    totalPages = data.total_pages || 1;
+                    
+                    displayItems(items);
+                    updatePagination();
+                } else {
+                    throw new Error('Search failed');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                displayItems([]);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function displayItems(itemsData) {
+            const grid = document.getElementById('itemsGrid');
+            const resultCount = document.getElementById('resultCount');
+            
+            resultCount.textContent = `${itemsData.length} items found`;
+
+            if (itemsData.length === 0) {
+                grid.innerHTML = '<div class="no-results">No items found matching your criteria.</div>';
+                return;
+            }
+
+            grid.innerHTML = itemsData.map(item => `
+                <div class="item-card">
+                    <div class="item-icon">
+                        <img src="/assets/icons/items/${item.icon || 'default'}.png" 
+                             alt="${item.name}" 
+                             onerror="this.src='/assets/icons/items/default.png'">
+                    </div>
+                    
+                    <div class="item-info">
+                        <h3 class="item-name">${item.name}</h3>
+                        <div class="item-category">${getCategoryIcon(item.category)} ${item.category}</div>
+                        
+                        ${item.level ? `
+                            <div class="item-level">Level: ${item.level}</div>
+                        ` : ''}
+                        
+                        ${item.jobs ? `
+                            <div class="item-jobs">Jobs: ${item.jobs}</div>
+                        ` : ''}
+                        
+                        ${item.stats ? `
+                            <div class="item-stats">${formatItemStats(item.stats)}</div>
+                        ` : ''}
+                        
+                        <div class="item-description">${item.description || ''}</div>
+                    </div>
+                    
+                    <div class="item-actions">
+                        <button class="btn btn-small btn-primary" onclick="viewItemDetails(${item.id})">
+                            View Details
+                        </button>
+                        <button class="btn btn-small btn-secondary" onclick="findInBazaar(${item.id})">
+                            🏪 Find in Bazaar
+                        </button>
+                    </div>
+                    
+                    ${item.price ? `
+                        <div class="item-price">${formatPrice(item.price)}</div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function displayFeaturedItems(featuredData) {
+            const grid = document.getElementById('featuredItems');
+            
+            if (featuredData.length === 0) {
+                grid.innerHTML = 'No featured items available.';
+                return;
+            }
+
+            grid.innerHTML = featuredData.slice(0, 6).map(item => `
+                <div class="featured-item">
+                    <div class="featured-icon">
+                        <img src="/assets/icons/items/${item.icon || 'default'}.png" 
+                             alt="${item.name}" 
+                             onerror="this.src='/assets/icons/items/default.png'">
+                    </div>
+                    <h4>${item.name}</h4>
+                    <p>${item.description || ''}</p>
+                    <button class="btn btn-small btn-primary" onclick="viewItemDetails(${item.id})">
+                        View Details
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(category) {
+            document.getElementById('categoryFilter').value = category;
+            currentPage = 1;
+            searchItems();
+        }
+
+        function sortResults() {
+            currentSort = document.getElementById('sortBy').value;
+            searchItems();
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                searchItems();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                searchItems();
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('itemSearch').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('jobFilter').value = '';
+            currentPage = 1;
+            loadRecentItems();
+        }
+
+        function viewItemDetails(itemId) {
+            alert(`Viewing details for item ID: ${itemId}`);
+            // In real implementation, this would open a detailed item view modal
+        }
+
+        function findInBazaar(itemId) {
+            window.location.href = `bazaar.html?item=${itemId}`;
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'weapon': '⚔️',
+                'armor': '🛡️',
+                'usable': '💊',
+                'currency': '🪙',
+                'crystal': '💎',
+                'ingredient': '🌿',
+                'furnishing': '🏠'
+            };
+            return icons[category] || '📦';
+        }
+
+        function formatItemStats(stats) {
+            if (!stats) return '';
+            // Parse stats object and format for display
+            const statPairs = Object.entries(stats).map(([key, value]) => {
+                return `${key}: ${value > 0 ? '+' : ''}${value}`;
+            });
+            return statPairs.join(', ');
+        }
+
+        function formatPrice(price) {
+            if (price >= 1000000) {
+                return (price / 1000000).toFixed(1) + 'M gil';
+            } else if (price >= 1000) {
+                return (price / 1000).toFixed(1) + 'K gil';
+            }
+            return price + ' gil';
+        }
+
+        // Enter key search
+        document.getElementById('itemSearch').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchItems();
+            }
+        });
+    </script>
+</body>
+</html>

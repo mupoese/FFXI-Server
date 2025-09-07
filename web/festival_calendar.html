@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festival Calendar - FFXI Server</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎆</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #2d2d2d;
+            --accent-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2d2d2d;
+            --bg-light: #3d3d3d;
+            --border-color: #444444;
+            --festival-gold: #FFD700;
+            --festival-red: #FF6B6B;
+            --festival-green: #4ECDC4;
+            --festival-purple: #A8E6CF;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary-color) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--secondary-color);
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--festival-gold), var(--festival-red), var(--festival-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* Current Time Display */
+        .time-display {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid var(--primary-color);
+        }
+
+        .time-display h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Active Festivals Section */
+        .festivals-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--festival-gold);
+        }
+
+        .festivals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .festival-card {
+            background: var(--bg-medium);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .festival-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--festival-gold), var(--festival-red), var(--festival-green));
+        }
+
+        .festival-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: var(--primary-color);
+        }
+
+        .festival-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .festival-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .festival-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .festival-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .status-active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .status-upcoming {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .festival-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .festival-dates {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .festival-rewards {
+            margin-top: 1rem;
+        }
+
+        .rewards-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .reward-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            background: var(--bg-medium);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .calendar-day {
+            background: var(--bg-light);
+            padding: 1rem;
+            min-height: 80px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-dark);
+        }
+
+        .calendar-day-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-day.today {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .calendar-day.festival-day {
+            background: linear-gradient(45deg, var(--festival-gold), var(--festival-red));
+            color: white;
+        }
+
+        .festival-indicator {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            right: 2px;
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.8);
+            border-radius: 3px;
+            padding: 2px;
+            text-align: center;
+        }
+
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(45deg, var(--festival-gold), var(--festival-red));
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .festivals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                font-size: 0.8rem;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                padding: 0.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">🎮 FFXI Server</a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/admin.html">Admin</a>
+                <a href="#festivals">Festivals</a>
+                <a href="#calendar">Calendar</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-title">
+            <h1>🎆 Festival Calendar 🎆</h1>
+            <p>Celebrate the seasons in Vana'diel with traditional Japanese festivities</p>
+        </div>
+
+        <div class="time-display">
+            <h3>Current Japanese Time</h3>
+            <div id="jst-time">Loading...</div>
+        </div>
+
+        <div id="announcement-container"></div>
+
+        <section class="festivals-section">
+            <h2 class="section-title">✨ Active Festivals</h2>
+            <div id="active-festivals" class="festivals-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading active festivals...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="festivals-section">
+            <h2 class="section-title">📅 Upcoming Festivals</h2>
+            <div id="upcoming-festivals" class="festivals-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading upcoming festivals...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="calendar-section" id="calendar">
+            <div class="calendar-header">
+                <h2 class="section-title">📊 Festival Calendar</h2>
+                <p>View all festivals throughout the year</p>
+            </div>
+            <div id="calendar-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading calendar...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        class FestivalCalendar {
+            constructor() {
+                this.festivals = [];
+                this.currentDate = new Date();
+                this.init();
+            }
+
+            async init() {
+                await this.loadFestivalData();
+                this.updateTime();
+                this.renderActiveFestivals();
+                this.renderUpcomingFestivals();
+                this.renderCalendar();
+                this.checkForAnnouncements();
+                
+                // Update time every minute
+                setInterval(() => this.updateTime(), 60000);
+                
+                // Check for festival updates every 5 minutes
+                setInterval(() => this.checkForAnnouncements(), 300000);
+            }
+
+            async loadFestivalData() {
+                try {
+                    // Mock data for demonstration - in real implementation, this would fetch from server
+                    this.festivals = [
+                        {
+                            id: "new_year",
+                            name: "New Year's Celebration",
+                            description: "Welcome the new year with special events and rewards!",
+                            startMonth: 1,
+                            startDay: 1,
+                            endMonth: 1,
+                            endDay: 15,
+                            icon: "🎆",
+                            color: "#FFD700",
+                            rewards: ["Festive items", "Special rewards"]
+                        },
+                        {
+                            id: "harvest_festival",
+                            name: "Harvest Festival",
+                            description: "Spooky fun awaits in this haunting celebration!",
+                            startMonth: 10,
+                            startDay: 20,
+                            endMonth: 11,
+                            endDay: 1,
+                            icon: "🎃",
+                            color: "#FF8C00",
+                            rewards: ["Pumpkin Head", "Horror Head", "Trick Staff", "Treat Staff"]
+                        },
+                        {
+                            id: "starlight_celebration",
+                            name: "Starlight Celebration",
+                            description: "Celebrate the season of giving with festive cheer!",
+                            startMonth: 12,
+                            startDay: 15,
+                            endMonth: 12,
+                            endDay: 31,
+                            icon: "⭐",
+                            color: "#00FF00",
+                            rewards: ["Starlight decorations", "Holiday treats", "Festive clothing"]
+                        }
+                    ];
+                } catch (error) {
+                    console.error('Failed to load festival data:', error);
+                }
+            }
+
+            updateTime() {
+                const now = new Date();
+                const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+                const timeString = jstTime.toLocaleString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short'
+                });
+                
+                document.getElementById('jst-time').textContent = timeString + ' (JST)';
+            }
+
+            isFestivalActive(festival) {
+                const now = new Date();
+                const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+                const currentMonth = jstTime.getMonth() + 1;
+                const currentDay = jstTime.getDate();
+
+                if (festival.startMonth === festival.endMonth) {
+                    return currentMonth === festival.startMonth && 
+                           currentDay >= festival.startDay && 
+                           currentDay <= festival.endDay;
+                } else if (festival.startMonth < festival.endMonth) {
+                    return (currentMonth === festival.startMonth && currentDay >= festival.startDay) ||
+                           (currentMonth === festival.endMonth && currentDay <= festival.endDay) ||
+                           (currentMonth > festival.startMonth && currentMonth < festival.endMonth);
+                } else {
+                    // Year boundary crossing
+                    return (currentMonth === festival.startMonth && currentDay >= festival.startDay) ||
+                           (currentMonth === festival.endMonth && currentDay <= festival.endDay) ||
+                           (currentMonth > festival.startMonth) ||
+                           (currentMonth < festival.endMonth);
+                }
+            }
+
+            getDaysUntilFestival(festival) {
+                const now = new Date();
+                const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+                const currentMonth = jstTime.getMonth() + 1;
+                const currentDay = jstTime.getDate();
+                const currentYear = jstTime.getFullYear();
+
+                let festivalDate = new Date(currentYear, festival.startMonth - 1, festival.startDay);
+                
+                if (festivalDate < jstTime) {
+                    festivalDate = new Date(currentYear + 1, festival.startMonth - 1, festival.startDay);
+                }
+
+                const diffTime = festivalDate - jstTime;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays;
+            }
+
+            renderActiveFestivals() {
+                const container = document.getElementById('active-festivals');
+                const activeFestivals = this.festivals.filter(festival => this.isFestivalActive(festival));
+
+                if (activeFestivals.length === 0) {
+                    container.innerHTML = '<div class="festival-card"><h3>No active festivals</h3><p>Check back soon for upcoming celebrations!</p></div>';
+                    return;
+                }
+
+                container.innerHTML = activeFestivals.map(festival => `
+                    <div class="festival-card">
+                        <div class="festival-header">
+                            <span class="festival-icon">${festival.icon}</span>
+                            <div>
+                                <div class="festival-name">${festival.name}</div>
+                                <span class="festival-status status-active">ACTIVE NOW</span>
+                            </div>
+                        </div>
+                        <div class="festival-description">${festival.description}</div>
+                        <div class="festival-dates">
+                            <strong>Duration:</strong> ${festival.startMonth}/${festival.startDay} - ${festival.endMonth}/${festival.endDay}
+                        </div>
+                        <div class="festival-rewards">
+                            <strong>Rewards:</strong>
+                            <div class="rewards-list">
+                                ${festival.rewards.map(reward => `<span class="reward-tag">${reward}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderUpcomingFestivals() {
+                const container = document.getElementById('upcoming-festivals');
+                const upcomingFestivals = this.festivals
+                    .filter(festival => !this.isFestivalActive(festival))
+                    .map(festival => ({
+                        ...festival,
+                        daysUntil: this.getDaysUntilFestival(festival)
+                    }))
+                    .filter(festival => festival.daysUntil <= 60)
+                    .sort((a, b) => a.daysUntil - b.daysUntil);
+
+                if (upcomingFestivals.length === 0) {
+                    container.innerHTML = '<div class="festival-card"><h3>No upcoming festivals</h3><p>All festivals are either active or far in the future!</p></div>';
+                    return;
+                }
+
+                container.innerHTML = upcomingFestivals.map(festival => `
+                    <div class="festival-card">
+                        <div class="festival-header">
+                            <span class="festival-icon">${festival.icon}</span>
+                            <div>
+                                <div class="festival-name">${festival.name}</div>
+                                <span class="festival-status status-upcoming">${festival.daysUntil} DAYS</span>
+                            </div>
+                        </div>
+                        <div class="festival-description">${festival.description}</div>
+                        <div class="festival-dates">
+                            <strong>Starts:</strong> ${festival.startMonth}/${festival.startDay} (in ${festival.daysUntil} days)
+                        </div>
+                        <div class="festival-rewards">
+                            <strong>Rewards:</strong>
+                            <div class="rewards-list">
+                                ${festival.rewards.map(reward => `<span class="reward-tag">${reward}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderCalendar() {
+                const container = document.getElementById('calendar-container');
+                const now = new Date();
+                const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+                const currentMonth = jstTime.getMonth();
+                const currentYear = jstTime.getFullYear();
+
+                const firstDay = new Date(currentYear, currentMonth, 1);
+                const lastDay = new Date(currentYear, currentMonth + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startingDayOfWeek = firstDay.getDay();
+
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];
+
+                let calendarHtml = `
+                    <div class="calendar-header">
+                        <h3>${monthNames[currentMonth]} ${currentYear}</h3>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header">Sun</div>
+                        <div class="calendar-day-header">Mon</div>
+                        <div class="calendar-day-header">Tue</div>
+                        <div class="calendar-day-header">Wed</div>
+                        <div class="calendar-day-header">Thu</div>
+                        <div class="calendar-day-header">Fri</div>
+                        <div class="calendar-day-header">Sat</div>
+                `;
+
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < startingDayOfWeek; i++) {
+                    calendarHtml += '<div class="calendar-day"></div>';
+                }
+
+                // Add days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const isToday = day === jstTime.getDate();
+                    const festivalsOnDay = this.festivals.filter(festival => {
+                        const festivalMonth = currentMonth + 1;
+                        return this.isFestivalDayInRange(festival, festivalMonth, day);
+                    });
+
+                    let dayClass = 'calendar-day';
+                    if (isToday) dayClass += ' today';
+                    if (festivalsOnDay.length > 0) dayClass += ' festival-day';
+
+                    let festivalIndicator = '';
+                    if (festivalsOnDay.length > 0) {
+                        festivalIndicator = `<div class="festival-indicator">${festivalsOnDay[0].icon} ${festivalsOnDay[0].name}</div>`;
+                    }
+
+                    calendarHtml += `
+                        <div class="${dayClass}">
+                            <div class="calendar-day-number">${day}</div>
+                            ${festivalIndicator}
+                        </div>
+                    `;
+                }
+
+                calendarHtml += '</div>';
+                container.innerHTML = calendarHtml;
+            }
+
+            isFestivalDayInRange(festival, month, day) {
+                if (festival.startMonth === festival.endMonth) {
+                    return month === festival.startMonth && 
+                           day >= festival.startDay && 
+                           day <= festival.endDay;
+                } else if (festival.startMonth < festival.endMonth) {
+                    return (month === festival.startMonth && day >= festival.startDay) ||
+                           (month === festival.endMonth && day <= festival.endDay) ||
+                           (month > festival.startMonth && month < festival.endMonth);
+                } else {
+                    return (month === festival.startMonth && day >= festival.startDay) ||
+                           (month === festival.endMonth && day <= festival.endDay) ||
+                           (month > festival.startMonth) ||
+                           (month < festival.endMonth);
+                }
+            }
+
+            checkForAnnouncements() {
+                const activeFestivals = this.festivals.filter(festival => this.isFestivalActive(festival));
+                const container = document.getElementById('announcement-container');
+
+                if (activeFestivals.length > 0) {
+                    const festival = activeFestivals[0];
+                    container.innerHTML = `
+                        <div class="announcement-banner">
+                            <strong>${festival.icon} ${festival.name} is now active! ${festival.icon}</strong>
+                            <br>
+                            <span>${festival.description}</span>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '';
+                }
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FestivalCalendar();
+        });
+    </script>
+</body>
+</html>

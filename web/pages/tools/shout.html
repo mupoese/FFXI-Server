@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shout & Auction System - FFXI Server</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📢</text></svg>">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+            <div class="nav-links">
+                <div class="nav-section">
+                    <span class="nav-label">Information</span>
+                    <a href="../information/play-now.html">Play Now</a>
+                    <a href="../information/server-info.html">Server Info</a>
+                    <a href="../information/addons.html">Addons</a>
+                    <a href="../information/rules.html">Rules</a>
+                    <a href="../information/news.html">News</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-label">Tools</span>
+                    <a href="players.html">Players</a>
+                    <a href="seeking.html">Seeking</a>
+                    <a href="items.html">Items</a>
+                    <a href="bazaar.html">Bazaar</a>
+                    <a href="bcnm.html">BCNM Ranking</a>
+                    <a href="wiki.html">Wiki</a>
+                    <a href="shout.html" class="active">Shout</a>
+                    <a href="server-status.html">Server Status</a>
+                </div>
+                <div class="nav-section">
+                    <a href="../../admin.html">Admin</a>
+                    <a href="../../festival_calendar.html">Festivals</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-container">
+        <header class="page-header">
+            <h1>📢 Shout & Auction System</h1>
+            <p>Server-wide communication, auction house, and bazaar monitoring</p>
+        </header>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('shout')">💬 Shout Chat</button>
+            <button class="tab-btn" onclick="switchTab('auction')">🏛️ Auction House</button>
+            <button class="tab-btn" onclick="switchTab('bazaar')">🏪 Bazaar Monitor</button>
+        </div>
+
+        <!-- Shout Chat Tab -->
+        <div id="shout-tab" class="tab-content active">
+            <div class="content-grid">
+                <div class="card">
+                    <h2>💬 Global Shout Chat</h2>
+                    <p>Monitor and participate in server-wide shout communications from the web interface.</p>
+                    
+                    <div class="shout-controls">
+                        <div class="control-row">
+                            <select id="zoneFilter" class="filter-select">
+                                <option value="">All Zones</option>
+                                <option value="Jeuno">Jeuno</option>
+                                <option value="Bastok">Bastok</option>
+                                <option value="San d'Oria">San d'Oria</option>
+                                <option value="Windurst">Windurst</option>
+                                <option value="Whitegate">Whitegate</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="refreshShouts()">🔄 Refresh</button>
+                            <button class="btn btn-secondary" onclick="clearShoutHistory()">🗑️ Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="shout-feed" id="shoutFeed">
+                        <div class="loading-shouts">Loading recent shouts...</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>📊 Shout Statistics</h2>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="shoutsToday">-</span>
+                            <span class="stat-label">Shouts Today</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="activeUsers">-</span>
+                            <span class="stat-label">Active Users</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="peakActivity">-</span>
+                            <span class="stat-label">Peak Activity</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="mostActiveZone">-</span>
+                            <span class="stat-label">Most Active Zone</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auction House Tab -->
+        <div id="auction-tab" class="tab-content">
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="auctionSearch" placeholder="Search auction house..." class="search-input">
+                    <button onclick="searchAuctions()" class="btn btn-primary">🔍 Search</button>
+                </div>
+                
+                <div class="search-filters">
+                    <select id="auctionCategoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="weapon">Weapons</option>
+                        <option value="armor">Armor</option>
+                        <option value="usable">Usable Items</option>
+                        <option value="crystal">Crystals</option>
+                        <option value="ingredient">Ingredients</option>
+                    </select>
+                    
+                    <select id="auctionPriceFilter" class="filter-select">
+                        <option value="">Any Price</option>
+                        <option value="0-1000">Under 1K</option>
+                        <option value="1000-10000">1K - 10K</option>
+                        <option value="10000-100000">10K - 100K</option>
+                        <option value="100000-1000000">100K - 1M</option>
+                        <option value="1000000+">Over 1M</option>
+                    </select>
+                    
+                    <button onclick="clearAuctionFilters()" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <div class="auction-stats">
+                <div class="stat-card">
+                    <h3>Active Auctions</h3>
+                    <div class="stat-value" id="activeAuctions">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Value</h3>
+                    <div class="stat-value" id="totalAuctionValue">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Price</h3>
+                    <div class="stat-value" id="avgAuctionPrice">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Ending Soon</h3>
+                    <div class="stat-value" id="endingSoon">Loading...</div>
+                </div>
+            </div>
+
+            <div class="auction-table-container">
+                <h2>🏛️ Current Auction House Listings</h2>
+                <div class="table-responsive">
+                    <table class="auction-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Current Price</th>
+                                <th>Seller</th>
+                                <th>Time Remaining</th>
+                                <th>Bid Count</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auctionTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-row">Loading auction house data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bazaar Monitor Tab -->
+        <div id="bazaar-tab" class="tab-content">
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="bazaarSearch" placeholder="Search bazaar items..." class="search-input">
+                    <button onclick="searchBazaarItems()" class="btn btn-primary">🔍 Search</button>
+                </div>
+                
+                <div class="search-filters">
+                    <select id="bazaarZoneFilter" class="filter-select">
+                        <option value="">All Zones</option>
+                        <option value="Jeuno">Jeuno</option>
+                        <option value="Bastok">Bastok</option>
+                        <option value="San d'Oria">San d'Oria</option>
+                        <option value="Windurst">Windurst</option>
+                        <option value="Whitegate">Whitegate</option>
+                    </select>
+                    
+                    <select id="bazaarOnlineFilter" class="filter-select">
+                        <option value="">All Sellers</option>
+                        <option value="online">Online Only</option>
+                        <option value="offline">Offline Only</option>
+                    </select>
+                    
+                    <button onclick="clearBazaarFilters()" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <div class="bazaar-stats">
+                <div class="stat-card">
+                    <h3>Active Bazaars</h3>
+                    <div class="stat-value" id="activeBazaarsCount">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Items for Sale</h3>
+                    <div class="stat-value" id="totalBazaarItems">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Online Sellers</h3>
+                    <div class="stat-value" id="onlineSellers">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Zones Active</h3>
+                    <div class="stat-value" id="activeZones">Loading...</div>
+                </div>
+            </div>
+
+            <div class="bazaar-table-container">
+                <h2>🏪 Live Bazaar Monitor</h2>
+                <div class="table-responsive">
+                    <table class="bazaar-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Amount</th>
+                                <th>Seller</th>
+                                <th>Zone</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bazaarTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-row">Loading bazaar data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let currentTab = 'shout';
+        let shoutRefreshInterval;
+        let auctionRefreshInterval;
+        let bazaarRefreshInterval;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadShoutData();
+            loadAuctionData();
+            loadBazaarData();
+            
+            // Set up auto-refresh intervals
+            shoutRefreshInterval = setInterval(loadShoutData, 30000); // 30 seconds
+            auctionRefreshInterval = setInterval(loadAuctionData, 60000); // 1 minute
+            bazaarRefreshInterval = setInterval(loadBazaarData, 45000); // 45 seconds
+        });
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            currentTab = tabName;
+        }
+
+        // Shout Chat Functions
+        async function loadShoutData() {
+            try {
+                const response = await fetch('/api/shout/recent');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayShouts(data.shouts || []);
+                    updateShoutStats(data.stats || {});
+                }
+            } catch (error) {
+                console.error('Failed to load shout data:', error);
+            }
+        }
+
+        function displayShouts(shouts) {
+            const feed = document.getElementById('shoutFeed');
+            
+            if (shouts.length === 0) {
+                feed.innerHTML = '<div class="no-shouts">No recent shouts found.</div>';
+                return;
+            }
+
+            feed.innerHTML = shouts.map(shout => `
+                <div class="shout-message">
+                    <div class="shout-header">
+                        <span class="shout-player" onclick="viewPlayer('${shout.player}')">${shout.player}</span>
+                        <span class="shout-zone">${shout.zone}</span>
+                        <span class="shout-time">${formatTime(shout.timestamp)}</span>
+                    </div>
+                    <div class="shout-content">${escapeHtml(shout.message)}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateShoutStats(stats) {
+            document.getElementById('shoutsToday').textContent = stats.shouts_today || 0;
+            document.getElementById('activeUsers').textContent = stats.active_users || 0;
+            document.getElementById('peakActivity').textContent = stats.peak_activity || 0;
+            document.getElementById('mostActiveZone').textContent = stats.most_active_zone || 'N/A';
+        }
+
+        function refreshShouts() {
+            loadShoutData();
+            Utils.showNotification('Shouts refreshed', 'success');
+        }
+
+        function clearShoutHistory() {
+            document.getElementById('shoutFeed').innerHTML = '<div class="no-shouts">Shout history cleared.</div>';
+        }
+
+        // Auction House Functions
+        async function loadAuctionData() {
+            try {
+                const response = await fetch('/api/auction/current');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayAuctions(data.auctions || []);
+                    updateAuctionStats(data.stats || {});
+                }
+            } catch (error) {
+                console.error('Failed to load auction data:', error);
+                displayAuctions([]);
+            }
+        }
+
+        function displayAuctions(auctions) {
+            const tableBody = document.getElementById('auctionTableBody');
+            
+            if (auctions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="no-data">No auction house listings found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = auctions.map(auction => `
+                <tr class="auction-row">
+                    <td class="item-cell">
+                        <div class="item-info">
+                            <img src="/assets/icons/items/${auction.icon || 'default'}.png" 
+                                 alt="${auction.item_name}" 
+                                 class="item-icon"
+                                 onerror="this.src='/assets/icons/items/default.png'">
+                            <span class="item-name">${auction.item_name}</span>
+                        </div>
+                    </td>
+                    <td class="price-cell">${formatGil(auction.current_price)}</td>
+                    <td class="seller-cell">
+                        <span class="seller-name" onclick="viewPlayer('${auction.seller}')">${auction.seller}</span>
+                    </td>
+                    <td class="time-cell">
+                        <span class="time-remaining ${getTimeClass(auction.time_remaining)}">${formatTimeRemaining(auction.time_remaining)}</span>
+                    </td>
+                    <td class="bid-cell">${auction.bid_count || 0}</td>
+                    <td class="action-cell">
+                        <button class="btn btn-small btn-primary" onclick="viewItemDetails(${auction.item_id})">View Item</button>
+                        <button class="btn btn-small btn-secondary" onclick="watchAuction(${auction.auction_id})">📍 Watch</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateAuctionStats(stats) {
+            document.getElementById('activeAuctions').textContent = stats.active_auctions || 0;
+            document.getElementById('totalAuctionValue').textContent = formatGil(stats.total_value || 0);
+            document.getElementById('avgAuctionPrice').textContent = formatGil(stats.average_price || 0);
+            document.getElementById('endingSoon').textContent = stats.ending_soon || 0;
+        }
+
+        // Bazaar Monitor Functions
+        async function loadBazaarData() {
+            try {
+                const response = await fetch('/api/bazaar/monitor');
+                if (response.ok) {
+                    const data = await response.json();
+                    displayBazaarItems(data.items || []);
+                    updateBazaarStats(data.stats || {});
+                }
+            } catch (error) {
+                console.error('Failed to load bazaar data:', error);
+                displayBazaarItems([]);
+            }
+        }
+
+        function displayBazaarItems(items) {
+            const tableBody = document.getElementById('bazaarTableBody');
+            
+            if (items.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="no-data">No bazaar items found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = items.map(item => `
+                <tr class="bazaar-row">
+                    <td class="item-cell">
+                        <div class="item-info">
+                            <img src="/assets/icons/items/${item.icon || 'default'}.png" 
+                                 alt="${item.item_name}" 
+                                 class="item-icon"
+                                 onerror="this.src='/assets/icons/items/default.png'">
+                            <span class="item-name">${item.item_name}</span>
+                        </div>
+                    </td>
+                    <td class="amount-cell">${item.quantity || 1}</td>
+                    <td class="seller-cell">
+                        <span class="seller-name ${item.online ? 'online' : 'offline'}" onclick="viewPlayer('${item.seller}')">
+                            ${item.seller}
+                            <span class="status-indicator">${item.online ? '🟢' : '🔴'}</span>
+                        </span>
+                    </td>
+                    <td class="zone-cell">${item.zone || 'Unknown'}</td>
+                    <td class="price-cell">${formatGil(item.price)}</td>
+                    <td class="status-cell">
+                        <span class="status-badge ${item.online ? 'online' : 'offline'}">
+                            ${item.online ? 'Online' : 'Offline'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateBazaarStats(stats) {
+            document.getElementById('activeBazaarsCount').textContent = stats.active_bazaars || 0;
+            document.getElementById('totalBazaarItems').textContent = stats.total_items || 0;
+            document.getElementById('onlineSellers').textContent = stats.online_sellers || 0;
+            document.getElementById('activeZones').textContent = stats.active_zones || 0;
+        }
+
+        // Search Functions
+        function searchAuctions() {
+            const query = document.getElementById('auctionSearch').value;
+            const category = document.getElementById('auctionCategoryFilter').value;
+            const price = document.getElementById('auctionPriceFilter').value;
+            
+            // Implement auction search logic
+            Utils.showNotification('Searching auctions...', 'info');
+        }
+
+        function searchBazaarItems() {
+            const query = document.getElementById('bazaarSearch').value;
+            const zone = document.getElementById('bazaarZoneFilter').value;
+            const online = document.getElementById('bazaarOnlineFilter').value;
+            
+            // Implement bazaar search logic
+            Utils.showNotification('Searching bazaars...', 'info');
+        }
+
+        function clearAuctionFilters() {
+            document.getElementById('auctionSearch').value = '';
+            document.getElementById('auctionCategoryFilter').value = '';
+            document.getElementById('auctionPriceFilter').value = '';
+            loadAuctionData();
+        }
+
+        function clearBazaarFilters() {
+            document.getElementById('bazaarSearch').value = '';
+            document.getElementById('bazaarZoneFilter').value = '';
+            document.getElementById('bazaarOnlineFilter').value = '';
+            loadBazaarData();
+        }
+
+        // Utility Functions
+        function viewPlayer(playerName) {
+            window.location.href = `players.html?search=${encodeURIComponent(playerName)}`;
+        }
+
+        function viewItemDetails(itemId) {
+            window.location.href = `items.html?id=${itemId}`;
+        }
+
+        function watchAuction(auctionId) {
+            Utils.showNotification('Auction watch feature coming soon!', 'info');
+        }
+
+        function formatGil(gil) {
+            if (gil >= 1000000) {
+                return (gil / 1000000).toFixed(1) + 'M gil';
+            } else if (gil >= 1000) {
+                return (gil / 1000).toFixed(1) + 'K gil';
+            }
+            return gil + ' gil';
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString();
+        }
+
+        function formatTimeRemaining(minutes) {
+            if (minutes < 60) {
+                return `${minutes}m`;
+            } else if (minutes < 1440) {
+                return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+            } else {
+                return `${Math.floor(minutes / 1440)}d`;
+            }
+        }
+
+        function getTimeClass(minutes) {
+            if (minutes < 30) return 'urgent';
+            if (minutes < 120) return 'warning';
+            return 'normal';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cleanup intervals when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (shoutRefreshInterval) clearInterval(shoutRefreshInterval);
+            if (auctionRefreshInterval) clearInterval(auctionRefreshInterval);
+            if (bazaarRefreshInterval) clearInterval(bazaarRefreshInterval);
+        });
+    </script>
+
+    <style>
+        .tab-navigation {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+            background: var(--bg-light);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .shout-feed {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            background: var(--bg-light);
+        }
+
+        .shout-message {
+            background: var(--bg-medium);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .shout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .shout-player {
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .shout-player:hover {
+            text-decoration: underline;
+        }
+
+        .shout-zone {
+            color: var(--text-muted);
+            background: var(--bg-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .shout-time {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .shout-content {
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .auction-table, .bazaar-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-medium);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .auction-table th, .bazaar-table th {
+            background: var(--bg-dark);
+            color: var(--primary-color);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .auction-table td, .bazaar-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auction-row:hover, .bazaar-row:hover {
+            background: var(--bg-light);
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+        }
+
+        .item-name {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .seller-name {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .seller-name:hover {
+            text-decoration: underline;
+        }
+
+        .seller-name.online {
+            color: var(--success-color);
+        }
+
+        .seller-name.offline {
+            color: var(--text-muted);
+        }
+
+        .status-indicator {
+            margin-left: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.online {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-badge.offline {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        .time-remaining.urgent {
+            color: var(--error-color);
+            font-weight: bold;
+        }
+
+        .time-remaining.warning {
+            color: var(--warning-color);
+            font-weight: 600;
+        }
+
+        .time-remaining.normal {
+            color: var(--text-color);
+        }
+
+        .price-cell {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .auction-stats, .bazaar-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-medium);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .stat-value {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .loading-row, .no-data {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .no-shouts {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .loading-shouts {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .auction-table-container, .bazaar-table-container {
+            background: var(--bg-medium);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .auction-table-container h2, .bazaar-table-container h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .tab-navigation {
+                flex-wrap: wrap;
+            }
+            
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .auction-table, .bazaar-table {
+                font-size: 0.9rem;
+            }
+            
+            .auction-table td, .bazaar-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</body>
+</html>

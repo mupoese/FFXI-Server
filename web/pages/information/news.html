@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server News - FFXI Server</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">🎮 FFXI Server</a>
+            <div class="nav-links">
+                <div class="nav-section">
+                    <span class="nav-label">Information</span>
+                    <a href="play-now.html">Play Now</a>
+                    <a href="server-info.html">Server Info</a>
+                    <a href="addons.html">Addons</a>
+                    <a href="rules.html">Rules</a>
+                    <a href="news.html" class="active">News</a>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-label">Tools</span>
+                    <a href="../tools/players.html">Players</a>
+                    <a href="../tools/seeking.html">Seeking</a>
+                    <a href="../tools/items.html">Items</a>
+                    <a href="../tools/bazaar.html">Bazaar</a>
+                    <a href="../tools/bcnm.html">BCNM Ranking</a>
+                    <a href="../tools/wiki.html">Wiki</a>
+                    <a href="../tools/shout.html">Shout</a>
+                </div>
+                <div class="nav-section">
+                    <a href="../../admin.html">Admin</a>
+                    <a href="../../festival_calendar.html">Festivals</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-container">
+        <header class="page-header">
+            <h1>📰 Server News & Updates</h1>
+            <p>Latest announcements and community updates</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="card">
+                <h2>📢 Latest Announcements</h2>
+                <div class="news-item">
+                    <div class="news-header">
+                        <h3>🎆 Festival Calendar System Launched</h3>
+                        <span class="news-date">December 2024</span>
+                    </div>
+                    <p>Experience Japanese time-synchronized festivities with automated announcements and comprehensive web integration. Check out the new festival calendar for upcoming events!</p>
+                    <a href="../../festival_calendar.html" class="news-link">View Festival Calendar →</a>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <h3>🌐 Website Redesign Complete</h3>
+                        <span class="news-date">December 2024</span>
+                    </div>
+                    <p>Modern responsive design with real-time database integration, player tools, and comprehensive navigation. Explore the new player search, item database, and bazaar systems.</p>
+                    <a href="../tools/players.html" class="news-link">Explore Tools →</a>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-header">
+                        <h3>🔧 MediaWiki Integration</h3>
+                        <span class="news-date">December 2024</span>
+                    </div>
+                    <p>Community wiki system powered by MediaWiki is now available. Contribute guides, document quests, and share knowledge with the FFXI community.</p>
+                    <a href="../tools/wiki.html" class="news-link">Visit Wiki →</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📊 Server Statistics</h2>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="newsPlayers">-</span>
+                        <span class="stat-label">Active Players</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="newsUptime">-</span>
+                        <span class="stat-label">Server Uptime</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="newsEvents">-</span>
+                        <span class="stat-label">Active Events</span>
+                    </div>
+                </div>
+
+                <h3>🎯 Recent Highlights</h3>
+                <ul class="highlights-list">
+                    <li>Real-time festival management system</li>
+                    <li>Enhanced web interface with mobile support</li>
+                    <li>Comprehensive player and item databases</li>
+                    <li>Automated announcement systems</li>
+                    <li>Community wiki integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📅 Upcoming Features</h2>
+            <div class="roadmap-grid">
+                <div class="roadmap-item">
+                    <h3>🔍 Enhanced Search</h3>
+                    <p>Advanced filtering and search capabilities across all databases</p>
+                    <span class="roadmap-status status-planning">Planning</span>
+                </div>
+                <div class="roadmap-item">
+                    <h3>👥 LFG System</h3>
+                    <p>Real-time party finding and event coordination tools</p>
+                    <span class="roadmap-status status-development">In Development</span>
+                </div>
+                <div class="roadmap-item">
+                    <h3>📈 Analytics Dashboard</h3>
+                    <p>Comprehensive server analytics and performance metrics</p>
+                    <span class="roadmap-status status-planning">Planning</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Load server stats for news page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Simulate loading server stats
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                document.getElementById('newsPlayers').textContent = Math.floor(Math.random() * 100) + 50;
+                document.getElementById('newsUptime').textContent = '99.9%';
+                document.getElementById('newsEvents').textContent = '3';
+            } catch (error) {
+                console.error('Failed to load server stats:', error);
+            }
+        });
+    </script>
+
+    <style>
+        .news-item {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .news-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+            flex: 1;
+        }
+
+        .news-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .news-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .news-link:hover {
+            color: var(--primary-color);
+        }
+
+        .highlights-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .highlights-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .highlights-list li:last-child {
+            border-bottom: none;
+        }
+
+        .highlights-list li::before {
+            content: '✨';
+            margin-right: 0.5rem;
+        }
+
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .roadmap-item {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .roadmap-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .roadmap-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status-planning {
+            background: var(--bg-dark);
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+
+        .status-development {
+            background: var(--bg-dark);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .news-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .news-date {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+
+            .roadmap-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html>

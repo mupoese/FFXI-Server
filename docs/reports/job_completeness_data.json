@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T09:37:23.770235",
+  "timestamp": "2025-09-07T09:41:07.549581",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -111,18 +111,15 @@
       ]
     },
     "bard": {
-      "current_percentage": 55.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 6,
       "abilities_total": 6,
-      "spells_implemented": 0,
+      "spells_implemented": 25,
       "spells_total": 25,
-      "lua_functions": 22,
+      "lua_functions": 31,
       "lua_bindings": 25,
       "missing_features": [],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "enhancement_priorities": []
     },
     "ranger": {
       "current_percentage": 75.0,
@@ -279,13 +276,9 @@
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 11,
-    "average_completeness": 85.2,
+    "jobs_at_100_percent": 12,
+    "average_completeness": 87.2,
     "highest_priority_jobs": [
-      [
-        "bard",
-        55.0
-      ],
       [
         "corsair",
         59.5
@@ -321,6 +314,10 @@
       [
         "dragoon",
         75.0
+      ],
+      [
+        "puppetmaster",
+        75.0
       ]
     ],
     "enhancement_phases": [
@@ -328,7 +325,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "bard",
           "corsair",
           "dancer",
           "samurai",

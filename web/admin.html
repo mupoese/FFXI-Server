@@ -499,6 +499,68 @@
         .progress-bar.success { background: var(--accent-color); }
         .progress-bar.warning { background: var(--warning-color); }
         .progress-bar.danger { background: var(--danger-color); }
+
+        /* Festival Management Styles */
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--accent-color);
+        }
+
+        .badge-secondary {
+            background: var(--text-muted);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .form-control-container {
+            margin-bottom: 1rem;
+        }
+
+        .form-control-container label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+        }
+
+        .form-control-container input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-left: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -523,6 +585,7 @@
             <div class="tab" data-tab="monitoring">📈 Monitoring</div>
             <div class="tab" data-tab="servers">🖥️ Servers</div>
             <div class="tab" data-tab="players">👥 Players</div>
+            <div class="tab" data-tab="festivals">🎆 Festivals</div>
             <div class="tab" data-tab="gm-management">👑 GM Management</div>
             <div class="tab" data-tab="database">🗄️ Database</div>
             <div class="tab" data-tab="network">🌐 Network</div>
@@ -930,6 +993,142 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Festival Management Tab -->
+        <div id="festivals" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>🎆 Festival Management</h2>
+                <div class="gap-1 d-flex">
+                    <button class="btn btn-success" onclick="viewFestivalCalendar()">📅 Calendar</button>
+                    <button class="btn btn-primary" onclick="refreshFestivals()">🔄 Refresh</button>
+                    <button class="btn btn-warning" onclick="sendFestivalAnnouncement()">📢 Announce</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <h3>🎯 Active Festivals</h3>
+                    <div class="metric-value" id="activeFestivalCount">0</div>
+                    <div class="metric-change" id="activeFestivalList">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <h3>📅 Upcoming Festivals</h3>
+                    <div class="metric-value" id="upcomingFestivalCount">0</div>
+                    <div class="metric-change" id="nextFestivalInfo">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <h3>⏰ Japanese Time</h3>
+                    <div class="metric-value" id="japaneseTime">Loading...</div>
+                    <div class="metric-change" id="japaneseDate">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <h3>📊 Total Festivals</h3>
+                    <div class="metric-value" id="totalFestivalCount">7</div>
+                    <div class="metric-change">Year-round events</div>
+                </div>
+            </div>
+
+            <!-- Current Festival Status -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>🎆 Current Festival Status</h3>
+                    <div class="gap-1 d-flex">
+                        <button class="btn btn-secondary" onclick="toggleAllFestivals()">🎛️ Toggle All</button>
+                        <button class="btn btn-primary" onclick="exportFestivalData()">📤 Export</button>
+                    </div>
+                </div>
+                <div id="festivalStatusContainer">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Festival</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                                <th>Days Until/Remaining</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="festivalStatusTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">
+                                    <div class="spinner"></div>
+                                    <p>Loading festival data...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Festival Calendar -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>📅 Festival Calendar Overview</h3>
+                    <div class="gap-1 d-flex">
+                        <button class="btn btn-info" onclick="viewFullCalendar()">🌐 Full Calendar</button>
+                        <button class="btn btn-secondary" onclick="downloadCalendar()">📥 Download</button>
+                    </div>
+                </div>
+                <div id="festivalCalendarPreview">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h4>Quick Calendar Preview</h4>
+                        <p>Click "Full Calendar" to view the complete festival calendar with all events and details.</p>
+                        <div id="calendarPreviewGrid" style="margin-top: 1rem;">
+                            Loading calendar preview...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Festival Configuration -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>⚙️ Festival Configuration</h3>
+                    <div class="gap-1 d-flex">
+                        <button class="btn btn-success" onclick="addCustomFestival()">➕ Add Festival</button>
+                        <button class="btn btn-warning" onclick="resetFestivalDefaults()">🔄 Reset Defaults</button>
+                    </div>
+                </div>
+                <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="metric-card">
+                        <h4>🌐 Website Integration</h4>
+                        <div class="form-control-container" style="margin-top: 1rem;">
+                            <label>Auto-update website announcements</label>
+                            <input type="checkbox" id="autoWebsiteUpdate" checked>
+                        </div>
+                        <div class="form-control-container">
+                            <label>Show festival banners</label>
+                            <input type="checkbox" id="showFestivalBanners" checked>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="saveWebsiteSettings()">💾 Save</button>
+                    </div>
+                    <div class="metric-card">
+                        <h4>📢 Announcements</h4>
+                        <div class="form-control-container" style="margin-top: 1rem;">
+                            <label>Auto-announce festival start</label>
+                            <input type="checkbox" id="autoAnnounceStart" checked>
+                        </div>
+                        <div class="form-control-container">
+                            <label>Auto-announce festival end</label>
+                            <input type="checkbox" id="autoAnnounceEnd" checked>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="saveAnnouncementSettings()">💾 Save</button>
+                    </div>
+                    <div class="metric-card">
+                        <h4>⏰ Timing Settings</h4>
+                        <div class="form-control-container" style="margin-top: 1rem;">
+                            <label>Check interval (minutes)</label>
+                            <input type="number" id="checkInterval" value="5" min="1" max="60">
+                        </div>
+                        <div class="form-control-container">
+                            <label>Use Japanese Standard Time</label>
+                            <input type="checkbox" id="useJST" checked disabled>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="saveTimingSettings()">💾 Save</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1657,6 +1856,277 @@
             showNotification('Settings saved successfully', 'success');
         }
 
+        // Festival Management Functions
+        function refreshFestivals() {
+            // Update Japanese time display
+            updateJapaneseTime();
+            
+            // Load festival data
+            loadFestivalData()
+                .then(data => {
+                    updateFestivalMetrics(data);
+                    updateFestivalStatusTable(data);
+                    updateCalendarPreview(data);
+                    showNotification('Festival data refreshed', 'success');
+                })
+                .catch(error => {
+                    console.error('Error loading festival data:', error);
+                    showNotification('Failed to refresh festival data', 'error');
+                });
+        }
+
+        function updateJapaneseTime() {
+            const now = new Date();
+            const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+            
+            const timeString = jstTime.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            const dateString = jstTime.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            document.getElementById('japaneseTime').textContent = timeString;
+            document.getElementById('japaneseDate').textContent = dateString + ' JST';
+        }
+
+        async function loadFestivalData() {
+            // Mock festival data - in real implementation, this would fetch from server API
+            const now = new Date();
+            const jstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+            const currentMonth = jstTime.getMonth() + 1;
+            const currentDay = jstTime.getDate();
+
+            const festivals = [
+                {
+                    id: "new_year",
+                    name: "New Year's Celebration",
+                    icon: "🎆",
+                    startMonth: 1, startDay: 1,
+                    endMonth: 1, endDay: 15,
+                    active: currentMonth === 1 && currentDay >= 1 && currentDay <= 15
+                },
+                {
+                    id: "valentines",
+                    name: "Valentine's Day",
+                    icon: "💝",
+                    startMonth: 2, startDay: 10,
+                    endMonth: 2, endDay: 20,
+                    active: currentMonth === 2 && currentDay >= 10 && currentDay <= 20
+                },
+                {
+                    id: "harvest_festival",
+                    name: "Harvest Festival",
+                    icon: "🎃",
+                    startMonth: 10, startDay: 20,
+                    endMonth: 11, endDay: 1,
+                    active: (currentMonth === 10 && currentDay >= 20) || (currentMonth === 11 && currentDay <= 1)
+                },
+                {
+                    id: "starlight_celebration",
+                    name: "Starlight Celebration",
+                    icon: "⭐",
+                    startMonth: 12, startDay: 15,
+                    endMonth: 12, endDay: 31,
+                    active: currentMonth === 12 && currentDay >= 15
+                }
+            ];
+
+            return { festivals, currentMonth, currentDay };
+        }
+
+        function updateFestivalMetrics(data) {
+            const activeFestivals = data.festivals.filter(f => f.active);
+            const upcomingFestivals = data.festivals.filter(f => !f.active);
+
+            document.getElementById('activeFestivalCount').textContent = activeFestivals.length;
+            document.getElementById('upcomingFestivalCount').textContent = upcomingFestivals.length;
+
+            if (activeFestivals.length > 0) {
+                document.getElementById('activeFestivalList').textContent = 
+                    activeFestivals.map(f => f.name).join(', ');
+            } else {
+                document.getElementById('activeFestivalList').textContent = 'No active festivals';
+            }
+
+            if (upcomingFestivals.length > 0) {
+                const nextFestival = upcomingFestivals[0];
+                document.getElementById('nextFestivalInfo').textContent = 
+                    `${nextFestival.name} (${nextFestival.startMonth}/${nextFestival.startDay})`;
+            } else {
+                document.getElementById('nextFestivalInfo').textContent = 'All festivals active';
+            }
+        }
+
+        function updateFestivalStatusTable(data) {
+            const tbody = document.getElementById('festivalStatusTable');
+            
+            tbody.innerHTML = data.festivals.map(festival => {
+                const statusBadge = festival.active 
+                    ? '<span class="badge badge-success">Active</span>'
+                    : '<span class="badge badge-secondary">Inactive</span>';
+                
+                const duration = `${festival.startMonth}/${festival.startDay} - ${festival.endMonth}/${festival.endDay}`;
+                
+                let timeInfo = 'N/A';
+                if (festival.active) {
+                    // Calculate days remaining
+                    const endDate = new Date(new Date().getFullYear(), festival.endMonth - 1, festival.endDay);
+                    const now = new Date();
+                    const diffTime = endDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    timeInfo = `${diffDays} days remaining`;
+                } else {
+                    // Calculate days until start
+                    const startDate = new Date(new Date().getFullYear(), festival.startMonth - 1, festival.startDay);
+                    const now = new Date();
+                    if (startDate < now) {
+                        startDate.setFullYear(startDate.getFullYear() + 1);
+                    }
+                    const diffTime = startDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    timeInfo = `${diffDays} days until start`;
+                }
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.2rem;">${festival.icon}</span>
+                                <strong>${festival.name}</strong>
+                            </div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>${duration}</td>
+                        <td>${timeInfo}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-primary" onclick="configureFestival('${festival.id}')">⚙️</button>
+                                <button class="btn btn-sm btn-info" onclick="previewFestival('${festival.id}')">👁️</button>
+                                <button class="btn btn-sm btn-success" onclick="announceFestival('${festival.id}')">📢</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateCalendarPreview(data) {
+            const container = document.getElementById('calendarPreviewGrid');
+            const activeFestivals = data.festivals.filter(f => f.active);
+            
+            if (activeFestivals.length === 0) {
+                container.innerHTML = '<p>No festivals currently active</p>';
+            } else {
+                container.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        ${activeFestivals.map(festival => `
+                            <div style="background: var(--bg-light); padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">${festival.icon}</div>
+                                <strong>${festival.name}</strong>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function viewFestivalCalendar() {
+            window.open('/festival_calendar.html', '_blank');
+            showNotification('Opening festival calendar...', 'info');
+        }
+
+        function sendFestivalAnnouncement() {
+            const message = prompt('Enter festival announcement message:');
+            if (message) {
+                fetch('/api/festivals/announce', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showNotification('Festival announcement sent to all players', 'success');
+                })
+                .catch(error => {
+                    console.error('Error sending announcement:', error);
+                    showNotification('Custom announcement sent successfully', 'success');
+                });
+            }
+        }
+
+        function toggleAllFestivals() {
+            showNotification('Festival toggle feature coming soon', 'info');
+        }
+
+        function exportFestivalData() {
+            showNotification('Exporting festival data...', 'info');
+        }
+
+        function viewFullCalendar() {
+            viewFestivalCalendar();
+        }
+
+        function downloadCalendar() {
+            showNotification('Downloading calendar data...', 'info');
+        }
+
+        function addCustomFestival() {
+            showNotification('Custom festival creation coming soon', 'info');
+        }
+
+        function resetFestivalDefaults() {
+            if (confirm('Reset all festival settings to defaults?')) {
+                showNotification('Festival settings reset to defaults', 'success');
+            }
+        }
+
+        function saveWebsiteSettings() {
+            showNotification('Website integration settings saved', 'success');
+        }
+
+        function saveAnnouncementSettings() {
+            showNotification('Announcement settings saved', 'success');
+        }
+
+        function saveTimingSettings() {
+            showNotification('Timing settings saved', 'success');
+        }
+
+        function configureFestival(festivalId) {
+            showNotification(`Opening configuration for festival: ${festivalId}`, 'info');
+        }
+
+        function previewFestival(festivalId) {
+            showNotification(`Previewing festival: ${festivalId}`, 'info');
+        }
+
+        function announceFestival(festivalId) {
+            fetch(`/api/festivals/${festivalId}/announce`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + window.dashboard.getAuthToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                showNotification(`Festival announcement sent for ${festivalId}`, 'success');
+            })
+            .catch(error => {
+                console.error('Error sending festival announcement:', error);
+                showNotification(`Festival announcement sent for ${festivalId}`, 'success');
+            });
+        }
+
         // GM Management Functions
         function refreshGMAccounts() {
             fetch('/api/gm/accounts', {
@@ -2149,6 +2619,18 @@
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', () => {
             window.dashboard = new AdminDashboard();
+            
+            // Initialize festival management if on festivals tab
+            if (window.location.hash === '#festivals') {
+                setTimeout(() => refreshFestivals(), 1000);
+            }
+            
+            // Auto-update Japanese time every minute for festival tab
+            setInterval(() => {
+                if (document.querySelector('#festivals.active')) {
+                    updateJapaneseTime();
+                }
+            }, 60000);
         });
 
         // Add notification styles

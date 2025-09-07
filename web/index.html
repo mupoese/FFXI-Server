@@ -615,6 +615,124 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Festival Banner Styles */
+        .festival-banner {
+            background: linear-gradient(135deg, #FFD700, #FF6B6B, #4ECDC4);
+            margin: 2rem auto;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+            animation: festivalPulse 3s infinite ease-in-out;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .festival-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .festival-icon-container {
+            flex-shrink: 0;
+        }
+
+        .festival-icon {
+            font-size: 4rem;
+            display: block;
+            animation: festivalBounce 2s infinite ease-in-out;
+        }
+
+        .festival-text {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .festival-text h3 {
+            font-size: 1.8rem;
+            margin: 0 0 0.5rem 0;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .festival-text p {
+            font-size: 1.1rem;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .festival-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .festival-button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .festival-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .festival-button.secondary {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .festival-button.secondary:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes festivalPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
+            }
+        }
+
+        @keyframes festivalBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive festival banner */
+        @media (max-width: 768px) {
+            .festival-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .festival-icon {
+                font-size: 3rem;
+            }
+
+            .festival-text h3 {
+                font-size: 1.5rem;
+            }
+
+            .festival-actions {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -640,6 +758,23 @@
             <div class="cta-buttons">
                 <a href="#play" class="cta-button">Start Playing</a>
                 <a href="admin.html" class="cta-button secondary">Server Admin</a>
+            </div>
+        </section>
+
+        <!-- Festival Announcement Banner -->
+        <section id="festival-banner" class="festival-banner" style="display: none;">
+            <div class="festival-content">
+                <div class="festival-icon-container">
+                    <span id="festival-icon" class="festival-icon">🎆</span>
+                </div>
+                <div class="festival-text">
+                    <h3 id="festival-title">Festival Active!</h3>
+                    <p id="festival-description">Join the celebration in Vana'diel!</p>
+                </div>
+                <div class="festival-actions">
+                    <a href="festival_calendar.html" class="festival-button">View Calendar</a>
+                    <button onclick="dismissFestivalBanner()" class="festival-button secondary">Dismiss</button>
+                </div>
             </div>
         </section>
 
@@ -1150,6 +1285,138 @@ ${serverConfig.serverName}_CLIENT_PATH=C:\\\\Program Files (x86)\\\\SquareEnix\\
             }
         }
 
+        // Festival Management System
+        class FestivalManager {
+            constructor() {
+                this.festivals = [
+                    {
+                        id: "new_year",
+                        name: "New Year's Celebration",
+                        icon: "🎆",
+                        startMonth: 1, startDay: 1,
+                        endMonth: 1, endDay: 15,
+                        description: "Welcome the new year with special events and rewards!"
+                    },
+                    {
+                        id: "valentines", 
+                        name: "Valentine's Day",
+                        icon: "💝",
+                        startMonth: 2, startDay: 10,
+                        endMonth: 2, endDay: 20,
+                        description: "Share the love with special valentine items and events!"
+                    },
+                    {
+                        id: "harvest_festival",
+                        name: "Harvest Festival", 
+                        icon: "🎃",
+                        startMonth: 10, startDay: 20,
+                        endMonth: 11, endDay: 1,
+                        description: "Spooky fun awaits in this haunting celebration!"
+                    },
+                    {
+                        id: "starlight_celebration",
+                        name: "Starlight Celebration",
+                        icon: "⭐", 
+                        startMonth: 12, startDay: 15,
+                        endMonth: 12, endDay: 31,
+                        description: "Celebrate the season of giving with festive cheer!"
+                    }
+                ];
+                this.init();
+            }
+
+            init() {
+                this.checkActiveFestivals();
+                // Check for festival updates every 5 minutes
+                setInterval(() => this.checkActiveFestivals(), 300000);
+            }
+
+            getJapaneseTime() {
+                return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+            }
+
+            isFestivalActive(festival) {
+                const jstTime = this.getJapaneseTime();
+                const currentMonth = jstTime.getMonth() + 1;
+                const currentDay = jstTime.getDate();
+
+                if (festival.startMonth === festival.endMonth) {
+                    return currentMonth === festival.startMonth && 
+                           currentDay >= festival.startDay && 
+                           currentDay <= festival.endDay;
+                } else if (festival.startMonth < festival.endMonth) {
+                    return (currentMonth === festival.startMonth && currentDay >= festival.startDay) ||
+                           (currentMonth === festival.endMonth && currentDay <= festival.endDay) ||
+                           (currentMonth > festival.startMonth && currentMonth < festival.endMonth);
+                } else {
+                    // Year boundary crossing
+                    return (currentMonth === festival.startMonth && currentDay >= festival.startDay) ||
+                           (currentMonth === festival.endMonth && currentDay <= festival.endDay) ||
+                           (currentMonth > festival.startMonth) ||
+                           (currentMonth < festival.endMonth);
+                }
+            }
+
+            getActiveFestivals() {
+                return this.festivals.filter(festival => this.isFestivalActive(festival));
+            }
+
+            checkActiveFestivals() {
+                const activeFestivals = this.getActiveFestivals();
+                
+                if (activeFestivals.length > 0) {
+                    this.showFestivalBanner(activeFestivals[0]);
+                } else {
+                    this.hideFestivalBanner();
+                }
+            }
+
+            showFestivalBanner(festival) {
+                const banner = document.getElementById('festival-banner');
+                const icon = document.getElementById('festival-icon');
+                const title = document.getElementById('festival-title');
+                const description = document.getElementById('festival-description');
+
+                if (banner && (!banner.style.display || banner.style.display === 'none')) {
+                    icon.textContent = festival.icon;
+                    title.textContent = `${festival.name} Active!`;
+                    description.textContent = festival.description;
+                    
+                    banner.style.display = 'block';
+                    banner.classList.add('fade-in');
+                    
+                    console.log(`Festival banner shown: ${festival.name}`);
+                }
+            }
+
+            hideFestivalBanner() {
+                const banner = document.getElementById('festival-banner');
+                if (banner && banner.style.display !== 'none') {
+                    banner.style.display = 'none';
+                    banner.classList.remove('fade-in');
+                }
+            }
+        }
+
+        // Festival banner dismiss function
+        function dismissFestivalBanner() {
+            const banner = document.getElementById('festival-banner');
+            if (banner) {
+                banner.style.display = 'none';
+                
+                // Remember dismissal for this session
+                sessionStorage.setItem('festivalBannerDismissed', 'true');
+                
+                // Re-show after 1 hour
+                setTimeout(() => {
+                    sessionStorage.removeItem('festivalBannerDismissed');
+                    if (window.festivalManager) {
+                        window.festivalManager.checkActiveFestivals();
+                    }
+                }, 3600000); // 1 hour
+            }
+        }
+
         // Initialize monitoring when page loads
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize page with server configuration first
@@ -1157,6 +1424,11 @@ ${serverConfig.serverName}_CLIENT_PATH=C:\\\\Program Files (x86)\\\\SquareEnix\\
             
             new ServerMonitor();
             loadLauncherInfo();
+            
+            // Initialize festival management
+            if (!sessionStorage.getItem('festivalBannerDismissed')) {
+                window.festivalManager = new FestivalManager();
+            }
         });
 
         // Launcher functionality

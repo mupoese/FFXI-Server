@@ -164,7 +164,7 @@ xi.job_utils.summoner.validateJobAccess = function(player, mainJob, subJob, leve
     return false
 end
 
--- Calculate subjob effectiveness penalty (25-50% reduction)
+-- Calculate subjob effectiveness penalty with graduated system
 xi.job_utils.summoner.calculateSubjobPenalty = function(player, baseValue, abilityType)
     if not player or player:getMainJob() == xi.job.SMN then
         return baseValue -- No penalty for main job
@@ -172,20 +172,28 @@ xi.job_utils.summoner.calculateSubjobPenalty = function(player, baseValue, abili
     
     if player:getSubJob() == xi.job.SMN then
         local subLevel = player:getSubLvl()
-        local mainLevel = player:getMainLvl()
-        local levelRatio = subLevel / mainLevel
         
-        -- Different penalties based on ability type
-        local penalty = 0.5 -- Default 50% reduction
-        if abilityType == "avatar_stats" then
-            penalty = 0.25 -- 25% reduction for avatar stats
-        elseif abilityType == "blood_pact" then
-            penalty = 0.35 -- 35% reduction for blood pacts
-        elseif abilityType == "mp_cost" then
-            penalty = 0.15 -- 15% increase in MP costs
+        -- Graduated effectiveness based on subjob level
+        local effectiveness = 0.5
+        if subLevel > 50 and subLevel <= 75 then
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subLevel - 50) * (0.5 / 25)
+        elseif subLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
         end
         
-        return math.floor(baseValue * (1 - penalty + (levelRatio * 0.1)))
+        -- Different penalties based on ability type (scaled by graduated penalty)
+        local typePenalty = 1.0 -- Default no additional penalty
+        if abilityType == "avatar_stats" then
+            typePenalty = 1.5 -- Better effectiveness for avatar stats
+        elseif abilityType == "blood_pact" then
+            typePenalty = 1.3 -- Better effectiveness for blood pacts
+        elseif abilityType == "mp_cost" then
+            typePenalty = 0.85 -- Slight MP penalty (15% increase in costs)
+            return math.floor(baseValue / (effectiveness * typePenalty))
+        end
+        
+        return math.floor(baseValue * effectiveness * typePenalty)
     end
     
     return 0 -- No access if not SMN main or sub

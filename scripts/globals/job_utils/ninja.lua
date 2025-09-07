@@ -44,11 +44,20 @@ function xi.job_utils.ninja.validateJobAccess(player, abilityLevel, spellLevel)
         access.spell = player:getMainLvl() >= spellLevel
         access.effectiveness = 1.0
     elseif player:getSubJob() == NINJA_JOB_ID then
-        -- Subjob: 50% level requirements and effectiveness
+        -- Subjob: graduated penalty system
         local effectiveLevel = player:getSubLvl()
         access.ability = effectiveLevel >= math.floor(abilityLevel / 2)
         access.spell = effectiveLevel >= math.floor(spellLevel / 2)
-        access.effectiveness = 0.5
+        
+        -- Graduated effectiveness based on subjob level
+        if effectiveLevel <= 50 then
+            access.effectiveness = 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif effectiveLevel >= 75 then
+            access.effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            access.effectiveness = 0.5 + (effectiveLevel - 50) * (0.5 / 25)
+        end
     end
     
     return access
@@ -57,8 +66,19 @@ end
 function xi.job_utils.ninja.calculateSubjobPenalty(player)
     if player:getMainJob() == NINJA_JOB_ID then
         return 1.0 -- No penalty for main job
+    elseif player:getSubJob() == NINJA_JOB_ID then
+        -- Graduated subjob penalty system
+        local subjobLevel = player:getSubLvl()
+        if subjobLevel <= 50 then
+            return 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif subjobLevel >= 75 then
+            return 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            return 0.5 + (subjobLevel - 50) * (0.5 / 25)
+        end
     else
-        return 0.5 -- 50% effectiveness for subjob
+        return 0.0 -- No access if neither main nor subjob
     end
 end
 

@@ -25,8 +25,24 @@ xi.job_utils.paladin.validateJobAccess = function(player, abilityName)
         return false, "Job access denied"
     end
     
+    -- Calculate graduated effectiveness for subjobs
+    local isMainJob = (mainJob == PALADIN_JOB_ID)
+    local effectiveLevel = isMainJob and mainLevel or subLevel
+    local effectiveness = 1.0
+    
+    if not isMainJob then
+        if subLevel <= 50 then
+            effectiveness = 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif subLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subLevel - 50) * (0.5 / 25)
+        end
+    end
+    
     -- Database validation passed
-    return true, ""
+    return true, "", effectiveLevel, isMainJob, effectiveness
 end
 
 xi.job_utils.paladin.getJobLevel = function(player)
@@ -42,14 +58,27 @@ xi.job_utils.paladin.getJobLevel = function(player)
     return 0, false
 end
 
-xi.job_utils.paladin.calculateSubjobPenalty = function(baseValue, isSubjob, penaltyPercent)
+xi.job_utils.paladin.calculateSubjobPenalty = function(baseValue, isSubjob, penaltyPercent, player)
     if not isSubjob then
         return baseValue
     end
     
-    -- Apply subjob penalty (typically 25-50% reduction)
-    local penalty = penaltyPercent or 50
-    return math.floor(baseValue * (100 - penalty) / 100)
+    -- If player is provided, use graduated penalty system
+    if player then
+        local subjobLevel = player:getSubLvl()
+        local effectiveness = 0.5
+        if subjobLevel > 50 and subjobLevel <= 75 then
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subjobLevel - 50) * (0.5 / 25)
+        elseif subjobLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        end
+        return math.floor(baseValue * effectiveness)
+    else
+        -- Fallback to old system if no player provided
+        local penalty = penaltyPercent or 50
+        return math.floor(baseValue * (100 - penalty) / 100)
+    end
 end
 
 -----------------------------------

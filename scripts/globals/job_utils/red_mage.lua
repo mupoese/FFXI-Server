@@ -35,9 +35,20 @@ local function validateJobAccess(player, spellLevel, requiresMainJob)
     if player:getMainJob() == xi.job.RDM then
         return player:getJobLevel(xi.job.RDM) >= spellLevel, 1.0
     elseif player:getSubJob() == xi.job.RDM then
-        -- Red Mage subjob: 50% effectiveness with level penalty
+        -- Red Mage subjob: graduated penalty system
         local subjobLevel = player:getJobLevel(xi.job.RDM)
-        return subjobLevel >= math.ceil(spellLevel * 1.5), 0.5
+        local hasAccess = subjobLevel >= math.ceil(spellLevel * 1.5)
+        
+        -- Graduated effectiveness based on subjob level
+        local effectiveness = 0.5
+        if subjobLevel > 50 and subjobLevel <= 75 then
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subjobLevel - 50) * (0.5 / 25)
+        elseif subjobLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        end
+        
+        return hasAccess, effectiveness
     end
     
     return false, 0
@@ -48,7 +59,16 @@ local function calculateSubjobPenalty(player)
     if player:getMainJob() == xi.job.RDM then
         return 1.0
     elseif player:getSubJob() == xi.job.RDM then
-        return 0.5  -- 50% effectiveness as subjob
+        -- Graduated subjob penalty system
+        local subjobLevel = player:getSubLvl()
+        if subjobLevel <= 50 then
+            return 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif subjobLevel >= 75 then
+            return 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            return 0.5 + (subjobLevel - 50) * (0.5 / 25)
+        end
     end
     return 0.0
 end

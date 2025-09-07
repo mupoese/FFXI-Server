@@ -93,17 +93,31 @@ xi.job_utils.scholar.validateJobAccess = function(player, ability_or_spell)
     
     -- Return appropriate level for calculations
     local effectiveLevel = hasScholarMain and mainLevel or (hasScholarSub and subLevel or 0)
-    return true, effectiveLevel, hasScholarMain
+    
+    -- Calculate graduated effectiveness for subjobs
+    local effectiveness = 1.0
+    if hasScholarSub and not hasScholarMain then
+        if subLevel <= 50 then
+            effectiveness = 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif subLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subLevel - 50) * (0.5 / 25)
+        end
+    end
+    
+    return true, effectiveLevel, hasScholarMain, effectiveness
 end
 
 -- Get maximum stratagem charges based on Scholar level
 xi.job_utils.scholar.getMaxStratagemCharges = function(player)
-    local hasAccess, level, isMainJob = xi.job_utils.scholar.validateJobAccess(player)
+    local hasAccess, level, isMainJob, effectiveness = xi.job_utils.scholar.validateJobAccess(player)
     if not hasAccess then
         return 0
     end
     
-    -- Subjob Scholar gets reduced charges
+    -- Subjob Scholar gets reduced charges with graduated effectiveness
     local levelKey = 10
     for lvl = 90, 10, -20 do
         if level >= lvl then
@@ -113,7 +127,12 @@ xi.job_utils.scholar.getMaxStratagemCharges = function(player)
     end
     
     local charges = STRATAGEM_CHARGES[levelKey].charges
-    return isMainJob and charges or math.max(1, math.floor(charges / 2))
+    if isMainJob then
+        return charges
+    else
+        -- Apply graduated effectiveness for subjob
+        return math.max(1, math.floor(charges * effectiveness))
+    end
 end
 
 -- Get stratagem recharge time
@@ -194,20 +213,20 @@ local darkArtsSpells = {
 
 -- Merit-enhanced sublimation MP calculation
 xi.job_utils.scholar.calculateSublimationMP = function(player)
-    local hasAccess, level, isMainJob = xi.job_utils.scholar.validateJobAccess(player)
+    local hasAccess, level, isMainJob, effectiveness = xi.job_utils.scholar.validateJobAccess(player)
     if not hasAccess then
         return 0
     end
     
     local maxHP = player:getMaxHP()
-    local baseRate = isMainJob and 0.25 or 0.125 -- 25% for main job, 12.5% for subjob
+    local baseRate = isMainJob and 0.25 or (0.125 * effectiveness) -- Graduated effectiveness for subjob
     local levelBonus = math.floor(level / 10) * 0.01 -- 1% per 10 levels
     
     -- Merit bonus for maximum sublimation
     local meritBonus = player:getMerit(xi.merit.MAX_SUBLIMATION) * 10 -- 10 MP per merit
     
     local calculatedMP = math.floor(maxHP * (baseRate + levelBonus))
-    return calculatedMP + meritBonus
+    return calculatedMP + (isMainJob and meritBonus or math.floor(meritBonus * effectiveness))
 end
 
 -- Merit-enhanced sublimation recharge time

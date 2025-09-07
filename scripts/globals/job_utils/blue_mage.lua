@@ -56,6 +56,15 @@ xi.job_utils.blue_mage.validateJobAccess = function(player, abilityType, ability
     
     -- Blue Mage subjob access (limited)
     if subJob == xi.job.BLU then
+        -- Graduated effectiveness based on subjob level
+        local effectiveness = 0.5
+        if subLevel > 50 and subLevel <= 75 then
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            effectiveness = 0.5 + (subLevel - 50) * (0.5 / 25)
+        elseif subLevel >= 75 then
+            effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        end
+        
         if abilityType == "ability" then
             -- Only basic abilities available as subjob
             local subJobAbilities = {
@@ -63,10 +72,12 @@ xi.job_utils.blue_mage.validateJobAccess = function(player, abilityType, ability
                 [xi.jobAbility.CHAIN_AFFINITY] = true,
                 [xi.jobAbility.BURST_AFFINITY] = true,
             }
-            return subJobAbilities[abilityId] or false, subLevel, 0.5 -- 50% effectiveness
+            return subJobAbilities[abilityId] or false, subLevel, effectiveness
         elseif abilityType == "spell" then
             -- Limited blue magic access as subjob
-            return subLevel >= 20, subLevel, 0.75 -- 75% effectiveness for spells
+            -- Better effectiveness for spells, but still graduated
+            local spellEffectiveness = math.min(1.0, effectiveness * 1.5) -- 75% base, scaling to 100%
+            return subLevel >= 20, subLevel, spellEffectiveness
         end
     end
     

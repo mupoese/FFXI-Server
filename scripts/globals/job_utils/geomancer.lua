@@ -40,11 +40,21 @@ xi.job_utils.geomancer.validateJobAccess = function(player, abilityLevel, spellL
         access.effectiveness = 1.0
         access.level = player:getMainLvl()
     elseif player:getSubJob() == GEOMANCER_JOB_ID then
-        -- Subjob: 50% level requirements and effectiveness
+        -- Subjob: graduated penalty system
         local effectiveLevel = player:getSubLvl()
         access.ability = (abilityLevel == nil) or (effectiveLevel >= math.floor(abilityLevel / 2))
         access.spell = (spellLevel == nil) or (effectiveLevel >= math.floor(spellLevel / 2))
-        access.effectiveness = 0.5
+        
+        -- Graduated effectiveness based on subjob level
+        if effectiveLevel <= 50 then
+            access.effectiveness = 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif effectiveLevel >= 75 then
+            access.effectiveness = 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            access.effectiveness = 0.5 + (effectiveLevel - 50) * (0.5 / 25)
+        end
+        
         access.level = effectiveLevel
     end
     
@@ -55,8 +65,19 @@ xi.job_utils.geomancer.calculateSubjobPenalty = function(player, baseValue)
     local penalty = 1.0
     if player:getMainJob() == GEOMANCER_JOB_ID then
         penalty = 1.0 -- No penalty for main job
+    elseif player:getSubJob() == GEOMANCER_JOB_ID then
+        -- Graduated subjob penalty system
+        local subjobLevel = player:getSubLvl()
+        if subjobLevel <= 50 then
+            penalty = 0.5 -- 50% effectiveness for subjob levels 1-50
+        elseif subjobLevel >= 75 then
+            penalty = 1.0 -- Full effectiveness for subjob level 75
+        else
+            -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+            penalty = 0.5 + (subjobLevel - 50) * (0.5 / 25)
+        end
     else
-        penalty = 0.5 -- 50% effectiveness for subjob
+        penalty = 0.0 -- No access if neither main nor subjob
     end
     return math.floor(baseValue * penalty + 0.5)
 end

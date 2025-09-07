@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T11:10:13.958847",
+  "timestamp": "2025-09-07T20:41:20.824228",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -135,13 +135,13 @@
       ]
     },
     "samurai": {
-      "current_percentage": 69.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 16,
-      "lua_bindings": 16,
+      "lua_functions": 38,
+      "lua_bindings": 28,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -265,12 +265,8 @@
   "enhancement_plan": {
     "total_jobs": 22,
     "jobs_at_100_percent": 14,
-    "average_completeness": 90.5,
+    "average_completeness": 90.8,
     "highest_priority_jobs": [
-      [
-        "samurai",
-        69.0
-      ],
       [
         "beastmaster",
         72.5
@@ -289,6 +285,10 @@
       ],
       [
         "ranger",
+        75.0
+      ],
+      [
+        "samurai",
         75.0
       ],
       [
@@ -313,7 +313,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "samurai",
           "beastmaster"
         ],
         "estimated_hours": 20
@@ -326,6 +325,7 @@
           "monk",
           "thief",
           "ranger",
+          "samurai",
           "dragoon",
           "puppetmaster"
         ],

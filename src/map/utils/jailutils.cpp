@@ -23,9 +23,9 @@
 
 #include "conquest_system.h"
 #include "entities/charentity.h"
-#include "map.h"
-#include "map_utils.h"
-#include "utils/showmsg.h"
+#include "zone.h"
+#include "utils/zoneutils.h"
+#include "common/logging.h"
 
 #include "ai/ai_container.h"
 #include "ai/controllers/player_controller.h"

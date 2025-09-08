@@ -61,11 +61,26 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Add any setup steps before running the `github/codeql-action/init` action.
-    # This includes steps like installing compilers or runtimes (`actions/setup-node`
-    # or others). This is typically only required for manual builds.
-    # - name: Setup runtime (example)
-    #   uses: actions/setup-example@v1
+    # Install system dependencies required for C++ build
+    - name: Install system dependencies
+      if: matrix.language == 'c-cpp'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common cmake libmariadb-dev libmariadb3 mariadb-common libluajit-5.1-2 libluajit-5.1-dev libzmq3-dev zlib1g-dev libssl-dev binutils-dev
+
+    # Set up Python for scripts and tools
+    - name: Set up Python 3.12
+      if: matrix.language == 'python' || matrix.language == 'c-cpp'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    # Install Python dependencies for tools
+    - name: Install Python dependencies
+      if: matrix.language == 'python' || matrix.language == 'c-cpp'
+      run: |
+        python3 -m pip config set global.break-system-packages true
+        python3 -m pip install -r tools/requirements-py312.txt
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL

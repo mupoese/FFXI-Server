@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include <cstdint>
+#include <string>
+
 /*
 TODO: Add functions that can:
     * Jail or pardon on-line players.  (Currently handled in script.)
@@ -45,12 +48,12 @@ namespace jailutils
 
     void Add(CCharEntity* PChar);
     void Del(CCharEntity* PChar);
-    
+
     // AI-GM Enhanced Functions
-    void JailPlayer(CCharEntity* PChar, uint8 cellId = 1, const std::string& reason = "Automated moderation");
-    void PardonPlayer(CCharEntity* PChar);
-    bool IsPlayerJailed(uint32 playerId);
-    void SetJailDuration(CCharEntity* PChar, uint32 minutes);
-    uint32 GetJailTimeRemaining(const CCharEntity* PChar);
-    void NotifyGMsOfJailing(const std::string& playerName, const std::string& reason);
+    void          JailPlayer(CCharEntity* PChar, std::uint8_t cellId = 1, const std::string& reason = "Automated moderation");
+    void          PardonPlayer(CCharEntity* PChar);
+    bool          IsPlayerJailed(std::uint32_t playerId);
+    void          SetJailDuration(CCharEntity* PChar, std::uint32_t minutes);
+    std::uint32_t GetJailTimeRemaining(const CCharEntity* PChar);
+    void          NotifyGMsOfJailing(const std::string& playerName, const std::string& reason);
 }; // namespace jailutils

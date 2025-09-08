@@ -184,6 +184,7 @@ lua_lang_errors.txt
 # Visual Studio
 **/*.vcxproj*
 **/*.sln
+CMakeSettings.json
 enc_temp_folder
 
 # CMake files
@@ -287,4 +288,26 @@ cloudflare-tunnel.json
 # Docker build cache
 .docker/
 test_build/
-test_build/
+
+# Temporary test and analysis files (should not be committed)
+*_test_*.json
+*_report*.json
+*_results*.json
+*_validation*.json
+*_analysis*.json
+comprehensive_*.json
+database_*.json
+db_performance_*.json
+db_test_*.txt
+python312_*.txt
+platform_*.txt
+system_*.txt
+workflow_*.json
+*.db
+!sql/*.db
+
+# DLL files (build artifacts)
+*.dll
+
+# Temporary network test results
+network_bonding_test_results/

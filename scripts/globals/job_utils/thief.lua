@@ -800,6 +800,10 @@ xi.job_utils.thief.useAssassinsCharge = function(player, target, ability)
     if player:getMod(xi.mod.AUGMENTS_ASSASSINS_CHARGE) > 0 then
         crit = math.floor((merits / 5) * effectiveness)
     end
+    
+    player:addMod(xi.mod.CRITHITRATE, crit)
+    return crit
+end
 
 -----------------------------------
 -- Enhanced Thief Utility Functions

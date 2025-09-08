@@ -669,5 +669,3 @@ xi.job_utils.samurai.enhanceTwoHourAbility = function(player, abilityId)
 end
 
 return xi.job_utils.samurai
-
-return xi.job_utils.samurai

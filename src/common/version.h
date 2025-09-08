@@ -31,19 +31,19 @@ namespace version
     // Git information (inline constexpr definitions)
     [[nodiscard]] constexpr std::string_view GetGitSha() noexcept
     {
-        return "5024ff47";
+        return "5f6a6ae6";
     }
     [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept
     {
-        return "copilot/fix-4bb42ade-a4d5-4c1d-9eb7-638d7ce4a55f";
+        return "copilot/fix-71258b83-0c83-44b3-9c45-e6d54f10562b";
     }
     [[nodiscard]] constexpr std::string_view GetGitDate() noexcept
     {
-        return "Mon Sep 8 16:50:20 2025";
+        return "Mon Sep 8 18:58:03 2025";
     }
     [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept
     {
-        return "Complete job ability database validation and missing ability implementation";
+        return "Fix C++ build errors in jailutils - replace types and methods";
     }
 
     // Enhanced version information

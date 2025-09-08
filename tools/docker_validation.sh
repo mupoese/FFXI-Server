@@ -157,6 +157,7 @@ test_docker_build() {
     if ! docker build \
         --progress=plain \
         --no-cache \
+        -f docker/Dockerfile \
         -t "$TEST_IMAGE" \
         . 2>&1 | tee -a "$LOG_FILE"; then
         log_error "Docker build failed"
@@ -341,7 +342,7 @@ test_performance_basics() {
     local cache_start
     cache_start=$(date +%s)
     
-    if docker build --cache-from "$TEST_IMAGE" -t "${TEST_IMAGE}-cache" . >/dev/null 2>&1; then
+    if docker build --cache-from "$TEST_IMAGE" -f docker/Dockerfile -t "${TEST_IMAGE}-cache" . >/dev/null 2>&1; then
         local cache_end
         cache_end=$(date +%s)
         local cache_duration=$((cache_end - cache_start))

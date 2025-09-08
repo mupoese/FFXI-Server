@@ -57,4 +57,9 @@ xi_test
 
 # Environment files
 .env
-.env.*
+.env.local
+.env.production
+.env.development
+.env.test
+# Allow .env.example to be copied to container
+!.env.example

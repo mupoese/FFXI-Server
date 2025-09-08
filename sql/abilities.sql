@@ -718,4 +718,16 @@ INSERT INTO `abilities` VALUES (1020,'call_beast',9,23,1,300,101,0,0,238,2000,0,
 INSERT INTO `abilities` VALUES (1021,'sic',9,25,1,30,102,0,0,239,2000,0,6,20.0,0,0,0,908,0,NULL);
 INSERT INTO `abilities` VALUES (1022,'heel',9,35,1,30,103,0,0,240,2000,0,6,20.0,0,0,0,910,0,NULL);
 INSERT INTO `abilities` VALUES (1023,'stay',9,45,1,30,104,0,0,241,2000,0,6,20.0,0,0,0,912,0,NULL);
+
+-- === MISSING ABILITIES IMPLEMENTATION - Complete Job Coverage ===
+
+-- Black Mage - Manawall ability (missing from specification)
+INSERT INTO `abilities` VALUES (1024,'manawall',4,84,1,300,0,0,0,0,2000,0,6,20.0,0,1,300,0,0,NULL);
+
+-- Bard - Missing abilities for complete coverage
+INSERT INTO `abilities` VALUES (1025,'foe_sirvente',10,55,1,60,0,0,0,0,2000,0,6,20.0,0,1,300,0,0,NULL);
+INSERT INTO `abilities` VALUES (1026,'adventurers_dirge',10,75,1,60,0,0,0,0,2000,0,6,20.0,0,1,300,0,0,NULL);
+
+-- Corsair - Qultada ability (missing from specification)
+INSERT INTO `abilities` VALUES (1027,'qultada',17,87,1,300,0,0,0,0,2000,0,6,20.0,0,1,300,0,0,NULL);
 --

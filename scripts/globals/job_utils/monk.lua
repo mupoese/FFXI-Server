@@ -859,13 +859,35 @@ xi.job_utils.monk.applyMantraToParty = function(player, ability)
     return affectedMembers
 end
 
+-- Get job-specific abilities list
+xi.job_utils.monk.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.monk.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Hundred Fists', 'Boost', 'Focus', 'Dodge', 'Chi Blast', 'Chakra',
+        'Counterstance', 'Footwork', 'Formless Strikes', 'Impetus', 'Mantra', 'Perfect Counter'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.MNK and effectiveness > 0.5 then
+        abilities = {
+            'Boost', 'Focus', 'Dodge', 'Chakra', 'Mantra'
+        }
+    end
+    
+    return abilities
+end
+
 -----------------------------------
 -- Database Integration Summary
 -----------------------------------
--- Total Functions: 42
+-- Total Functions: 43 (+ getJobAbilities)
 -- Core Abilities: 13 (Hundred Fists, Inner Strength, Boost, Focus, Dodge, Chi Blast, Chakra, Counterstance, Footwork, Formless Strikes, Impetus, Mantra, Perfect Counter)
 -- Enhancement Functions: 8 (Damage, Critical Hit, Accuracy, Evasion, Weapon Skill, Combat Effectiveness, Merit Integration, Party Support)
--- Validation Functions: 2 (Job Access, Ability Access)
+-- Validation Functions: 3 (Job Access, Ability Access, getJobAbilities)
 -- Calculation Functions: 8 (Chi Blast, Boost Power, Focus Power, Dodge Power, Subjob Penalty, Hand-to-Hand Bonus, etc.)
 -- Listener Functions: 2 (Impetus Hit/Miss)
 -- Database Validation: Complete with graduated subjob penalty system (50% to 100% effectiveness)

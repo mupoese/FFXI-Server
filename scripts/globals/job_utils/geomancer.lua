@@ -915,3 +915,44 @@ end
 --
 -- Status: 100% Complete Implementation - All 8 abilities + 54 spells + complete merit/JP integration
 -----------------------------------
+
+-- Validate ability access with level and job requirements
+xi.job_utils.geomancer.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.geomancer.validateJobAccess(player)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.GEO and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.geomancer.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.geomancer.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Bolster', 'Full Circle', 'Curative Recantation', 'Mending Halation',
+        'Radial Arcana', 'Collimated Fervor', 'Dematerialize', 'Theurgic Focus'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.GEO and effectiveness > 0.5 then
+        abilities = {
+            'Full Circle', 'Dematerialize'
+        }
+    end
+    
+    return abilities
+end

@@ -32,7 +32,7 @@ local ELEMENTAL_WHEEL = {
 -----------------------------------
 -- Complete Job Access Validation with Comprehensive Subjob Support
 -----------------------------------
-function xi.job_utils.ninja.validateJobAccess(player, abilityLevel, spellLevel)
+xi.job_utils.ninja.validateJobAccess = function(player, abilityLevel, spellLevel)
     local access = {}
     access.ability = false
     access.spell = false
@@ -63,7 +63,7 @@ function xi.job_utils.ninja.validateJobAccess(player, abilityLevel, spellLevel)
     return access
 end
 
-function xi.job_utils.ninja.calculateSubjobPenalty(player)
+xi.job_utils.ninja.calculateSubjobPenalty = function(player)
     if player:getMainJob() == NINJA_JOB_ID then
         return 1.0 -- No penalty for main job
     elseif player:getSubJob() == NINJA_JOB_ID then

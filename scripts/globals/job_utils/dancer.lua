@@ -14,7 +14,7 @@ xi.job_utils.dancer = xi.job_utils.dancer or {}
 -----------------------------------
 
 -- Enhanced Job Access Validation with Graduated Subjob Penalty System
-function xi.job_utils.dancer.validateJobAccess(player, abilityId, requiredLevel)
+xi.job_utils.dancer.validateJobAccess = function(player, abilityId, requiredLevel)
     requiredLevel = requiredLevel or 1
     
     local mainJob = player:getMainJob()
@@ -37,7 +37,7 @@ function xi.job_utils.dancer.validateJobAccess(player, abilityId, requiredLevel)
 end
 
 -- Graduated Subjob Penalty System (50% to 100% effectiveness from levels 50-75)
-function xi.job_utils.dancer.calculateSubjobPenalty(subjobLevel)
+xi.job_utils.dancer.calculateSubjobPenalty = function(subjobLevel)
     if subjobLevel <= 50 then
         return 0.5  -- 50% effectiveness for subjob levels 1-50
     elseif subjobLevel >= 75 then
@@ -1141,4 +1141,46 @@ xi.job_utils.dancer.useEnhancedContradance = function(player, target, ability, a
     player:addStatusEffect(xi.effect.CONTRADANCE, 0, 0, duration)
     
     return duration
+end
+
+-- Validate ability access with level and job requirements
+xi.job_utils.dancer.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.dancer.validateJobAccess(player, abilityId, requiredLevel)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.DNC and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.dancer.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.dancer.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Animated Flourish', 'Building Flourish', 'Curing Waltz', 'Divine Waltz',
+        'Healing Waltz', 'Trance', 'Violent Flourish', 'Desperate Flourish',
+        'Reverse Flourish', 'Wild Flourish', 'Striking Flourish'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.DNC and effectiveness > 0.5 then
+        abilities = {
+            'Curing Waltz', 'Healing Waltz', 'Animated Flourish'
+        }
+    end
+    
+    return abilities
 end

@@ -743,6 +743,47 @@ xi.job_utils.blue_mage.IMPLEMENTATION_STATUS = {
     retail_accuracy = "100%"
 }
 
+-- Validate ability access with level and job requirements
+xi.job_utils.blue_mage.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.blue_mage.validateJobAccess(player)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.BLU and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.blue_mage.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.blue_mage.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Azure Lore', 'Chain Affinity', 'Burst Affinity', 'Blue Magic', 'Magical Mortar',
+        'Diffusion', 'Unbridled Learning', 'Efflux', 'Convergence', 'Unbridled Wisdom'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.BLU and effectiveness > 0.5 then
+        abilities = {
+            'Blue Magic'
+        }
+    end
+    
+    return abilities
+end
+
 print("Blue Mage job utilities loaded successfully - 100% Complete Implementation")
 
 return xi.job_utils.blue_mage

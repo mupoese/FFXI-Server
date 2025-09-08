@@ -22,6 +22,7 @@ local beastmasterAbilities = {
     [xi.jobAbility.TAME] = { level = 12 },
     [xi.jobAbility.REWARD] = { level = 12 },
     [xi.jobAbility.CALL_BEAST] = { level = 23 },
+    [xi.jobAbility.FERAL_HOWL] = { level = 75 },
     [xi.jobAbility.UNLEASH] = { level = 1, twoHour = true },
     [xi.jobAbility.KILLER_INSTINCT] = { level = 75 }
 }
@@ -1009,7 +1010,7 @@ xi.job_utils.beastmaster.getJobAbilities = function(player)
 
     local abilities = {
         'Familiar', 'Call Beast', 'Sic', 'Ready', 'Tame', 'Charm',
-        'Reward', 'Leave', 'Fight', 'Heel', 'Stay', 'Run Wild', 'Killer Instinct'
+        'Reward', 'Leave', 'Fight', 'Heel', 'Stay', 'Run Wild', 'Killer Instinct', 'Feral Howl'
     }
     
     -- Add subjob abilities if available
@@ -1020,4 +1021,51 @@ xi.job_utils.beastmaster.getJobAbilities = function(player)
     end
     
     return abilities
+end
+
+-----------------------------------
+-- Feral Howl Implementation
+-----------------------------------
+
+-- Feral Howl: Increases pet's attack and accuracy
+xi.job_utils.beastmaster.feralHowl = function(player, target, ability)
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateJobAccess(player, ability)
+    if not hasAccess then
+        return xi.msg.basic.UNABLE_TO_USE_JA
+    end
+
+    local pet = player:getPet()
+    if not pet or not pet:isAlive() then
+        return xi.msg.basic.REQUIRES_A_PET
+    end
+
+    -- Base effect duration (retail: 3 minutes)
+    local duration = 180 * effectiveness
+    
+    -- Attack boost: +25% base, scales with level and merits
+    local attackBoost = math.floor(25 * effectiveness)
+    local level = player:getMainLvl()
+    if level >= 90 then
+        attackBoost = attackBoost + 5  -- Enhanced at high levels
+    end
+    
+    -- Merit point bonuses (assuming merit category exists)
+    local meritBonus = player:getMerit(xi.merit.FERAL_HOWL_EFFECT) or 0
+    attackBoost = attackBoost + meritBonus
+    
+    -- Accuracy boost: +15 base, scales with effectiveness  
+    local accuracyBoost = math.floor(15 * effectiveness)
+    
+    -- Apply effects to pet
+    pet:addStatusEffect(xi.effect.ATTACK_BOOST, attackBoost, 0, duration)
+    pet:addStatusEffect(xi.effect.ACCURACY_BOOST, accuracyBoost, 0, duration)
+    
+    -- Job Point bonus effects (if player has JP gifts for BST)
+    local jpLevel = xi.job_utils.beastmaster.getJobPointLevel(player, xi.job.BST)
+    if jpLevel >= 100 then
+        -- Additional magical damage bonus at 100+ JP
+        pet:addStatusEffect(xi.effect.MAGIC_ATK_BOOST, math.floor(10 * effectiveness), 0, duration)
+    end
+    
+    return xi.msg.basic.USES_JA_GAIN_EFFECT
 end

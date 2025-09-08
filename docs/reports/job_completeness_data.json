@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T22:09:49.538709",
+  "timestamp": "2025-09-08T16:10:42.559481",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -7,8 +7,8 @@
       "abilities_total": 15,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 24,
-      "lua_bindings": 47,
+      "lua_functions": 49,
+      "lua_bindings": 73,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -20,8 +20,8 @@
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 26,
-      "lua_bindings": 47,
+      "lua_functions": 45,
+      "lua_bindings": 68,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -33,7 +33,7 @@
       "abilities_total": 8,
       "spells_implemented": 100,
       "spells_total": 100,
-      "lua_functions": 39,
+      "lua_functions": 41,
       "lua_bindings": 55,
       "missing_features": [],
       "enhancement_priorities": []
@@ -44,7 +44,7 @@
       "abilities_total": 6,
       "spells_implemented": 120,
       "spells_total": 120,
-      "lua_functions": 37,
+      "lua_functions": 39,
       "lua_bindings": 55,
       "missing_features": [],
       "enhancement_priorities": []
@@ -55,7 +55,7 @@
       "abilities_total": 8,
       "spells_implemented": 60,
       "spells_total": 60,
-      "lua_functions": 30,
+      "lua_functions": 32,
       "lua_bindings": 51,
       "missing_features": [],
       "enhancement_priorities": []
@@ -66,8 +66,8 @@
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 22,
-      "lua_bindings": 34,
+      "lua_functions": 46,
+      "lua_bindings": 57,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -79,7 +79,7 @@
       "abilities_total": 12,
       "spells_implemented": 20,
       "spells_total": 20,
-      "lua_functions": 35,
+      "lua_functions": 37,
       "lua_bindings": 48,
       "missing_features": [],
       "enhancement_priorities": []
@@ -90,7 +90,7 @@
       "abilities_total": 10,
       "spells_implemented": 15,
       "spells_total": 15,
-      "lua_functions": 37,
+      "lua_functions": 39,
       "lua_bindings": 44,
       "missing_features": [],
       "enhancement_priorities": []
@@ -101,7 +101,7 @@
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 47,
+      "lua_functions": 48,
       "lua_bindings": 12,
       "missing_features": [
         "Missing Feral Howl implementation"
@@ -116,7 +116,7 @@
       "abilities_total": 6,
       "spells_implemented": 25,
       "spells_total": 25,
-      "lua_functions": 31,
+      "lua_functions": 33,
       "lua_bindings": 25,
       "missing_features": [],
       "enhancement_priorities": []
@@ -127,8 +127,8 @@
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 30,
-      "lua_bindings": 25,
+      "lua_functions": 54,
+      "lua_bindings": 57,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -140,7 +140,7 @@
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 38,
+      "lua_functions": 39,
       "lua_bindings": 28,
       "missing_features": [],
       "enhancement_priorities": [
@@ -153,7 +153,7 @@
       "abilities_total": 8,
       "spells_implemented": 37,
       "spells_total": 37,
-      "lua_functions": 42,
+      "lua_functions": 44,
       "lua_bindings": 76,
       "missing_features": [],
       "enhancement_priorities": []
@@ -164,8 +164,8 @@
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 33,
-      "lua_bindings": 36,
+      "lua_functions": 66,
+      "lua_bindings": 78,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -177,7 +177,7 @@
       "abilities_total": 10,
       "spells_implemented": 30,
       "spells_total": 30,
-      "lua_functions": 40,
+      "lua_functions": 42,
       "lua_bindings": 31,
       "missing_features": [],
       "enhancement_priorities": []
@@ -188,7 +188,7 @@
       "abilities_total": 12,
       "spells_implemented": 50,
       "spells_total": 50,
-      "lua_functions": 26,
+      "lua_functions": 28,
       "lua_bindings": 33,
       "missing_features": [],
       "enhancement_priorities": []
@@ -199,7 +199,7 @@
       "abilities_total": 8,
       "spells_implemented": 8,
       "spells_total": 8,
-      "lua_functions": 21,
+      "lua_functions": 22,
       "lua_bindings": 9,
       "missing_features": [],
       "enhancement_priorities": []
@@ -210,8 +210,8 @@
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 28,
-      "lua_bindings": 12,
+      "lua_functions": 39,
+      "lua_bindings": 20,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -223,7 +223,7 @@
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 35,
+      "lua_functions": 37,
       "lua_bindings": 84,
       "missing_features": [],
       "enhancement_priorities": []
@@ -234,7 +234,7 @@
       "abilities_total": 10,
       "spells_implemented": 40,
       "spells_total": 40,
-      "lua_functions": 42,
+      "lua_functions": 45,
       "lua_bindings": 117,
       "missing_features": [],
       "enhancement_priorities": []
@@ -245,7 +245,7 @@
       "abilities_total": 8,
       "spells_implemented": 54,
       "spells_total": 35,
-      "lua_functions": 38,
+      "lua_functions": 40,
       "lua_bindings": 47,
       "missing_features": [],
       "enhancement_priorities": []
@@ -256,7 +256,7 @@
       "abilities_total": 12,
       "spells_implemented": 8,
       "spells_total": 8,
-      "lua_functions": 49,
+      "lua_functions": 50,
       "lua_bindings": 35,
       "missing_features": [],
       "enhancement_priorities": []

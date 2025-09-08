@@ -1,11 +1,25 @@
 # Next Roadmap Phase Implementation Report - Dynamic Analysis
-**Generated**: 2025-09-08 23:01:15
+**Generated**: 2025-09-08 23:10:15
 **Phase**: Job System Excellence - Dynamic Database Validation  
 **Status**: ✅ ANALYSIS COMPLETE
 
 ## 📊 SQL Database Function Validation
 
-### Database Functions Testing
+### Requested SQL Files Testing
+- **fishing_group.sql**: ⚠️  Execution failed but analyzed (Table: fishing_group, Size: 62938 bytes)
+- **audit_bazaar.sql**: ⚠️  Execution failed but analyzed (Table: Unknown, Size: 971 bytes)
+- **fishing_area.sql**: ⚠️  Execution failed but analyzed (Table: fishing_area, Size: 18454 bytes)
+- **fishing_mob.sql**: ⚠️  Execution failed but analyzed (Table: fishing_mob, Size: 35715 bytes)
+- **mob_pool_mods.sql**: ⚠️  Execution failed but analyzed (Table: mob_pool_mods, Size: 21140 bytes)
+- **mob_droplist.sql**: ⚠️  Execution failed but analyzed (Table: mob_droplist, Size: 2142768 bytes)
+- **item_puppet.sql**: ⚠️  Execution failed but analyzed (Table: item_puppet, Size: 8944 bytes)
+- **instance_list.sql**: ⚠️  Execution failed but analyzed (Table: instance_list, Size: 13321 bytes)
+- **accounts_banned.sql**: ⚠️  Execution failed but analyzed (Table: accounts_banned, Size: 715 bytes)
+- **pet_skills.sql**: ⚠️  Execution failed but analyzed (Table: pet_skills, Size: 22991 bytes)
+
+**SQL Files Summary**: 0/10 files passed execution, 10/10 files analyzed
+
+### General Database Functions Testing
 - **abilities_table**: ❌ Issues detected
 - **sql_procedures**: ❌ Issues detected
 

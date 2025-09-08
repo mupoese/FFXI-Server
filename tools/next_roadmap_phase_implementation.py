@@ -93,8 +93,246 @@ class NextRoadmapPhaseImplementor:
         
         function_results = {}
         
-        # Test by creating a temporary SQLite database and running the SQL
-        test_db_path = "/tmp/ffxi_test.db"
+        # Specific SQL files requested by user
+        requested_sql_files = [
+            "fishing_group.sql",
+            "audit_bazaar.sql", 
+            "fishing_area.sql",
+            "fishing_mob.sql",
+            "mob_pool_mods.sql",
+            "mob_droplist.sql",
+            "item_puppet.sql",
+            "instance_list.sql",
+            "accounts_banned.sql",
+            "pet_skills.sql"
+        ]
+        
+        print(f"  🎯 Testing {len(requested_sql_files)} requested SQL files...")
+        
+        # Test each requested SQL file individually
+        for sql_file in requested_sql_files:
+            print(f"  📊 Testing {sql_file}...")
+            function_results[sql_file] = self._test_individual_sql_file(sql_file)
+        
+        # Also test general SQL functions
+        function_results.update(self._test_general_sql_functions())
+        
+        return function_results
+    
+    def _test_individual_sql_file(self, sql_filename: str) -> Dict:
+        """Test an individual SQL file for syntax and functionality."""
+        sql_file_path = self.sql_dir / sql_filename
+        
+        if not sql_file_path.exists():
+            return {
+                'exists': False,
+                'test_passed': False,
+                'error': f'File {sql_filename} not found'
+            }
+        
+        # Create temporary database for this test
+        test_db_path = f"/tmp/ffxi_test_{sql_filename.replace('.sql', '')}.db"
+        
+        try:
+            conn = sqlite3.connect(test_db_path)
+            cursor = conn.cursor()
+            
+            # Read SQL content
+            content = sql_file_path.read_text(encoding='utf-8')
+            
+            # Analyze content first
+            table_name = self._extract_table_name(content)
+            file_size = len(content)
+            insert_count = len(re.findall(r'INSERT INTO', content, re.IGNORECASE))
+            create_count = len(re.findall(r'CREATE TABLE', content, re.IGNORECASE))
+            variables_count = len(re.findall(r'SET @\w+', content))
+            
+            # Convert MySQL syntax to SQLite-compatible syntax
+            sqlite_content = self._convert_mysql_to_sqlite(content)
+            
+            # Try to execute the SQL
+            execution_successful = False
+            try:
+                cursor.executescript(sqlite_content)
+                execution_successful = True
+                
+                if table_name:
+                    # Test basic operations on the table
+                    try:
+                        # Test table exists
+                        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                        table_exists = cursor.fetchone() is not None
+                        
+                        if table_exists:
+                            # Test basic query
+                            cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                            row_count = cursor.fetchone()[0]
+                            
+                            # Test structure query
+                            cursor.execute(f"PRAGMA table_info({table_name})")
+                            columns = cursor.fetchall()
+                            
+                            result = {
+                                'exists': True,
+                                'test_passed': True,
+                                'table_created': True,
+                                'table_name': table_name,
+                                'row_count': row_count,
+                                'column_count': len(columns),
+                                'columns': [col[1] for col in columns],  # Column names
+                                'file_size': file_size,
+                                'insert_statements': insert_count,
+                                'create_statements': create_count
+                            }
+                            
+                            print(f"    ✅ {sql_filename}: Table '{table_name}' created with {len(columns)} columns, {row_count} rows")
+                            
+                        else:
+                            result = {
+                                'exists': True,
+                                'test_passed': False,
+                                'table_created': False,
+                                'error': f'Table {table_name} was not created',
+                                'file_size': file_size,
+                                'analysis_successful': True
+                            }
+                            print(f"    ❌ {sql_filename}: Table '{table_name}' creation failed")
+                            
+                    except Exception as query_error:
+                        result = {
+                            'exists': True,
+                            'test_passed': False,
+                            'table_created': False,
+                            'table_name': table_name,
+                            'error': f'Table query failed: {str(query_error)}',
+                            'file_size': file_size,
+                            'analysis_successful': True
+                        }
+                        print(f"    ⚠️  {sql_filename}: Table created but query failed: {query_error}")
+                else:
+                    # No table detected, might be procedures or variables
+                    result = {
+                        'exists': True,
+                        'test_passed': True,
+                        'table_created': False,
+                        'variables_count': variables_count,
+                        'content_type': 'variables_and_procedures',
+                        'file_size': file_size
+                    }
+                    
+                    print(f"    ✅ {sql_filename}: {variables_count} variables processed")
+                
+            except Exception as e:
+                # SQL execution failed, but we can still provide analysis
+                result = {
+                    'exists': True,
+                    'test_passed': False,
+                    'sql_execution_failed': True,
+                    'error': str(e),
+                    'file_size': file_size,
+                    'table_name': table_name,
+                    'insert_statements': insert_count,
+                    'create_statements': create_count,
+                    'variables_count': variables_count,
+                    'analysis_successful': True,
+                    'syntax_conversion_attempted': True
+                }
+                print(f"    ⚠️  {sql_filename}: SQL execution failed but file analyzed (Table: {table_name}, Size: {file_size} bytes)")
+            
+            conn.close()
+            
+        except Exception as e:
+            result = {
+                'exists': True,
+                'test_passed': False,
+                'database_connection_failed': True,
+                'error': str(e)
+            }
+            print(f"    ❌ {sql_filename}: Database connection failed: {e}")
+        
+        finally:
+            # Clean up test database
+            if os.path.exists(test_db_path):
+                os.remove(test_db_path)
+        
+        return result
+    
+    def _convert_mysql_to_sqlite(self, mysql_content: str) -> str:
+        """Convert MySQL-specific syntax to SQLite-compatible syntax."""
+        sqlite_content = mysql_content
+        
+        # Remove MySQL-specific comments and settings
+        sqlite_content = re.sub(r'/\*!40\d{3}.*?\*/;?', '', sqlite_content, flags=re.DOTALL)
+        sqlite_content = re.sub(r'SET SQL_MODE.*?;', '', sqlite_content)
+        sqlite_content = re.sub(r'SET @OLD_.*?;', '', sqlite_content)
+        sqlite_content = re.sub(r'SET @\w+.*?;', '', sqlite_content)  # Remove all SET @ variables
+        
+        # Remove MySQL-specific table options
+        sqlite_content = re.sub(r' unsigned', '', sqlite_content)
+        sqlite_content = re.sub(r' CHARSET=\w+', '', sqlite_content)
+        sqlite_content = re.sub(r' COLLATE=\w+', '', sqlite_content)
+        sqlite_content = re.sub(r' ENGINE=\w+', '', sqlite_content)
+        sqlite_content = re.sub(r' TRANSACTIONAL=\d+', '', sqlite_content)
+        sqlite_content = re.sub(r' DEFAULT CHARSET=\w+', '', sqlite_content)
+        sqlite_content = re.sub(r' AVG_ROW_LENGTH=\d+', '', sqlite_content)
+        sqlite_content = re.sub(r' AUTO_INCREMENT=\d+', '', sqlite_content)
+        
+        # Convert data types
+        sqlite_content = re.sub(r'smallint\(\d+\)', 'INTEGER', sqlite_content)
+        sqlite_content = re.sub(r'int\(\d+\)', 'INTEGER', sqlite_content)
+        sqlite_content = re.sub(r'tinyint\(\d+\)', 'INTEGER', sqlite_content)
+        sqlite_content = re.sub(r'varchar\(\d+\)', 'TEXT', sqlite_content)
+        
+        # Remove backticks
+        sqlite_content = sqlite_content.replace('`', '')
+        
+        # Handle AUTO_INCREMENT
+        sqlite_content = re.sub(r'AUTO_INCREMENT', '', sqlite_content)
+        
+        # Handle DEFAULT values with quotes issues
+        sqlite_content = re.sub(r"DEFAULT\s+'([^']*)'", r"DEFAULT '\1'", sqlite_content)
+        
+        # Handle KEY statements after table definition - remove them
+        sqlite_content = re.sub(r',\s*KEY\s+.*?\([^)]+\)', '', sqlite_content)
+        sqlite_content = re.sub(r',\s*UNIQUE KEY\s+.*?\([^)]+\)', '', sqlite_content)
+        sqlite_content = re.sub(r',\s*PRIMARY KEY\s+.*?\([^)]+\)', '', sqlite_content)
+        
+        # Clean up extra commas before closing parenthesis
+        sqlite_content = re.sub(r',\s*\)', ')', sqlite_content)
+        
+        # Split into individual statements for safer execution
+        statements = []
+        for statement in sqlite_content.split(';'):
+            statement = statement.strip()
+            if statement and not statement.startswith('--') and not statement.startswith('/*'):
+                # Skip DROP statements for safer testing
+                if not statement.upper().startswith('DROP'):
+                    statements.append(statement + ';')
+        
+        return '\n'.join(statements)
+    
+    def _extract_table_name(self, sql_content: str) -> Optional[str]:
+        """Extract table name from CREATE TABLE statement."""
+        # Look for CREATE TABLE statements
+        patterns = [
+            r'CREATE TABLE IF NOT EXISTS\s+`?(\w+)`?',
+            r'CREATE TABLE\s+`?(\w+)`?',
+            r'DROP TABLE IF EXISTS\s+`?(\w+)`?'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, sql_content, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        
+        return None
+    
+    def _test_general_sql_functions(self) -> Dict[str, Dict]:
+        """Test general SQL functions and procedures."""
+        print("  📊 Testing general SQL functions...")
+        
+        function_results = {}
+        test_db_path = "/tmp/ffxi_general_test.db"
         
         try:
             # Create test database
@@ -104,12 +342,13 @@ class NextRoadmapPhaseImplementor:
             # Test abilities table creation
             abilities_sql = self.sql_dir / "abilities.sql"
             if abilities_sql.exists():
-                print("  📊 Testing abilities.sql...")
+                print("    🔍 Testing abilities.sql...")
                 content = abilities_sql.read_text(encoding='utf-8')
                 
                 try:
                     # Execute table creation
-                    cursor.executescript(content)
+                    sqlite_content = self._convert_mysql_to_sqlite(content)
+                    cursor.executescript(sqlite_content)
                     
                     # Test basic queries
                     cursor.execute("SELECT COUNT(*) FROM abilities")
@@ -125,7 +364,7 @@ class NextRoadmapPhaseImplementor:
                         'test_passed': True
                     }
                     
-                    print(f"    ✅ Abilities table: {ability_count} abilities, jobs: {job_ids}")
+                    print(f"      ✅ Abilities table: {ability_count} abilities, jobs: {job_ids}")
                     
                 except Exception as e:
                     function_results['abilities_table'] = {
@@ -133,12 +372,12 @@ class NextRoadmapPhaseImplementor:
                         'test_passed': False,
                         'error': str(e)
                     }
-                    print(f"    ❌ Abilities table test failed: {e}")
+                    print(f"      ❌ Abilities table test failed: {e}")
             
             # Test stored procedures from content integration
             content_sql = self.sql_dir / "ffxi_content_integration.sql"
             if content_sql.exists():
-                print("  📊 Testing SQL procedures...")
+                print("    🔍 Testing SQL procedures...")
                 content = content_sql.read_text(encoding='utf-8')
                 
                 try:
@@ -152,14 +391,14 @@ class NextRoadmapPhaseImplementor:
                         'syntax_valid': True
                     }
                     
-                    print(f"    ✅ Found {procedure_count} procedures, {function_count} functions")
+                    print(f"      ✅ Found {procedure_count} procedures, {function_count} functions")
                     
                 except Exception as e:
                     function_results['sql_procedures'] = {
                         'syntax_valid': False,
                         'error': str(e)
                     }
-                    print(f"    ❌ SQL procedures test failed: {e}")
+                    print(f"      ❌ SQL procedures test failed: {e}")
             
             conn.close()
             
@@ -168,7 +407,7 @@ class NextRoadmapPhaseImplementor:
                 'connection_successful': False,
                 'error': str(e)
             }
-            print(f"  ❌ Database connection failed: {e}")
+            print(f"    ❌ Database connection failed: {e}")
         
         finally:
             # Clean up test database
@@ -537,14 +776,51 @@ class NextRoadmapPhaseImplementor:
 
 ## 📊 SQL Database Function Validation
 
-### Database Functions Testing
+### Requested SQL Files Testing
+"""
+        
+        requested_files = [
+            "fishing_group.sql", "audit_bazaar.sql", "fishing_area.sql", "fishing_mob.sql",
+            "mob_pool_mods.sql", "mob_droplist.sql", "item_puppet.sql", "instance_list.sql",
+            "accounts_banned.sql", "pet_skills.sql"
+        ]
+        
+        passed_count = 0
+        analyzed_count = 0
+        for sql_file in requested_files:
+            if sql_file in sql_test_results:
+                results = sql_test_results[sql_file]
+                analyzed_count += 1
+                
+                if results.get('test_passed', False):
+                    passed_count += 1
+                    if 'table_name' in results:
+                        report += f"- **{sql_file}**: ✅ Table '{results['table_name']}' created successfully ({results.get('row_count', 0)} rows, {results.get('column_count', 0)} columns)\n"
+                    else:
+                        report += f"- **{sql_file}**: ✅ SQL executed successfully ({results.get('variables_count', 0)} variables)\n"
+                else:
+                    # Even if execution failed, show what we could analyze
+                    if results.get('analysis_successful', False):
+                        table_name = results.get('table_name', 'Unknown')
+                        file_size = results.get('file_size', 0)
+                        report += f"- **{sql_file}**: ⚠️  Execution failed but analyzed (Table: {table_name}, Size: {file_size} bytes)\n"
+                    else:
+                        report += f"- **{sql_file}**: ❌ Issues detected - {results.get('error', 'Unknown error')}\n"
+            else:
+                report += f"- **{sql_file}**: ❌ Not tested\n"
+        
+        report += f"\n**SQL Files Summary**: {passed_count}/{len(requested_files)} files passed execution, {analyzed_count}/{len(requested_files)} files analyzed\n"
+        
+        report += f"""
+### General Database Functions Testing
 """
         
         for function_name, results in sql_test_results.items():
-            if results.get('test_passed', False):
-                report += f"- **{function_name}**: ✅ Working\n"
-            else:
-                report += f"- **{function_name}**: ❌ Issues detected\n"
+            if function_name not in requested_files:
+                if results.get('test_passed', False):
+                    report += f"- **{function_name}**: ✅ Working\n"
+                else:
+                    report += f"- **{function_name}**: ❌ Issues detected\n"
         
         report += f"""
 ## 📊 Dynamic Database Analysis

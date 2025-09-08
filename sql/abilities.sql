@@ -646,4 +646,76 @@ INSERT INTO `abilities` VALUES (964,'roundhouse',15,25,4,60,173,0,0,179,2000,0,6
 INSERT INTO `abilities` VALUES (967,'sonic_buffet',15,65,4,60,173,0,0,182,2000,0,6,18.0,0,0,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (968,'tornado_ii',15,75,4,60,173,0,0,183,2000,0,6,14.0,0,0,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (970,'hysteric_assault',15,99,4,60,173,0,0,185,2000,0,6,7.0,0,0,60,0,0,NULL);
+
+-- Phase 2: Job Ability Database Enhancement - Complete implementation for 8 target jobs
+-- Added as part of comprehensive job completeness initiative to achieve 100% coverage
+
+-- === WARRIOR ABILITIES (Job ID: 1) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (971,'retaliation',1,55,1,300,6,0,0,189,2000,0,6,20.0,0,1,900,392,0,NULL);
+INSERT INTO `abilities` VALUES (972,'restraint',1,65,1,300,7,0,0,190,2000,0,6,20.0,0,1,1800,394,0,NULL);
+INSERT INTO `abilities` VALUES (973,'blood_rage',1,75,1,300,8,0,0,191,2000,0,6,20.0,0,1,900,396,0,NULL);
+INSERT INTO `abilities` VALUES (974,'tomahawk',1,40,4,300,9,110,0,192,2000,0,3,18.0,0,0,300,0,0,NULL);
+INSERT INTO `abilities` VALUES (975,'warriors_charge',1,93,1,300,10,0,0,193,2000,0,6,20.0,0,1,900,398,0,NULL);
+
+-- === MONK ABILITIES (Job ID: 2) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (976,'chi_blast',2,55,4,180,18,110,0,194,2000,0,3,14.0,0,0,300,454,0,NULL);
+INSERT INTO `abilities` VALUES (977,'inner_strength',2,65,1,300,19,0,0,195,2000,0,6,20.0,0,1,600,456,0,NULL);
+INSERT INTO `abilities` VALUES (978,'impetus',2,75,1,300,20,0,0,196,2000,0,6,20.0,0,1,600,458,0,NULL);
+INSERT INTO `abilities` VALUES (979,'formless_strikes',2,85,1,300,21,0,0,197,2000,0,6,20.0,0,1,900,460,0,NULL);
+INSERT INTO `abilities` VALUES (980,'mantra',2,95,1,300,22,0,0,198,2000,0,6,20.0,1,1,300,462,0,NULL);
+
+-- === THIEF ABILITIES (Job ID: 6) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (981,'trick_attack',6,30,1,60,66,0,0,199,2000,0,6,20.0,0,1,0,710,0,NULL);
+INSERT INTO `abilities` VALUES (982,'mug',6,35,4,300,67,129,0,200,2000,0,3,4.4,0,1,300,712,0,NULL);
+INSERT INTO `abilities` VALUES (983,'despoil',6,75,4,300,68,0,0,201,2000,0,3,4.4,0,1,300,714,0,NULL);
+INSERT INTO `abilities` VALUES (984,'conspirator',6,85,1,300,69,0,0,202,2000,0,6,20.0,0,1,600,716,0,NULL);
+INSERT INTO `abilities` VALUES (985,'accomplice',6,65,4,300,70,0,0,203,2000,0,6,18.0,0,1,300,718,0,NULL);
+INSERT INTO `abilities` VALUES (986,'collaborator',6,95,4,300,71,0,0,204,2000,0,6,18.0,0,1,300,720,0,NULL);
+
+-- === RANGER ABILITIES (Job ID: 11) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (987,'widescan',11,5,1,30,126,0,0,205,2000,0,6,20.0,0,0,0,1030,0,NULL);
+INSERT INTO `abilities` VALUES (988,'tracking',11,15,1,300,127,0,0,206,2000,0,6,20.0,0,1,300,1032,0,NULL);
+INSERT INTO `abilities` VALUES (989,'unlimited_shot',11,50,1,300,128,0,0,207,2000,0,6,20.0,0,1,600,1034,0,NULL);
+INSERT INTO `abilities` VALUES (990,'velocity_shot',11,60,1,300,129,0,0,208,2000,0,6,20.0,0,1,600,1036,0,NULL);
+INSERT INTO `abilities` VALUES (991,'double_shot',11,70,1,300,130,0,0,209,2000,0,6,20.0,0,1,600,1038,0,NULL);
+INSERT INTO `abilities` VALUES (992,'bounty_shot',11,80,4,300,131,0,0,210,2000,0,3,18.0,0,1,300,1040,0,NULL);
+INSERT INTO `abilities` VALUES (993,'stealth_shot',11,90,1,300,132,0,0,211,2000,0,6,20.0,0,1,600,1042,0,NULL);
+
+-- === SAMURAI ABILITIES (Job ID: 12) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (994,'warding_circle',12,18,1,300,140,0,0,212,2000,0,6,20.0,1,1,20,1280,0,NULL);
+INSERT INTO `abilities` VALUES (995,'third_eye',12,15,1,60,141,0,0,213,2000,0,6,20.0,0,1,300,1282,0,NULL);
+INSERT INTO `abilities` VALUES (996,'hasso',12,25,1,300,142,0,0,214,2000,0,6,20.0,0,1,600,1284,0,NULL);
+INSERT INTO `abilities` VALUES (997,'seigan',12,35,1,300,143,0,0,215,2000,0,6,20.0,0,1,600,1286,0,NULL);
+INSERT INTO `abilities` VALUES (998,'meditate',12,60,1,180,144,0,0,216,2000,0,6,20.0,0,1,300,1288,0,NULL);
+INSERT INTO `abilities` VALUES (999,'hamanoha',12,75,1,300,145,0,0,217,2000,0,6,20.0,0,1,900,1290,0,NULL);
+INSERT INTO `abilities` VALUES (1000,'hagakure',12,95,1,300,146,0,0,218,2000,0,6,20.0,0,1,1200,1292,0,NULL);
+
+-- === DRAGOON ABILITIES (Job ID: 14) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (1001,'ancient_circle',14,5,1,300,160,0,0,219,2000,0,6,20.0,1,1,20,1536,0,NULL);
+INSERT INTO `abilities` VALUES (1002,'jump',14,10,4,60,161,110,0,220,2000,0,3,7.0,0,0,300,1538,0,NULL);
+INSERT INTO `abilities` VALUES (1003,'high_jump',14,35,4,120,162,110,0,221,2000,0,3,7.0,0,0,300,1540,0,NULL);
+INSERT INTO `abilities` VALUES (1004,'super_jump',14,50,1,180,164,0,0,222,2000,0,6,20.0,0,1,80,1542,0,NULL);
+INSERT INTO `abilities` VALUES (1005,'spirit_link',14,25,1,300,165,0,0,223,2000,0,6,20.0,0,1,600,1544,0,NULL);
+INSERT INTO `abilities` VALUES (1006,'spirit_bond',14,65,1,300,166,0,0,224,2000,0,6,20.0,0,1,900,1546,0,NULL);
+INSERT INTO `abilities` VALUES (1007,'steady_wing',14,75,1,300,167,0,0,225,2000,0,6,20.0,0,1,600,1548,0,NULL);
+INSERT INTO `abilities` VALUES (1008,'restoring_breath',14,85,1,300,168,0,0,226,2000,0,6,20.0,0,1,900,1550,0,NULL);
+INSERT INTO `abilities` VALUES (1009,'empathy',14,95,1,300,169,0,0,227,2000,0,6,20.0,0,1,900,1552,0,NULL);
+
+-- === PUPPETMASTER ABILITIES (Job ID: 17) - Complete Job Abilities ===
+INSERT INTO `abilities` VALUES (1010,'activate',17,1,1,1200,200,0,0,228,2000,0,6,20.0,0,1,300,0,0,NULL);
+INSERT INTO `abilities` VALUES (1011,'deactivate',17,1,1,60,201,0,0,229,2000,0,6,20.0,0,0,0,0,0,NULL);
+INSERT INTO `abilities` VALUES (1012,'maneuvers',17,1,1,10,202,0,0,230,2000,0,6,20.0,0,0,0,0,0,NULL);
+INSERT INTO `abilities` VALUES (1013,'repair',17,15,1,180,203,102,0,231,2000,0,6,20.0,0,1,300,1792,0,NULL);
+INSERT INTO `abilities` VALUES (1014,'maintenance',17,30,1,300,204,0,0,232,2000,0,6,20.0,0,1,600,1794,0,NULL);
+INSERT INTO `abilities` VALUES (1015,'deploy',17,40,1,300,205,0,0,233,2000,0,6,20.0,0,1,900,1796,0,NULL);
+INSERT INTO `abilities` VALUES (1016,'retrieve',17,50,1,300,206,0,0,234,2000,0,6,20.0,0,1,600,1798,0,NULL);
+INSERT INTO `abilities` VALUES (1017,'ventriloquy',17,60,1,300,207,0,0,235,2000,0,6,20.0,0,1,900,1800,0,NULL);
+INSERT INTO `abilities` VALUES (1018,'role_reversal',17,75,1,300,208,0,0,236,2000,0,6,20.0,0,1,1200,1802,0,NULL);
+
+-- === BEASTMASTER ABILITIES (Job ID: 9) - Missing Regular Abilities ===
+INSERT INTO `abilities` VALUES (1019,'reward',9,12,1,60,100,102,0,237,2000,0,6,20.0,0,1,300,902,0,NULL);
+INSERT INTO `abilities` VALUES (1020,'call_beast',9,23,1,300,101,0,0,238,2000,0,6,20.0,0,1,600,906,0,NULL);
+INSERT INTO `abilities` VALUES (1021,'sic',9,25,1,30,102,0,0,239,2000,0,6,20.0,0,0,0,908,0,NULL);
+INSERT INTO `abilities` VALUES (1022,'heel',9,35,1,30,103,0,0,240,2000,0,6,20.0,0,0,0,910,0,NULL);
+INSERT INTO `abilities` VALUES (1023,'stay',9,45,1,30,104,0,0,241,2000,0,6,20.0,0,0,0,912,0,NULL);
 --

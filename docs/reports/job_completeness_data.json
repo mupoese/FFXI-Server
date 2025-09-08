@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-08T16:10:42.559481",
+  "timestamp": "2025-09-08T16:30:21.393422",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -7,7 +7,7 @@
       "abilities_total": 15,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 49,
+      "lua_functions": 53,
       "lua_bindings": 73,
       "missing_features": [],
       "enhancement_priorities": [

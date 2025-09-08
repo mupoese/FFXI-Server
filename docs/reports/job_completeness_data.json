@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-07T07:58:56.090576",
+  "timestamp": "2025-09-07T22:09:49.538709",
   "jobs": {
     "warrior": {
       "current_percentage": 75.0,
@@ -101,7 +101,7 @@
       "abilities_total": 8,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 42,
+      "lua_functions": 47,
       "lua_bindings": 12,
       "missing_features": [
         "Missing Feral Howl implementation"
@@ -111,18 +111,15 @@
       ]
     },
     "bard": {
-      "current_percentage": 55.0,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 6,
       "abilities_total": 6,
-      "spells_implemented": 0,
+      "spells_implemented": 25,
       "spells_total": 25,
-      "lua_functions": 22,
+      "lua_functions": 31,
       "lua_bindings": 25,
       "missing_features": [],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "enhancement_priorities": []
     },
     "ranger": {
       "current_percentage": 75.0,
@@ -138,13 +135,13 @@
       ]
     },
     "samurai": {
-      "current_percentage": 69.0,
+      "current_percentage": 75.0,
       "abilities_implemented": 0,
       "abilities_total": 10,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 16,
-      "lua_bindings": 16,
+      "lua_functions": 38,
+      "lua_bindings": 28,
       "missing_features": [],
       "enhancement_priorities": [
         "Complete job ability database entries"
@@ -197,21 +194,15 @@
       "enhancement_priorities": []
     },
     "corsair": {
-      "current_percentage": 59.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 8,
       "abilities_total": 8,
-      "spells_implemented": 0,
-      "spells_total": 0,
-      "lua_functions": 13,
+      "spells_implemented": 8,
+      "spells_total": 8,
+      "lua_functions": 21,
       "lua_bindings": 9,
-      "missing_features": [
-        "Missing Quick Draw implementation",
-        "Missing Random Deal implementation"
-      ],
-      "enhancement_priorities": [
-        "Expand Lua function implementation",
-        "Complete job ability database entries"
-      ]
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "puppetmaster": {
       "current_percentage": 75.0,
@@ -227,21 +218,15 @@
       ]
     },
     "dancer": {
-      "current_percentage": 67.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 12,
       "spells_implemented": 0,
       "spells_total": 0,
-      "lua_functions": 25,
-      "lua_bindings": 53,
-      "missing_features": [
-        "Missing Flourishes implementation",
-        "Missing Waltzes implementation",
-        "Missing Sambas implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries"
-      ]
+      "lua_functions": 35,
+      "lua_bindings": 84,
+      "missing_features": [],
+      "enhancement_priorities": []
     },
     "scholar": {
       "current_percentage": 100.0,
@@ -266,47 +251,22 @@
       "enhancement_priorities": []
     },
     "rune_fencer": {
-      "current_percentage": 52.5,
-      "abilities_implemented": 0,
+      "current_percentage": 100.0,
+      "abilities_implemented": 12,
       "abilities_total": 12,
-      "spells_implemented": 0,
+      "spells_implemented": 8,
       "spells_total": 8,
-      "lua_functions": 43,
-      "lua_bindings": 33,
-      "missing_features": [
-        "Missing Embolden implementation"
-      ],
-      "enhancement_priorities": [
-        "Complete job ability database entries",
-        "Complete spell access implementation"
-      ]
+      "lua_functions": 49,
+      "lua_bindings": 35,
+      "missing_features": [],
+      "enhancement_priorities": []
     }
   },
   "enhancement_plan": {
     "total_jobs": 22,
-    "jobs_at_100_percent": 10,
-    "average_completeness": 83.0,
+    "jobs_at_100_percent": 14,
+    "average_completeness": 90.8,
     "highest_priority_jobs": [
-      [
-        "rune_fencer",
-        52.5
-      ],
-      [
-        "bard",
-        55.0
-      ],
-      [
-        "corsair",
-        59.5
-      ],
-      [
-        "dancer",
-        67.5
-      ],
-      [
-        "samurai",
-        69.0
-      ],
       [
         "beastmaster",
         72.5
@@ -326,6 +286,26 @@
       [
         "ranger",
         75.0
+      ],
+      [
+        "samurai",
+        75.0
+      ],
+      [
+        "dragoon",
+        75.0
+      ],
+      [
+        "puppetmaster",
+        75.0
+      ],
+      [
+        "white_mage",
+        100.0
+      ],
+      [
+        "black_mage",
+        100.0
       ]
     ],
     "enhancement_phases": [
@@ -333,11 +313,6 @@
         "phase": 2,
         "name": "Moderate Jobs (50-75% Complete)",
         "jobs": [
-          "rune_fencer",
-          "bard",
-          "corsair",
-          "dancer",
-          "samurai",
           "beastmaster"
         ],
         "estimated_hours": 20
@@ -350,6 +325,7 @@
           "monk",
           "thief",
           "ranger",
+          "samurai",
           "dragoon",
           "puppetmaster"
         ],

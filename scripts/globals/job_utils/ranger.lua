@@ -883,3 +883,36 @@ xi.job_utils.ranger.getWidescanRange = function(player)
     
     return math.floor(range)
 end
+
+-- Validate ability access for ranger abilities
+xi.job_utils.ranger.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.ranger.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.EAGLE_EYE_SHOT then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    elseif abilityId == xi.jobAbility.SCAVENGE then
+        abilityLevel = 10
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.RNG and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.ranger.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.ranger.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Scavenge', 'Camouflage', 'Sharpshot', 'Unlimited Shot', 'Eagle Eye Shot',
+        'Velocity Shot', 'Double Shot', 'Shadowbind', 'Stealth Shot'
+    }
+    
+    return abilities
+end

@@ -751,3 +751,48 @@ xi.job_utils.paladin.getJobPointBonus = function(player, jpType)
     
     return bonus
 end
+
+-- Validate ability access for paladin abilities
+xi.job_utils.paladin.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.paladin.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    -- Check specific ability requirements
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.HOLY_CIRCLE then
+        abilityLevel = 5
+    elseif abilityId == xi.jobAbility.SHIELD_BASH then
+        abilityLevel = 15
+    elseif abilityId == xi.jobAbility.SENTINEL then
+        abilityLevel = 30
+    elseif abilityId == xi.jobAbility.COVER then
+        abilityLevel = 35
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.PLD and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.paladin.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.paladin.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Holy Circle', 'Shield Bash', 'Sentinel', 'Cover', 'Invincible',
+        'Rampart', 'Fealty', 'Chivalry', 'Divine Emblem', 'Sepulcher'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.PLD and effectiveness > 0.5 then
+        abilities = {
+            'Holy Circle', 'Shield Bash', 'Sentinel', 'Cover'
+        }
+    end
+    
+    return abilities
+end

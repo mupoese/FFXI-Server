@@ -992,3 +992,25 @@ xi.job_utils.warrior.assessWarriorCapabilities = function(player)
     
     return capabilities
 end
+
+-- Get job-specific abilities list
+xi.job_utils.warrior.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.warrior.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Mighty Strikes', 'Berserk', 'Warcry', 'Aggressor', 'Defender',
+        'Provoke', 'Taunt', 'Restraint', 'Blood Rage', 'Retaliation'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.WAR and effectiveness > 0.5 then
+        abilities = {
+            'Provoke', 'Berserk', 'Defender', 'Warcry'
+        }
+    end
+    
+    return abilities
+end

@@ -480,3 +480,33 @@ end
 xi.job_utils.bard.getAbilityCount = function()
     return 6 -- Total abilities available to Bard
 end
+
+-- Validate ability access for bard abilities
+xi.job_utils.bard.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.bard.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.SOUL_VOICE then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.BRD and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.bard.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.bard.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Soul Voice', 'Pianissimo', 'Troubadour', 'Nightingale', 'Clarion Call'
+    }
+    
+    return abilities
+end

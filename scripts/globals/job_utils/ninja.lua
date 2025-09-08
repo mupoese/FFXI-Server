@@ -1094,4 +1094,36 @@ function xi.job_utils.ninja.getMeritBonuses(player)
     return bonuses
 end
 
+-- Validate ability access for ninja abilities
+xi.job_utils.ninja.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.ninja.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.MIJIN_GAKURE then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    elseif abilityId == xi.jobAbility.INNIN then
+        abilityLevel = 20
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.NIN and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.ninja.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.ninja.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Mijin Gakure', 'Innin', 'Yonin', 'Futae', 'Sange', 'Mikage'
+    }
+    
+    return abilities
+end
+
 return xi.job_utils.ninja

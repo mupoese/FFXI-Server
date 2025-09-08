@@ -1281,3 +1281,45 @@ xi.job_utils.summoner.getOptimalAvatar = function(player, situation)
     
     return recommendations[situation] or xi.petId.CARBUNCLE
 end
+
+-- Validate ability access with level and job requirements
+xi.job_utils.summoner.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.summoner.validateJobAccess(player)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.SMN and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.summoner.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.summoner.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Astral Flow', 'Avatar\'s Favor', 'Elemental Siphon', 'Release', 'Assault',
+        'Retreat', 'Apogee', 'Mana Cede', 'Astral Conduit', 'Blood Pact Rage',
+        'Blood Pact Ward'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.SMN and effectiveness > 0.5 then
+        abilities = {
+            'Release', 'Assault', 'Retreat'
+        }
+    end
+    
+    return abilities
+end

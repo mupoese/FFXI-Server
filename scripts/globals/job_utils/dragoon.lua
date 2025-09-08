@@ -1582,3 +1582,36 @@ end
 -- Advanced Systems: Wyvern management, jump mechanics, dragon killer enhancement
 -- Enhanced Features: Comprehensive pet system, elemental damage, enmity management
 -----------------------------------
+
+-- Validate ability access for dragoon abilities
+xi.job_utils.dragoon.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.dragoon.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.SPIRIT_SURGE then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    elseif abilityId == xi.jobAbility.ANCIENT_CIRCLE then
+        abilityLevel = 5
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.DRG and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.dragoon.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.dragoon.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Ancient Circle', 'Jump', 'High Jump', 'Super Jump', 'Spirit Surge',
+        'Call Wyvern', 'Dismiss', 'Deep Breathing', 'Angon', 'Spirit Jump', 'Soul Jump'
+    }
+    
+    return abilities
+end

@@ -1,6 +1,9 @@
 -----------------------------------
 -- Enhanced Job Abilities System for ITERATION 9
 -- AoE enmity generation and cross-job interactions
+-- Supports all 22 FFXI jobs: warrior, monk, white_mage, black_mage, red_mage, thief, 
+-- paladin, dark_knight, beastmaster, bard, ranger, samurai, ninja, dragoon, summoner,
+-- blue_mage, corsair, puppetmaster, dancer, scholar, geomancer, rune_fencer
 -----------------------------------
 
 xi = xi or {}
@@ -29,6 +32,49 @@ xi.enhanced_abilities.generateAoEEnmity = function(caster, targets, abilityId, e
                 ce = ce * 1.2 -- Paladins generate 20% more CE from AoE abilities
             elseif caster:getMainJob() == xi.job.WAR then
                 ve = ve * 1.3 -- Warriors generate 30% more VE from AoE abilities
+            elseif caster:getMainJob() == xi.job.DRK then
+                ve = ve * 1.25 -- Dark Knights generate 25% more VE from AoE abilities
+            elseif caster:getMainJob() == xi.job.MNK then
+                ce = ce * 1.1 -- Monks generate 10% more CE from focused combat
+            elseif caster:getMainJob() == xi.job.WHM then
+                ce = ce * 0.8 -- White Mages generate less enmity from AoE heals
+            elseif caster:getMainJob() == xi.job.BLM then
+                ve = ve * 1.4 -- Black Mages generate high VE from AoE spells
+            elseif caster:getMainJob() == xi.job.RDM then
+                ce = ce * 1.05 -- Red Mages have balanced enmity generation
+                ve = ve * 1.05
+            elseif caster:getMainJob() == xi.job.THF then
+                ve = ve * 0.7 -- Thieves generate reduced enmity
+            elseif caster:getMainJob() == xi.job.BST then
+                ce = ce * 0.9 -- Beastmasters have reduced personal enmity
+            elseif caster:getMainJob() == xi.job.BRD then
+                ce = ce * 0.8 -- Bards generate less enmity from songs
+            elseif caster:getMainJob() == xi.job.RNG then
+                ve = ve * 1.2 -- Rangers generate increased VE from ranged attacks
+            elseif caster:getMainJob() == xi.job.SAM then
+                ve = ve * 1.35 -- Samurai generate high VE from weapon skills
+            elseif caster:getMainJob() == xi.job.NIN then
+                ve = ve * 0.85 -- Ninja have reduced enmity from stealth
+            elseif caster:getMainJob() == xi.job.DRG then
+                ve = ve * 1.15 -- Dragoons have moderate VE generation
+            elseif caster:getMainJob() == xi.job.SMN then
+                ce = ce * 0.85 -- Summoners have reduced personal enmity
+            elseif caster:getMainJob() == xi.job.BLU then
+                ce = ce * 1.1 -- Blue Mages have enhanced learning enmity
+                ve = ve * 1.1
+            elseif caster:getMainJob() == xi.job.COR then
+                ve = ve * 1.1 -- Corsairs have enhanced VE from shots
+            elseif caster:getMainJob() == xi.job.PUP then
+                ce = ce * 0.9 -- Puppetmasters share enmity with automaton
+            elseif caster:getMainJob() == xi.job.DNC then
+                ve = ve * 0.9 -- Dancers have reduced enmity from evasion
+            elseif caster:getMainJob() == xi.job.SCH then
+                ce = ce * 0.85 -- Scholars have academic enmity reduction
+            elseif caster:getMainJob() == xi.job.GEO then
+                ce = ce * 0.8 -- Geomancers have environmental enmity reduction
+            elseif caster:getMainJob() == xi.job.RUN then
+                ce = ce * 1.3 -- Rune Fencers have enhanced CE generation
+                ve = ve * 1.1
             end
             
             target:addEnmity(caster, ce, ve)

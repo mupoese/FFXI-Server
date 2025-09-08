@@ -800,6 +800,10 @@ xi.job_utils.thief.useAssassinsCharge = function(player, target, ability)
     if player:getMod(xi.mod.AUGMENTS_ASSASSINS_CHARGE) > 0 then
         crit = math.floor((merits / 5) * effectiveness)
     end
+    
+    player:addMod(xi.mod.CRITHITRATE, crit)
+    return crit
+end
 
 -----------------------------------
 -- Enhanced Thief Utility Functions
@@ -1036,4 +1040,26 @@ xi.job_utils.thief.getPartySupportCapabilities = function(player)
     }
     
     return capabilities
+end
+
+-- Get job-specific abilities list
+xi.job_utils.thief.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.thief.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Steal', 'Sneak Attack', 'Flee', 'Trick Attack', 'Mug', 'Hide',
+        'Assassinate', 'Perfect Dodge', 'Despoil', 'Conspirator', 'Accomplice', 'Collaborator'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.THF and effectiveness > 0.5 then
+        abilities = {
+            'Steal', 'Sneak Attack', 'Flee', 'Trick Attack'
+        }
+    end
+    
+    return abilities
 end

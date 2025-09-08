@@ -1044,4 +1044,60 @@ end
 -- Priority 1: Job Completeness Initiative - Scholar Phase Complete
 -----------------------------------
 
+-- Calculate graduated subjob penalty system (50% to 100% effectiveness)
+xi.job_utils.scholar.calculateSubjobPenalty = function(subjobLevel)
+    if subjobLevel <= 50 then
+        return 0.5  -- 50% effectiveness for subjob levels 1-50
+    elseif subjobLevel >= 75 then
+        return 1.0  -- Full effectiveness for subjob level 75
+    else
+        -- Linear scaling from 50% to 100% effectiveness between levels 50-75
+        return 0.5 + (subjobLevel - 50) * (0.5 / 25)
+    end
+end
+
+-- Validate ability access with level and job requirements
+xi.job_utils.scholar.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.scholar.validateJobAccess(player)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.SCH and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.scholar.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.scholar.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Sublimation', 'Helix', 'Tabula Rasa', 'Addendum White', 'Addendum Black',
+        'Light Arts', 'Dark Arts', 'Penury', 'Parsimony', 'Celerity', 'Alacrity',
+        'Rapture', 'Ebullience', 'Accession', 'Manifestation', 'Perpetuance',
+        'Immanence', 'Tranquility', 'Equanimity', 'Enlightenment', 'Focalization',
+        'Convergence', 'Diffusion', 'Cascade', 'Kaustra'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.SCH and effectiveness > 0.5 then
+        abilities = {
+            'Light Arts', 'Dark Arts', 'Sublimation'
+        }
+    end
+    
+    return abilities
+end
+
 return xi.job_utils.scholar

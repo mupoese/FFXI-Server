@@ -518,3 +518,25 @@ xi.job_utils.corsair.onRollEffectLose = function(player, effect)
         end
     end
 end
+
+-- Get job-specific abilities list
+xi.job_utils.corsair.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.corsair.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Phantom Roll', 'Quick Draw', 'Random Deal', 'Wild Card', 'Triple Shot',
+        'Fold', 'Double-Up', 'Snake Eye', 'Gunstep', 'Bolster Shot'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.COR and effectiveness > 0.5 then
+        abilities = {
+            'Phantom Roll', 'Quick Draw', 'Fold'
+        }
+    end
+    
+    return abilities
+end

@@ -795,3 +795,44 @@ end
 -- Spell Access: Complete with 500+ spell validation
 -- Advanced Systems: Magic burst, enmity management, status effects
 -----------------------------------
+
+-- Validate ability access for black mage abilities
+xi.job_utils.black_mage.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.black_mage.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    -- Check specific ability requirements
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.ELEMENTAL_SEAL then
+        abilityLevel = 15
+    elseif abilityId == xi.jobAbility.MANAFONT then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.BLM and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.black_mage.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.black_mage.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Elemental Seal', 'Manafont', 'Manawell', 'Flare II', 'Freeze II',
+        'Tornado II', 'Quake II', 'Burst II', 'Flood II'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.BLM and effectiveness > 0.5 then
+        abilities = {
+            'Elemental Seal'
+        }
+    end
+    
+    return abilities
+end

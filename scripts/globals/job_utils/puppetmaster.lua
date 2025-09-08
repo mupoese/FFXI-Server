@@ -898,3 +898,44 @@ xi.job_utils.puppetmaster.coordinateWithParty = function(player, party)
     
     return true
 end
+
+-- Validate ability access with level and job requirements
+xi.job_utils.puppetmaster.validateAbilityAccess = function(player, abilityId, requiredLevel)
+    requiredLevel = requiredLevel or 1
+    
+    local hasAccess, effectiveness = xi.job_utils.puppetmaster.validateJobAccess(player)
+    
+    if not hasAccess then
+        return false, 0.0
+    end
+    
+    -- Check level requirement
+    local currentLevel = player:getMainJob() == xi.job.PUP and player:getMainLvl() or player:getSubLvl()
+    if currentLevel < requiredLevel then
+        return false, 0.0
+    end
+    
+    return true, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.puppetmaster.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.puppetmaster.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Activate', 'Repair', 'Deploy', 'Deactivate', 'Maneuver', 'Overdrive',
+        'Ventriloquy', 'Role Reversal', 'Tactical Switch', 'Cooldown'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.PUP and effectiveness > 0.5 then
+        abilities = {
+            'Activate', 'Repair', 'Deploy'
+        }
+    end
+    
+    return abilities
+end

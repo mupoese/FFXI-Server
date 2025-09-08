@@ -999,3 +999,25 @@ xi.job_utils.beastmaster.onUseAbilityJug = function(player, target, ability)
     -- see sql/abilities_charges and sql_abilities
     player:addRecast(xi.recast.ABILITY, 102, 1)
 end
+
+-- Get job-specific abilities list
+xi.job_utils.beastmaster.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.beastmaster.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Familiar', 'Call Beast', 'Sic', 'Ready', 'Tame', 'Charm',
+        'Reward', 'Leave', 'Fight', 'Heel', 'Stay', 'Run Wild', 'Killer Instinct'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.BST and effectiveness > 0.5 then
+        abilities = {
+            'Sic', 'Tame', 'Reward'
+        }
+    end
+    
+    return abilities
+end

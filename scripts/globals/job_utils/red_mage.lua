@@ -691,4 +691,34 @@ xi.job_utils.red_mage.manageStatusEffects = function(player)
     end
 end
 
+-- Validate ability access for red mage abilities
+xi.job_utils.red_mage.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.red_mage.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.CHAINSPELL then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.RDM and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.red_mage.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.red_mage.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Chainspell', 'Convert', 'Composure', 'Saboteur', 'Spontaneity'
+    }
+    
+    return abilities
+end
+
 return xi.job_utils.red_mage

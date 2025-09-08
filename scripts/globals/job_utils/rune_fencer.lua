@@ -1047,3 +1047,26 @@ xi.job_utils.rune_fencer.validateAbilityAccess = function(player, abilityId, req
     
     return true, level, effectiveness
 end
+
+-- Get job-specific abilities list
+xi.job_utils.rune_fencer.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.rune_fencer.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor', 'Unda', 'Lux', 'Tenebrae',
+        'Vallation', 'Pflug', 'Swordplay', 'Elemental Sforzo', 'Gambit', 'Rayke',
+        'Liement', 'One for All', 'Odyllic Subterfuge', 'Battuta'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.RUN and effectiveness > 0.5 then
+        abilities = {
+            'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Vallation'
+        }
+    end
+    
+    return abilities
+end

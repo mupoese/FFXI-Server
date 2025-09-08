@@ -767,3 +767,43 @@ xi.job_utils.white_mage.getCastTimeReduction = function(player, spellType)
     
     return math.floor(reduction)
 end
+
+-- Validate ability access for white mage abilities
+xi.job_utils.white_mage.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.white_mage.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    -- Check specific ability requirements
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.DIVINE_SEAL then
+        abilityLevel = 15
+    elseif abilityId == xi.jobAbility.BENEDICTION then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.WHM and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.white_mage.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.white_mage.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Divine Seal', 'Benediction', 'Asylum', 'Afflatus Solace', 'Afflatus Misery'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.WHM and effectiveness > 0.5 then
+        abilities = {
+            'Divine Seal'
+        }
+    end
+    
+    return abilities
+end

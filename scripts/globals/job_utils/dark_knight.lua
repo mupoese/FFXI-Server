@@ -765,4 +765,37 @@ end
 -- Priority 1: Job Completeness Initiative - Dark Knight Phase Complete
 -----------------------------------
 
+-- Validate ability access for dark knight abilities
+xi.job_utils.dark_knight.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.dark_knight.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.BLOOD_WEAPON then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    elseif abilityId == xi.jobAbility.ARCANE_CIRCLE then
+        abilityLevel = 5
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.DRK and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.dark_knight.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.dark_knight.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Arcane Circle', 'Last Resort', 'Weapon Bash', 'Souleater', 'Blood Weapon',
+        'Dark Seal', 'Diabolic Eye', 'Nether Void', 'Soul Enslavement'
+    }
+    
+    return abilities
+end
+
 return xi.job_utils.dark_knight

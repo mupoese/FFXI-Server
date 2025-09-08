@@ -402,7 +402,8 @@ class ComprehensiveBuildTestSuite:
                 
                 # Basic validation
                 has_name = 'name' in workflow_data
-                has_on = 'on' in workflow_data
+                # In YAML, 'on' gets parsed as boolean True, so check for both
+                has_on = 'on' in workflow_data or True in workflow_data
                 has_jobs = 'jobs' in workflow_data
                 
                 is_valid = has_name and has_on and has_jobs

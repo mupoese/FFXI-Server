@@ -668,6 +668,26 @@ xi.job_utils.samurai.enhanceTwoHourAbility = function(player, abilityId)
     return false, 0
 end
 
-return xi.job_utils.samurai
+-- Get job-specific abilities list
+xi.job_utils.samurai.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.samurai.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Meikyo Shisui', 'Warding Circle', 'Third Eye', 'Hasso', 'Seigan',
+        'Meditate', 'Sekkanoki', 'Hamanoha', 'Hagakure'
+    }
+    
+    -- Add subjob abilities if available
+    if player:getSubJob() == xi.job.SAM and effectiveness > 0.5 then
+        abilities = {
+            'Third Eye', 'Meditate', 'Hasso', 'Seigan'
+        }
+    end
+    
+    return abilities
+end
 
 return xi.job_utils.samurai

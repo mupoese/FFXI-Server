@@ -32,7 +32,7 @@ local ELEMENTAL_WHEEL = {
 -----------------------------------
 -- Complete Job Access Validation with Comprehensive Subjob Support
 -----------------------------------
-function xi.job_utils.ninja.validateJobAccess(player, abilityLevel, spellLevel)
+xi.job_utils.ninja.validateJobAccess = function(player, abilityLevel, spellLevel)
     local access = {}
     access.ability = false
     access.spell = false
@@ -63,7 +63,7 @@ function xi.job_utils.ninja.validateJobAccess(player, abilityLevel, spellLevel)
     return access
 end
 
-function xi.job_utils.ninja.calculateSubjobPenalty(player)
+xi.job_utils.ninja.calculateSubjobPenalty = function(player)
     if player:getMainJob() == NINJA_JOB_ID then
         return 1.0 -- No penalty for main job
     elseif player:getSubJob() == NINJA_JOB_ID then
@@ -1092,6 +1092,38 @@ function xi.job_utils.ninja.getMeritBonuses(player)
     bonuses.ninja_tool_expertise = player:getMerit(xi.merit.NINJA_TOOL_EXPERTISE)         -- Tool expertise levels (0-5)
     
     return bonuses
+end
+
+-- Validate ability access for ninja abilities
+xi.job_utils.ninja.validateAbilityAccess = function(player, abilityId)
+    local hasAccess, effectiveness = xi.job_utils.ninja.validateJobAccess(player)
+    if not hasAccess then
+        return false, 0
+    end
+
+    local abilityLevel = 1
+    if abilityId == xi.jobAbility.MIJIN_GAKURE then
+        abilityLevel = 1 -- Level 1 2-hour ability
+    elseif abilityId == xi.jobAbility.INNIN then
+        abilityLevel = 20
+    end
+
+    local currentLevel = player:getMainJob() == xi.job.NIN and player:getMainLvl() or player:getSubLvl()
+    return currentLevel >= abilityLevel, effectiveness
+end
+
+-- Get job-specific abilities list
+xi.job_utils.ninja.getJobAbilities = function(player)
+    local hasAccess, effectiveness = xi.job_utils.ninja.validateJobAccess(player)
+    if not hasAccess then
+        return {}
+    end
+
+    local abilities = {
+        'Mijin Gakure', 'Innin', 'Yonin', 'Futae', 'Sange', 'Mikage'
+    }
+    
+    return abilities
 end
 
 return xi.job_utils.ninja

@@ -31,7 +31,7 @@ namespace version
     // Git information (inline constexpr definitions)
     [[nodiscard]] constexpr std::string_view GetGitSha() noexcept
     {
-        return "95ee7be6-dirty";
+        return "7ca77062-dirty";
     }
     [[nodiscard]] constexpr std::string_view GetGitBranch() noexcept
     {
@@ -39,11 +39,11 @@ namespace version
     }
     [[nodiscard]] constexpr std::string_view GetGitDate() noexcept
     {
-        return "Mon Sep 8 14:36:35 2025";
+        return "Mon Sep 8 15:12:17 2025";
     }
     [[nodiscard]] constexpr std::string_view GetGitCommitSubject() noexcept
     {
-        return "Achieve 100% database function coverage across all 22 jobs";
+        return "Fix build system dependencies - achieve 100% success rate";
     }
 
     // Enhanced version information

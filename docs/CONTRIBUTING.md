@@ -18,7 +18,7 @@
 
 ## License
 
-- We operate under [GNU General Public License v3.0](https://github.com/LandSandBoat/server/blob/base/LICENSE).
+- We operate under [GNU General Public License v3.0](LICENSE).
 - We do not accept contributions that use other more restrictive licenses (such as AGPLv3).
 
 ## General Guidelines
@@ -29,7 +29,7 @@
 
 ## Technical Guidelines
 
-- For more specific guides on how to contribute using Git, GitHub, C++, Lua, SQL, Python, other technical changes, and how to style your code, etc. please see the [Development Guide](https://github.com/LandSandBoat/server/wiki/Development-Guide) and [Development Landing Page](https://github.com/LandSandBoat/server/wiki/Development) as well as other pages in the [Wiki](https://github.com/LandSandBoat/server/wiki).
+- For more specific guides on how to contribute using Git, GitHub, C++, Lua, SQL, Python, other technical changes, and how to style your code, etc. please see the [Development Guide](development/) and other development documentation in this repository.
 
 ### 🌐 Web Interface and Monitoring
 
@@ -82,7 +82,7 @@ tools/enhanced_ci_pipeline.sh all
 
 ## Pull Request Contributions
 
-All contributions must be done through pull requests to the LandSandBoat repository. We don't take fixes from Discord to apply ourselves. If you need help with making a pull request, there is a GitHub guide on how to do so.
+All contributions must be done through pull requests to this repository. We don't take fixes from Discord to apply ourselves. If you need help with making a pull request, there is a GitHub guide on how to do so.
 
 We prefer submitting early and often, over monolithic and once. If you're implementing a complex feature, please try to submit PRs as you get each smaller functional aspect working (use your best judgment on what counts as a useful PR). This way we can help make sure you're on the right track before you sink a lot of time into implementations we might want done in a different way.
 

@@ -274,3 +274,17 @@ xi_connect.dSYM
 xi_map.dSYM
 xi_search.dSYM
 ~$*
+
+# Repository organization
+/docs/generated/
+/.github/workflows-backup/
+/.github/workflows-optimized/
+
+# Development artifacts
+/tools/logs/
+/tools/temp/
+*.log.old
+
+# Enhanced build artifacts
+/build-*
+/cmake-build-*

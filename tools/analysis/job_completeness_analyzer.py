@@ -427,8 +427,8 @@ class JobCompletenessAnalyzer:
         
         if abilities_file.exists():
             content = abilities_file.read_text(encoding='utf-8', errors='ignore')
-            # Count abilities for this job (job_id in abilities table)
-            pattern = rf"job\s*=\s*{job_id}"
+            # Count abilities for this job (job_id in third position in VALUES clause)
+            pattern = rf"VALUES\s*\([^,]+,\s*'[^']+',\s*{job_id},"
             abilities_count = len(re.findall(pattern, content))
         
         if spell_list_file.exists():

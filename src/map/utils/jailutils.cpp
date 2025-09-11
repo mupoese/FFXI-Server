@@ -134,7 +134,7 @@ namespace jailutils
         // Set jail variables
         PChar->setCharVar("inJail", cellId);
         PChar->setCharVar("jailTime", static_cast<std::uint32_t>(time(nullptr)));
-        PChar->setCharVar("jailReason", reason.c_str());
+        // Note: jailReason is not stored as char var since setCharVar only accepts int32 values
 
         // Disable player controller
         PChar->PAI->SetController(nullptr);

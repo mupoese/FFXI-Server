@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-12T23:36:58.951420",
+  "timestamp": "2025-09-12T23:42:18.605967",
   "jobs": {
     "warrior": {
       "current_percentage": 100.0,
@@ -106,8 +106,8 @@
       "abilities_total": 6,
       "spells_implemented": 25,
       "spells_total": 25,
-      "lua_functions": 33,
-      "lua_bindings": 25,
+      "lua_functions": 40,
+      "lua_bindings": 31,
       "missing_features": [],
       "enhancement_priorities": []
     },
@@ -172,8 +172,8 @@
       "abilities_total": 12,
       "spells_implemented": 50,
       "spells_total": 50,
-      "lua_functions": 28,
-      "lua_bindings": 33,
+      "lua_functions": 33,
+      "lua_bindings": 38,
       "missing_features": [],
       "enhancement_priorities": []
     },
@@ -183,8 +183,8 @@
       "abilities_total": 8,
       "spells_implemented": 8,
       "spells_total": 8,
-      "lua_functions": 22,
-      "lua_bindings": 9,
+      "lua_functions": 30,
+      "lua_bindings": 16,
       "missing_features": [],
       "enhancement_priorities": []
     },

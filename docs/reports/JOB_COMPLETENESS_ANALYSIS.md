@@ -1,5 +1,5 @@
 # 🎯 COMPREHENSIVE JOB COMPLETENESS ANALYSIS
-**Generated:** 2025-09-12 23:36:58
+**Generated:** 2025-09-12 23:42:18
 **Objective:** Achieve 100% completeness for all 22 FFXI jobs
 
 ## 📊 Executive Summary
@@ -23,14 +23,14 @@
 | **Paladin** | 100.0% | 13/12 | 20/20 | 37 | 🔵 LOW |
 | **Dark Knight** | 100.0% | 12/10 | 15/15 | 39 | 🔵 LOW |
 | **Beastmaster** | 100.0% | 131/8 | N/A | 49 | 🔵 LOW |
-| **Bard** | 100.0% | 6/6 | 25/25 | 33 | 🔵 LOW |
+| **Bard** | 100.0% | 6/6 | 25/25 | 40 | 🔵 LOW |
 | **Ranger** | 100.0% | 21/12 | N/A | 54 | 🔵 LOW |
 | **Samurai** | 100.0% | 21/10 | N/A | 39 | 🔵 LOW |
 | **Ninja** | 100.0% | 8/8 | 37/37 | 44 | 🔵 LOW |
 | **Dragoon** | 100.0% | 27/10 | N/A | 66 | 🔵 LOW |
 | **Summoner** | 100.0% | 10/10 | 30/30 | 42 | 🔵 LOW |
-| **Blue Mage** | 100.0% | 6/12 | 50/50 | 28 | 🔵 LOW |
-| **Corsair** | 100.0% | 8/8 | 8/8 | 22 | 🔵 LOW |
+| **Blue Mage** | 100.0% | 6/12 | 50/50 | 33 | 🔵 LOW |
+| **Corsair** | 100.0% | 8/8 | 8/8 | 30 | 🔵 LOW |
 | **Puppetmaster** | 100.0% | 21/10 | N/A | 39 | 🔵 LOW |
 | **Dancer** | 100.0% | 12/12 | N/A | 37 | 🔵 LOW |
 | **Scholar** | 100.0% | 12/10 | 40/40 | 45 | 🔵 LOW |

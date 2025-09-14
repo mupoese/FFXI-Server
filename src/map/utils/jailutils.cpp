@@ -129,7 +129,8 @@ namespace jailutils
             cellId = 1;
         }
 
-        auto cell = jailCells[cellId - 1];
+        // TODO: Implement position setting using jailCells[cellId - 1] coordinates
+        // auto cell = jailCells[cellId - 1];
 
         // Set jail variables
         PChar->setCharVar("inJail", cellId);

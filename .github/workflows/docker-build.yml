@@ -383,6 +383,10 @@ jobs:
           docker system prune -f
           docker volume prune -f
 
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
   docker-security-scan:
     runs-on: ubuntu-24.04
     needs: docker-build

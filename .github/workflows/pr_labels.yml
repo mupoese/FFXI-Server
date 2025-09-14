@@ -9,6 +9,10 @@ on:
       - synchronize
       - reopened
 
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 jobs:
   Check_Blocking_Labels:
     runs-on: ubuntu-latest

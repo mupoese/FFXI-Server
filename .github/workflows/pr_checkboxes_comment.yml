@@ -6,6 +6,10 @@ on:
   issues:
     types: [ opened ]
 
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 jobs:
   Check_Checkboxes:
     runs-on: ubuntu-latest

@@ -2833,6 +2833,23 @@ end
 function CBaseEntity:clearEnmityForEntity(PEntity)
 end
 
+---@param target CBaseEntity
+---@return table {ce: integer, ve: integer}
+function CBaseEntity:getEnmityTowardsTarget(target)
+end
+
+---@param source CBaseEntity
+---@param targetFlags integer
+---@return boolean
+function CBaseEntity:isValidTarget(source, targetFlags)
+end
+
+---@param target CBaseEntity
+---@param range number
+---@return boolean
+function CBaseEntity:isWithinRange(target, range)
+end
+
 ---@param effectID integer|CStatusEffect
 ---@param power number
 ---@param tick number
